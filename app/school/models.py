@@ -56,7 +56,7 @@ class Clase(models.Model):
         (LEVEL_SECONDARY, 'Secondary')
     ]
 
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    # school = models.ForeignKey(School, on_delete=models.CASCADE)
     grade =  models.CharField(max_length=1, choices=GRADE_CHOICES, null=True, blank=True)
     level = models.CharField(max_length=1, choices=LEVEL_CHOICES)
     section = models.CharField(max_length=1, default='A')
@@ -78,11 +78,28 @@ class Student(models.Model):
 
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    uid = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+    
+class Atendance(models.Model):
+
+    STATUS_CHOICES = [
+        ('O', 'On Time'),
+        ('L', 'Late'),
+        ('N', 'Not Attended'),
+        ('E', 'Excused'),
+        ('L', 'Left Early'),
+    ]
+
+    created_at = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    student = models.ForeignKey(Student, on_delete=models.PROTECT, related_name='atendances')
+    hour = models.TimeField(null=True, blank=True)
+    created_by = models.CharField(max_length=255)
 
 class Tutor(models.Model):
 
@@ -138,18 +155,6 @@ class Activity(models.Model):
     def __str__(self):
         return self.title
     
-class Atendance(models.Model):
-
-    STATUS_CHOICES = [
-        ('L', 'Late'),
-        ('N', 'Not Attended'),
-    ]
-
-    created_at = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    student = models.ForeignKey(Student, on_delete=models.PROTECT, related_name='atendances')
-    hour = models.TimeField(null=True, blank=True)
-    created_by = models.CharField(max_length=255)
 
 class Grade(models.Model):
 

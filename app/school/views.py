@@ -25,8 +25,13 @@ class ClaseViewSet(ModelViewSet):
     serializer_class = serializers.ClaseSerializer
 
 class InstructorViewSet(ModelViewSet):
-    queryset = models.Instructor.objects.all()
-    serializer_class = serializers.InstructorSerializer
+    queryset = models.Instructor.objects.select_related('user').prefetch_related('clases')
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateInstructorSerializer
+        return serializers.GetInstructorSerializer
+        
 
 class StudentViewSet(ModelViewSet):
     queryset = models.Student.objects.all()

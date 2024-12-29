@@ -47,10 +47,15 @@ class CreateAtendanceSerializer(serializers.ModelSerializer):
         model = models.Atendance
         fields = ['id', 'student', 'status', 'created_by']
 
-class StudentSerializer(serializers.ModelSerializer):
+class GetStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Student
-        fields = '__all__'
+        fields = ['id', 'first_name', 'last_name', 'uid']
+
+class CreateStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Student
+        fields = ['id', 'first_name', 'last_name', 'uid', 'clase']
 
 class TutorSerializer(serializers.ModelSerializer):
     class Meta:

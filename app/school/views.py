@@ -42,8 +42,12 @@ class AtendanceViewSet(ModelViewSet):
         
 
 class StudentViewSet(ModelViewSet):
-    queryset = models.Student.objects.all()
-    serializer_class = serializers.StudentSerializer  
+    queryset = models.Student.objects.select_related('clase')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateStudentSerializer
+        return serializers.GetStudentSerializer
 
 class TutorViewSet(ModelViewSet):
     queryset = models.Tutor.objects.all()

@@ -87,7 +87,7 @@ class Student(models.Model):
     last_name = models.CharField(max_length=255)
     uid = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')
-    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
+    # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

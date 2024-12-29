@@ -1,3 +1,4 @@
+from datetime import date
 from rest_framework import serializers
 from . import models
 
@@ -9,7 +10,7 @@ class AreaSerializer(serializers.ModelSerializer):
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.School
-        fields = '__all__'
+        fields = ['id']
 
 class CompetenceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,18 +22,32 @@ class CapacitySerializer(serializers.ModelSerializer):
         model = models.Capacity
         fields = '__all__'
 
-class ClaseSerializer(serializers.ModelSerializer):
+class GetClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clase
-        fields = '__all__'
+        fields = ['id', 'grade', 'level', 'section', 'students']
+
+class CreateClaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Clase
+        fields = ['id', 'grade', 'level', 'section']
 
 class GetInstructorSerializer(serializers.ModelSerializer):
 
+    clases_details = serializers.SerializerMethodField()
+
     class Meta: 
         model = models.Instructor
-        fields = ['id', 'user', 'clases', 'first_name', 'last_name']
+        fields = ['id', 'user', 'clases_details', 'first_name', 'last_name']
+
+    def get_clases_details(self, obj):
+        return [
+            f"{clase.grade}-{clase.section}-{clase.level}-{clase.id}"
+            for clase in obj.clases.all()
+        ]
 
 class CreateInstructorSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = models.Instructor
         fields = ['id', 'user', 'clases']
@@ -40,7 +55,12 @@ class CreateInstructorSerializer(serializers.ModelSerializer):
 class GetAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Atendance
-        fields = ['id', 'student', 'date', 'status', 'created_by', 'created_at', 'updated_at']
+        fields = ['id', 'student', 'status', 'created_by', 'created_at', 'updated_at']
+
+class SimpleAtendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Atendance
+        fields = ['id', 'status']
 
 class CreateAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,9 +68,19 @@ class CreateAtendanceSerializer(serializers.ModelSerializer):
         fields = ['id', 'student', 'status', 'created_by']
 
 class GetStudentSerializer(serializers.ModelSerializer):
+
+    attendance = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Student
-        fields = ['id', 'first_name', 'last_name', 'uid']
+        fields = ['id', 'first_name', 'last_name', 'uid', 'attendance']
+
+    def get_attendance(self, obj):
+        
+        if obj.today_attendance:
+            attendance = models.Atendance.objects.get(id=obj.today_attendance)
+            return SimpleAtendanceSerializer(attendance).data
+        return None
 
 class CreateStudentSerializer(serializers.ModelSerializer):
     class Meta:

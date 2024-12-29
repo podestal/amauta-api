@@ -1,5 +1,8 @@
+from datetime import date
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
+from django.db.models import Prefetch
+from django.db.models import Subquery, OuterRef
 
 from . import models
 from . import serializers
@@ -21,8 +24,12 @@ class CapacityViewSet(ModelViewSet):
     serializer_class = serializers.CapacitySerializer
 
 class ClaseViewSet(ModelViewSet):
-    queryset = models.Clase.objects.all()
-    serializer_class = serializers.ClaseSerializer
+    queryset = models.Clase.objects.prefetch_related('students')
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateClaseSerializer
+        return serializers.GetClaseSerializer
 
 class InstructorViewSet(ModelViewSet):
     queryset = models.Instructor.objects.select_related('user').prefetch_related('clases')
@@ -42,7 +49,20 @@ class AtendanceViewSet(ModelViewSet):
         
 
 class StudentViewSet(ModelViewSet):
-    queryset = models.Student.objects.select_related('clase')
+
+    def get_queryset(self):
+
+        today = date.today()
+
+        today_attendance = models.Atendance.objects.filter(
+            student=OuterRef('pk'),
+            created_at__date=today
+        ).order_by('id')
+
+        return (
+            models.Student.objects.select_related('clase')
+            .annotate(today_attendance=Subquery(today_attendance.values('id')[:1]))
+        )
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

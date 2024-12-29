@@ -28,22 +28,24 @@ class ClaseSerializer(serializers.ModelSerializer):
 
 class GetInstructorSerializer(serializers.ModelSerializer):
 
-    clase_name = serializers.SerializerMethodField()
-
     class Meta: 
         model = models.Instructor
-        fields = ['id', 'user', 'clase_name', 'first_name', 'last_name']
-
-    def get_clase_name(self, obj):
-        return [
-            f'{clase.grade}-{clase.section}-{clase.level}' 
-            for clase in obj.clases.all()
-        ]
+        fields = ['id', 'user', 'clases', 'first_name', 'last_name']
 
 class CreateInstructorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Instructor
-        fields = ['user', 'clases']
+        fields = ['id', 'user', 'clases']
+
+class GetAtendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Atendance
+        fields = ['id', 'student', 'date', 'status', 'created_by', 'created_at', 'updated_at']
+
+class CreateAtendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Atendance
+        fields = ['id', 'student', 'status', 'created_by']
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -68,11 +70,6 @@ class AssignatureSerializer(serializers.ModelSerializer):
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Activity
-        fields = '__all__'
-
-class AtendanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Atendance
         fields = '__all__'
 
 class GradeSerializer(serializers.ModelSerializer):

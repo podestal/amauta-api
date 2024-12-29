@@ -31,6 +31,14 @@ class InstructorViewSet(ModelViewSet):
         if self.request.method == 'POST':
             return serializers.CreateInstructorSerializer
         return serializers.GetInstructorSerializer
+    
+class AtendanceViewSet(ModelViewSet):
+    queryset = models.Atendance.objects.select_related('student')
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateAtendanceSerializer
+        return serializers.GetAtendanceSerializer
         
 
 class StudentViewSet(ModelViewSet):
@@ -53,9 +61,6 @@ class ActivityViewSet(ModelViewSet):
     queryset = models.Activity.objects.all()
     serializer_class = serializers.ActivitySerializer  
 
-class AtendanceViewSet(ModelViewSet):
-    queryset = models.Atendance.objects.all()
-    serializer_class = serializers.AtendanceSerializer  
 
 class GradeViewSet(ModelViewSet):
     queryset = models.Grade.objects.all()

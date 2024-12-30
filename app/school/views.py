@@ -1,6 +1,9 @@
 from datetime import date
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from django.db.models import Prefetch
 from django.db.models import Subquery, OuterRef
 
@@ -39,6 +42,16 @@ class InstructorViewSet(ModelViewSet):
             return serializers.CreateInstructorSerializer
         return serializers.GetInstructorSerializer
     
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        user = self.request.user
+        try:
+            instructor = self.queryset.get(user=user)
+        except:
+            raise NotFound("Instructor not found for the current user.")
+        serializer = serializers.GetInstructorSerializer(instructor)
+        return Response(serializer.data)
+    
 class AtendanceViewSet(ModelViewSet):
     queryset = models.Atendance.objects.select_related('student')
     
@@ -68,6 +81,16 @@ class StudentViewSet(ModelViewSet):
         if self.request.method == 'POST':
             return serializers.CreateStudentSerializer
         return serializers.GetStudentSerializer
+    
+    @action(detail=False, methods=['get'])
+    def byClassroom(self, request):
+        classroom = request.query_params.get('classroom')
+        if not classroom:
+            return Response({"error": "Classroom parameter is required"}, status=400)
+        students = self.get_queryset().filter(clase=classroom)
+        serializer = serializers.GetStudentSerializer(students, many=True)
+        return Response(serializer.data)
+
 
 class TutorViewSet(ModelViewSet):
     queryset = models.Tutor.objects.all()

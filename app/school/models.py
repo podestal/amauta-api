@@ -99,7 +99,7 @@ class Atendance(models.Model):
         ('L', 'Late'),
         ('N', 'Not Attended'),
         ('E', 'Excused'),
-        ('E', 'Left Early'),
+        ('T', 'Left Early'),
     ]
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -107,6 +107,7 @@ class Atendance(models.Model):
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     student = models.ForeignKey(Student, on_delete=models.PROTECT, related_name='atendances')
     created_by = models.CharField(max_length=255)
+    observations = models.TextField(null=True, blank=True)
 
 class Tutor(models.Model):
 

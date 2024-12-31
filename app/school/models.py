@@ -83,9 +83,9 @@ class Instructor(models.Model):
     
 class Student(models.Model):
 
+    uid = models.CharField(max_length=255, primary_key=True, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    uid = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')
     # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
 
@@ -105,7 +105,7 @@ class Atendance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
-    student = models.ForeignKey(Student, on_delete=models.PROTECT, related_name='atendances')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, to_field='uid', related_name='atendances')
     created_by = models.CharField(max_length=255)
     observations = models.TextField(null=True, blank=True)
 

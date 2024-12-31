@@ -73,7 +73,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Student
-        fields = ['id', 'first_name', 'last_name', 'uid', 'attendance']
+        fields = ['first_name', 'last_name', 'uid', 'attendance']
 
     def get_attendance(self, obj):
         
@@ -85,7 +85,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
 class CreateStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Student
-        fields = ['id', 'first_name', 'last_name', 'uid', 'clase']
+        fields = ['first_name', 'last_name', 'uid', 'clase']
 
 class TutorSerializer(serializers.ModelSerializer):
     class Meta:

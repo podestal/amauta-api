@@ -68,7 +68,7 @@ class StudentViewSet(ModelViewSet):
         today = date.today()
 
         today_attendance = models.Atendance.objects.filter(
-            student=OuterRef('pk'),
+            student=OuterRef('uid'),
             created_at__date=today
         ).order_by('id')
 

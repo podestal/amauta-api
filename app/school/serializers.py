@@ -73,7 +73,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'attendance']
+        fields = ['first_name', 'last_name', 'uid', 'attendance', 'tutor_phone']
 
     def get_attendance(self, obj):
         
@@ -85,7 +85,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
 class CreateStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'clase']
+        fields = ['first_name', 'last_name', 'uid', 'clase','tutor_phone']
 
 class TutorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -117,7 +117,12 @@ class QuarterGradeSerializer(serializers.ModelSerializer):
         model = models.QuarterGrade
         fields = '__all__'
 
-class AnnouncementSerializer(serializers.ModelSerializer):
+class GetAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Announcement
-        fields = '__all__'
+        fields = ['id', 'title', 'description', 'created_at', 'student']
+
+class CreateAnnouncementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Announcement
+        fields = ['id', 'title', 'description', 'student']

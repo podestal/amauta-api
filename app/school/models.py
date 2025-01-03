@@ -87,6 +87,7 @@ class Student(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')
+    tutor_phone = models.CharField(max_length=255)
     # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
 
     def __str__(self):
@@ -209,5 +210,4 @@ class Announcement(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateField(auto_now_add=True)
-    clase = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='announcements')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='announcements')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='announcements')

@@ -118,5 +118,9 @@ class QuarterGradeViewSet(ModelViewSet):
     serializer_class = serializers.QuarterGradeSerializer  
 
 class AnnouncementViewSet(ModelViewSet):
-    queryset = models.Announcement.objects.all()
-    serializer_class = serializers.AnnouncementSerializer  
+    queryset = models.Announcement.objects.select_related('student')
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateAnnouncementSerializer
+        return serializers.GetAnnouncementSerializer

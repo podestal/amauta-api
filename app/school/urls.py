@@ -17,6 +17,6 @@ router.register('student', views.StudentViewSet, basename='student')
 router.register('atendance', views.AtendanceViewSet)
 # router.register('grade', views.GradeViewSet)
 # router.register('quarter-grade', views.QuarterGradeViewSet)
-# router.register('announcement', views.AnnouncementViewSet)
+router.register('announcement', views.AnnouncementViewSet)
 
 urlpatterns = router.urls

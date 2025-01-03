@@ -118,9 +118,19 @@ class QuarterGradeViewSet(ModelViewSet):
     serializer_class = serializers.QuarterGradeSerializer  
 
 class AnnouncementViewSet(ModelViewSet):
+
     queryset = models.Announcement.objects.select_related('student')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateAnnouncementSerializer
         return serializers.GetAnnouncementSerializer
+    
+    @action(detail=False, methods=['get'])
+    def byStudent(self, request):
+        student = request.query_params.get('student')
+        if not student:
+            return Response({"error": "Student parameter is required"}, status=400)
+        announcements = self.queryset.filter(student=student)
+        serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
+        return Response(serializer.data)

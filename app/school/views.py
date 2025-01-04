@@ -59,6 +59,15 @@ class AtendanceViewSet(ModelViewSet):
         if self.request.method == 'POST':
             return serializers.CreateAtendanceSerializer
         return serializers.GetAtendanceSerializer
+
+    @action(detail=False, methods=['get'])
+    def byClassroom(self, request):
+        classroom = request.query_params.get('classroom')
+        if not classroom:
+            return Response({"error": "Classroom parameter is required"}, status=400)
+        attendances = self.queryset.filter(student__clase=classroom)
+        serializer = serializers.GetAtendanceSerializer(attendances, many=True)
+        return Response(serializer.data)
         
 
 class StudentViewSet(ModelViewSet):

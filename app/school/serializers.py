@@ -57,6 +57,11 @@ class GetAtendanceSerializer(serializers.ModelSerializer):
         model = models.Atendance
         fields = ['id', 'student', 'status', 'created_by', 'created_at', 'updated_at', 'observations']
 
+class GetSimpleAttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Atendance
+        fields = ['id', 'status', 'student']
+
 class SimpleAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Atendance

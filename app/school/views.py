@@ -65,8 +65,8 @@ class AtendanceViewSet(ModelViewSet):
         classroom = request.query_params.get('classroom')
         if not classroom:
             return Response({"error": "Classroom parameter is required"}, status=400)
-        attendances = self.queryset.filter(student__clase=classroom)
-        serializer = serializers.GetAtendanceSerializer(attendances, many=True)
+        attendances = self.queryset.filter(student__clase=classroom, created_at__date=date.today())
+        serializer = serializers.GetSimpleAttendanceSerializer(attendances, many=True)
         return Response(serializer.data)
         
 

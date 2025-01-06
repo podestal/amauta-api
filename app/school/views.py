@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.db.models import Prefetch
-from django.db.models import Subquery, OuterRef
+from django.db.models import Subquery, OuterRef, BigIntegerField
 
 from . import models
 from . import serializers
@@ -83,7 +83,7 @@ class StudentViewSet(ModelViewSet):
 
         return (
             models.Student.objects.select_related('clase')
-            .annotate(today_attendance=Subquery(today_attendance.values('id')[:1]))
+            .annotate(today_attendance=Subquery(today_attendance.values('id')[:1], output_field=BigIntegerField()))
         )
 
     def get_serializer_class(self):

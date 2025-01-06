@@ -20,4 +20,6 @@ CORS_ALLOWED_ORIGINS.extend(
     filter(None, os.environ.get("DJANGO_CORS_ALLOWED_ORIGINS", "").split(","))
 )
 
+CORS_ALLOW_CREDENTIALS = True
+
 STATIC_ROOT = "/app/amauta/staticfiles"

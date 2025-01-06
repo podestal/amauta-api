@@ -97,6 +97,8 @@ class StudentViewSet(ModelViewSet):
         if not classroom:
             return Response({"error": "Classroom parameter is required"}, status=400)
         students = self.get_queryset().filter(clase=classroom)
+        if not students:
+            return Response({"error": "Not student found"}, status=400)
         serializer = serializers.GetStudentSerializer(students, many=True)
         return Response(serializer.data)
 

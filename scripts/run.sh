@@ -19,6 +19,6 @@ python manage.py migrate
 # --enable-threads: Allows threads to be used within worker processes.
 # --module app.wsgi: Specifies the WSGI application module (app.wsgi) to use.
 # gunicorn moneyTracker.wsgi:application --bind 0.0.0.0:8000
-# gunicorn amauta.wsgi:application --bind 0.0.0.0:8000 --timeout=5 --threads=10
+# daphne -b 0.0.0.0 -p 8000 amauta.asgi:application
+gunicorn amauta.wsgi:application --bind 0.0.0.0:8000 --timeout=5 --threads=10
 
-daphne -b 0.0.0.0 -p 8000 amauta.asgi:application

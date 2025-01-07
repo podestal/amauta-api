@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.db.models import Prefetch
-from django.db.models import Subquery, OuterRef, CharField
+from django.db.models import Subquery, OuterRef, TextField
 
 from . import models
 from . import serializers
@@ -71,26 +71,29 @@ class AtendanceViewSet(ModelViewSet):
         
 
 class StudentViewSet(ModelViewSet):
-
     def get_queryset(self):
-
+        
         today = date.today()
 
         today_attendance = models.Atendance.objects.filter(
-            student=OuterRef('uid'),
+            student=OuterRef('uid'), 
             created_at__date=today
         ).order_by('id')
 
         return (
             models.Student.objects.select_related('clase')
-            .annotate(today_attendance=Subquery(today_attendance.values('id')[:1], output_field=CharField()))
+            .annotate(
+                today_attendance=Subquery(
+                    today_attendance.values('id')[:1]
+                )
+            )
         )
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateStudentSerializer
         return serializers.GetStudentSerializer
-    
+
     @action(detail=False, methods=['get'])
     def byClassroom(self, request):
         classroom = request.query_params.get('classroom')
@@ -99,12 +102,13 @@ class StudentViewSet(ModelViewSet):
         
         try:
             classroom = int(classroom)
-        except:
+        except ValueError:
             return Response({"error": "Classroom parameter must be an integer"}, status=400)
 
         students = self.get_queryset().filter(clase=classroom)
-        if not students:
-            return Response({"error": "Not student found"}, status=400)
+        if not students.exists():
+            return Response({"error": "No students found"}, status=400)
+
         serializer = serializers.GetStudentSerializer(students, many=True)
         return Response(serializer.data)
 

@@ -83,7 +83,7 @@ class Instructor(models.Model):
     
 class Student(models.Model):
 
-    uid = models.BigIntegerField(max_length=255, primary_key=True, unique=True)
+    uid = models.BigIntegerField(primary_key=True, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')

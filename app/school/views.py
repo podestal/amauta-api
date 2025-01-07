@@ -72,7 +72,7 @@ class AtendanceViewSet(ModelViewSet):
 
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):
-        
+
         today = date.today()
 
         today_attendance = models.Atendance.objects.filter(
@@ -114,8 +114,12 @@ class StudentViewSet(ModelViewSet):
 
 
 class TutorViewSet(ModelViewSet):
-    queryset = models.Tutor.objects.all()
-    serializer_class = serializers.TutorSerializer  
+    queryset = models.Tutor.objects.select_related('user').prefetch_related('students')
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateTutorSerializer
+        return serializers.GetTutorSerializer
 
 class CategoryViewSet(ModelViewSet):
     queryset = models.Category.objects.all()

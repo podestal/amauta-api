@@ -120,12 +120,15 @@ class Tutor(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     students = models.ManyToManyField(Student, related_name='tutors')
-    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='tutors')
+    # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='tutors')
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
+    phone_number = models.CharField(max_length=255, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    email = models.EmailField(null=True, blank=True)
 
-    # def __str__(self):
-    #     return f'{self.first_name} {self.last_name}'
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'
     
 class Category(models.Model):
 

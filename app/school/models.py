@@ -103,9 +103,15 @@ class Atendance(models.Model):
         ('T', 'Left Early'),
     ]
 
+    TYPE_CHOICES = [
+        ('A', 'Automatic'), 
+        ('M', 'Manual')
+    ]
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    attendance_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
     student = models.ForeignKey(Student, on_delete=models.CASCADE, to_field='uid', related_name='atendances')
     created_by = models.CharField(max_length=255)
     observations = models.TextField(null=True, blank=True)

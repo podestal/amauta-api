@@ -95,7 +95,7 @@ class CreateStudentSerializer(serializers.ModelSerializer):
 class GetTutorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Tutor
-        fields = ['id', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email']
+        fields = ['id', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'can_access']
 
 class CreateTutorSerializer(serializers.ModelSerializer):
     class Meta:

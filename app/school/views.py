@@ -120,6 +120,16 @@ class TutorViewSet(ModelViewSet):
         if self.request.method == 'POST':
             return serializers.CreateTutorSerializer
         return serializers.GetTutorSerializer
+    
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        user = self.request.user
+        try:
+            tutor = self.queryset.get(user=user)
+        except:
+            return Response({"error": "Tutor not found for the current user"}, status=404)
+        serializer = serializers.GetTutorSerializer(tutor)
+        return Response(serializer.data)
 
 class CategoryViewSet(ModelViewSet):
     queryset = models.Category.objects.all()

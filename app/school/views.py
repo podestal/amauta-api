@@ -114,9 +114,10 @@ class StudentViewSet(ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def byTutor(self, request):
-        tutor_id = request.query.params.get('tutor')
-        try:
-            tutor = models.Tutor.get(pk=tutor_id)
+
+        user_id = request.user.id
+        try: 
+            tutor = models.Tutor.objects.get(user_id=user_id)
             students = tutor.students.all()
             serializer = serializers.GetStudentForTutorSerializer(students, many=True)
             return Response(serializer.data)

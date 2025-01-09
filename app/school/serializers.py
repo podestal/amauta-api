@@ -27,6 +27,11 @@ class GetClaseSerializer(serializers.ModelSerializer):
         model = models.Clase
         fields = ['id', 'grade', 'level', 'section', 'students']
 
+class GetSimpleClaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Clase
+        fields = ['id', 'grade', 'level', 'section']
+
 class CreateClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clase
@@ -86,6 +91,18 @@ class GetStudentSerializer(serializers.ModelSerializer):
             attendance = models.Atendance.objects.get(id=obj.today_attendance)
             return SimpleAtendanceSerializer(attendance).data
         return None
+    
+class GetStudentForTutorSerializer(serializers.ModelSerializer):
+
+    clase = GetSimpleClaseSerializer()
+    attendances = serializers.SerializerMethodField()
+
+    class Meta: 
+        model = models.Student
+        fields = ['first_name', 'last_name', 'uid', 'clase', 'attendances']
+
+    def get_attendances(self, obj):
+        return models.Atendance.objects.filter(student=obj.uid).values('status', 'created_at', 'observations')
 
 class CreateStudentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -93,6 +110,9 @@ class CreateStudentSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'uid', 'clase','tutor_phone']
 
 class GetTutorSerializer(serializers.ModelSerializer):
+
+    students = GetStudentForTutorSerializer(many=True)
+
     class Meta:
         model = models.Tutor
         fields = ['id', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'can_access']

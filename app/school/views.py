@@ -111,6 +111,17 @@ class StudentViewSet(ModelViewSet):
 
         serializer = serializers.GetStudentSerializer(students, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byTutor(self, request):
+        tutor_id = request.query.params.get('tutor')
+        try:
+            tutor = models.Tutor.get(pk=tutor_id)
+            students = tutor.students.all()
+            serializer = serializers.GetStudentForTutorSerializer(students, many=True)
+            return Response(serializer.data)
+        except:
+            return Response({"error": "Tutor not found"}, status=404)
 
 
 class TutorViewSet(ModelViewSet):

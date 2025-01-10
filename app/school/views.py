@@ -181,3 +181,17 @@ class AnnouncementViewSet(ModelViewSet):
         announcements = self.queryset.filter(student=student)
         serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byTutor(self, request):
+        user_id = request.user.id
+        try:
+            tutor = models.Tutor.object.get(user_id=user_id)
+            students = tutor.students.all()
+            announcements = self.queryset.filter(student__in=students)
+            if not announcements.exists():
+                return Response({"error": "No announcements found"}, status=400)
+            serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
+            return Response(serializer.data)
+        except:
+            return Response({"error": "Tutor not found"}, status=404)

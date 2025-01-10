@@ -68,6 +68,17 @@ class AtendanceViewSet(ModelViewSet):
         attendances = self.queryset.filter(student__clase=classroom, created_at__date=date.today())
         serializer = serializers.GetSimpleAttendanceSerializer(attendances, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byStudent(self, request):
+        student_id = request.query_params.get('student')
+        if not student_id:
+            return Response({"error": "Student parameter is required"}, status=400)
+        attendances = self.queryset.filter(student_uid=student_id)
+        if not attendances.exists():
+            return Response([], status=200)
+        serializer = serializers.GetSimpleAttendanceSerializer(attendances, many=True)
+        return Response(serializer.data)
         
 
 class StudentViewSet(ModelViewSet):
@@ -188,11 +199,10 @@ class AnnouncementViewSet(ModelViewSet):
         try:    
             tutor = models.Tutor.objects.get(user_id=user_id)
             students = tutor.students.all()
-            announcements = models.Announcement.objects.filter(student__in=students)
+            announcements = models.Announcement.objects.filter(student__in=students).order_by('-created_at')
             if not announcements.exists():
-                print('No announcements found')
                 return Response([], status=200)
-            serializer = serializers.GetSimpleAnnouncementSerializer(announcements, many=True)
+            serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
             return Response(serializer.data)
 
         except models.Tutor.DoesNotExist:

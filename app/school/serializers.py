@@ -153,11 +153,6 @@ class GetAnnouncementSerializer(serializers.ModelSerializer):
         model = models.Announcement
         fields = ['id', 'title', 'description', 'created_at', 'student']
 
-class GetSimpleAnnouncementSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Announcement
-        fields = ['id']
-
 class CreateAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Announcement

@@ -74,6 +74,7 @@ class AtendanceViewSet(ModelViewSet):
     def byStudent(self, request):
         student_id = request.query_params.get('student')
         month = request.query_params.get('month')
+        print('month', month)
         if not month:
             month = datetime.today().month
         student = get_object_or_404(models.Student, uid=student_id)

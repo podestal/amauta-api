@@ -221,3 +221,4 @@ class Announcement(models.Model):
     description = models.TextField()
     created_at = models.DateField(auto_now_add=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='announcements')
+    created_by = models.TextField()

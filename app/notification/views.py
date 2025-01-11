@@ -1,15 +1,20 @@
 from django.http import JsonResponse
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.decorators import login_required
+from rest_framework.permissions import IsAuthenticated
 import json
 
 from .models import PushSubscription
 
 @csrf_exempt
-@login_required
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def save_subscription(request):
+    print('save subscription ...')
     if request.method == "POST":
         try:
+            print('try ...')
             data = json.loads(request.body)
             user = request.user
 
@@ -22,8 +27,8 @@ def save_subscription(request):
                 },
             )
 
-            return JsonResponse({"success": True, "created": created})
+            return Response({"success": True, "created": created})
 
         except (KeyError, json.JSONDecodeError) as e:
-            return JsonResponse({"success": False, "error": str(e)}, status=400)
-    return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
+            return Response({"success": False, "error": str(e)}, status=400)
+    return Response({"success": False, "error": "Invalid request method"}, status=405)

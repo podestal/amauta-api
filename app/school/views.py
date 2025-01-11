@@ -1,11 +1,12 @@
 from datetime import date
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.db.models import Prefetch
 from django.db.models import Subquery, OuterRef, TextField
+from datetime import datetime
 
 from . import models
 from . import serializers
@@ -72,12 +73,14 @@ class AtendanceViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byStudent(self, request):
         student_id = request.query_params.get('student')
-        if not student_id:
-            return Response({"error": "Student parameter is required"}, status=400)
-        attendances = self.queryset.filter(student_uid=student_id)
+        month = request.query_params.get('month')
+        if not month:
+            month = datetime.today().month
+        student = get_object_or_404(models.Student, uid=student_id)
+        attendances = self.queryset.filter(student=student, created_at__month=month).order_by('-created_at')
         if not attendances.exists():
-            return Response([], status=200)
-        serializer = serializers.GetSimpleAttendanceSerializer(attendances, many=True)
+            return Response([])
+        serializer = serializers.GetAtendanceSerializer(attendances, many=True)
         return Response(serializer.data)
         
 

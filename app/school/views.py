@@ -96,7 +96,8 @@ class AtendanceViewSet(ModelViewSet):
             subscription = PushSubscription.objects.get(user=tutor.user)
             send_push_notification(subscription, 'Attendance Alert', 'Your student was marked absent')
 
-        return super().create(request, *args, **kwargs)
+        # return super().create(request, *args, **kwargs)
+        return Response({"message": "Attendance created"}, status=201)
 
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):

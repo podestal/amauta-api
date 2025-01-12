@@ -6,20 +6,20 @@ class Command(BaseCommand):
     help = "Assign user group"
 
     def add_arguments(self, parser):
-        parser.add_argument('user_id', type=int, help='User id')
+        parser.add_argument('username', type=str, help='Username')
         parser.add_argument('group_name', type=str, help='Group name')
 
     def handle(self, *args, **kwargs):
-        user_id = kwargs['user_id']
+        username = kwargs['username']
         group_name = kwargs['group_name']
 
         try :
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
             self.stdout.write(self.style.ERROR('User not found'))
             return
 
-        created, group = Group.objects.get_or_create(name=group_name)
+        group, created = Group.objects.get_or_create(name=group_name)
 
         user.groups.add(group)
         user.save()

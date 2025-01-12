@@ -8,6 +8,9 @@ from django.db.models import Prefetch
 from django.db.models import Subquery, OuterRef, TextField
 from datetime import datetime
 
+from notification.push_notifications import send_push_notification
+from notification.models import PushSubscription
+
 from . import models
 from . import serializers
 
@@ -83,6 +86,16 @@ class AtendanceViewSet(ModelViewSet):
             return Response([])
         serializer = serializers.GetAtendanceSerializer(attendances, many=True)
         return Response(serializer.data)
+    
+    # def create(self, request, *args, **kwargs):
+
+    #     student_id = request.data['student']
+    #     student = models.Student.objects.get(uid=student_id)
+    #     tutor = models.Tutor.objects.get(students=student)
+    #     subscription = PushSubscription.objects.get(user=tutor.user)
+
+    #     send_push_notification(subscription, 'New Announcement', 'You have a new announcement')
+    #     return super().create(request, *args, **kwargs)
         
 
 class StudentViewSet(ModelViewSet):
@@ -213,4 +226,14 @@ class AnnouncementViewSet(ModelViewSet):
             return Response({"error": "Tutor not found"}, status=404)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+    def create(self, request, *args, **kwargs):
+
+        student_id = request.data['student']
+        student = models.Student.objects.get(uid=student_id)
+        tutor = models.Tutor.objects.get(students=student)
+        subscription = PushSubscription.objects.get(user=tutor.user)
+
+        send_push_notification(subscription, 'New Announcement', 'You have a new announcement')
+        return super().create(request, *args, **kwargs)
 

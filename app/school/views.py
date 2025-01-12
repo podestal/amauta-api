@@ -87,16 +87,16 @@ class AtendanceViewSet(ModelViewSet):
         serializer = serializers.GetAtendanceSerializer(attendances, many=True)
         return Response(serializer.data)
     
-    # def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
 
-    #     student_id = request.data['student']
-    #     student = models.Student.objects.get(uid=student_id)
-    #     tutor = models.Tutor.objects.get(students=student)
-    #     subscription = PushSubscription.objects.get(user=tutor.user)
+        if request.data['status'] != 'O':
+            student_id = request.data['student']
+            student = models.Student.objects.get(uid=student_id)
+            tutor = models.Tutor.objects.get(students=student)
+            subscription = PushSubscription.objects.get(user=tutor.user)
+            send_push_notification(subscription, 'Attendance Alert', 'Your student was marked absent')
 
-    #     send_push_notification(subscription, 'New Announcement', 'You have a new announcement')
-    #     return super().create(request, *args, **kwargs)
-        
+        return super().create(request, *args, **kwargs)
 
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):

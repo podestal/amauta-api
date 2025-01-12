@@ -91,13 +91,18 @@ class AtendanceViewSet(ModelViewSet):
 
         if request.data['status'] != 'O':
             student_id = request.data['student']
+            print('student_id', student_id)
             student = models.Student.objects.get(uid=student_id)
+            print('student', student)
             tutor = models.Tutor.objects.get(students=student)
+            print('tutor', tutor)
             subscription = PushSubscription.objects.get(user=tutor.user)
+            print('subscription', subscription)
             send_push_notification(subscription, 'Attendance Alert', 'Your student was marked absent')
+            print('notification sent')
 
         # return super().create(request, *args, **kwargs)
-        return Response({"message": "Attendance created"}, status=201)
+        return Response({"success": True})
 
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):

@@ -96,7 +96,7 @@ class AtendanceViewSet(ModelViewSet):
             print('student', student)
             tutor = models.Tutor.objects.get(students=student)
             print('tutor', tutor)
-            subscriptions = PushSubscription.objects.get(user=tutor.user)
+            subscriptions = PushSubscription.objects.filter(user=tutor.user)
             print('subscription', subscription)
             for subscription in subscriptions:
                 send_push_notification(subscription, 'Attendance Alert', 'Your student was marked absent')

@@ -1,50 +1,60 @@
-import json
-from pywebpush import webpush, WebPushException
-import os
+# import json
+# from pywebpush import webpush, WebPushException
+# import os
 
-VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
-VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY")
-VAPID_CLAIMS = {
-    "sub": "mailto:l.r.p.2991@gmail.com",
-}
+# VAPID_PRIVATE_KEY = os.environ.get("VAPID_PRIVATE_KEY")
+# VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY")
+# VAPID_CLAIMS = {
+#     "sub": "mailto:l.r.p.2991@gmail.com",
+# }
 
-def send_push_notification(subscription, title, body, url=None):
-    payload = {
-        "title": title,
-        "body": body,
-        "url": url,
-    }
+# def send_push_notification(subscription, title, body, url=None):
+#     payload = {
+#         "title": title,
+#         "body": body,
+#         "url": url,
+#     }
 
+#     try:
+#         webpush(
+#             subscription_info={
+#                 "endpoint": subscription.endpoint,
+#                 "keys": {
+#                     "p256dh": subscription.p256dh,
+#                     "auth": subscription.auth,
+#                 },
+#             },
+#             data=json.dumps(payload),
+#             vapid_private_key=VAPID_PRIVATE_KEY,  # Pass the private key as a string
+#             vapid_claims=VAPID_CLAIMS,
+#         )
+#         print("Notification sent!")
+#     except WebPushException as e:
+#         print(f"WebPush Error: {e}")
+#     except ValueError as e:
+#         print(f"Value Error: {e}")
+
+from firebase_admin import messaging
+
+def send_push_notification(token, title, body, data=None):
+    """
+    Sends a push notification to the specified device.
+    
+    :param token: FCM device token
+    :param title: Notification title
+    :param body: Notification body
+    :param data: Optional dictionary with additional data
+    """
     try:
-        webpush(
-            subscription_info={
-                "endpoint": subscription.endpoint,
-                "keys": {
-                    "p256dh": subscription.p256dh,
-                    "auth": subscription.auth,
-                },
-            },
-            data=json.dumps(payload),
-            vapid_private_key=VAPID_PRIVATE_KEY,  # Pass the private key as a string
-            vapid_claims=VAPID_CLAIMS,
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=title,
+                body=body,
+            ),
+            data=data or {},  # Optional custom data payload
+            token=token,
         )
-        print("Notification sent!")
-    except WebPushException as e:
-        print(f"WebPush Error: {e}")
-    except ValueError as e:
-        print(f"Value Error: {e}")
-
-
-# def mark_student_absent(student):
-#     # Mark the student as absent in the database
-#     student.attendance_status = "Absent"
-#     student.save()
-
-#     # Send a push notification to the student's tutor
-#     subscription = PushSubscription.objects.get(user=student.tutor)
-#     send_push_notification(
-#         subscription,
-#         title="Attendance Alert",
-#         body=f"{student.first_name} {student.last_name} was marked absent.",
-#         url="/attendance-details",
-#     )
+        response = messaging.send(message)
+        return {"success": True, "response": response}
+    except Exception as e:
+        return {"success": False, "error": str(e)}

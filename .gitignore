@@ -9,3 +9,4 @@ schema.yml
 htmlcov
 staticfiles
 mediafiles
+firebase_service_account.json

@@ -45,6 +45,8 @@ def send_push_notification(token, title, body, data=None):
     :param body: Notification body
     :param data: Optional dictionary with additional data
     """
+
+    print('device token', token)
     try:
         message = messaging.Message(
             notification=messaging.Notification(
@@ -55,6 +57,8 @@ def send_push_notification(token, title, body, data=None):
             token=token,
         )
         response = messaging.send(message)
+        print(f"Successfully sent message: {response}")
         return {"success": True, "response": response}
     except Exception as e:
+        print(f"Error sending message: {e}")
         return {"success": False, "error": str(e)}

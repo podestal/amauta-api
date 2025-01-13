@@ -9,7 +9,7 @@ from django.db.models import Subquery, OuterRef, TextField
 from datetime import datetime
 
 from notification.push_notifications import send_push_notification
-from notification.models import PushSubscription
+from notification.models import PushSubscription, FCMDevice
 
 from . import models
 from . import serializers
@@ -96,11 +96,10 @@ class AtendanceViewSet(ModelViewSet):
             print('student', student)
             tutor = models.Tutor.objects.get(students=student)
             print('tutor', tutor)
-            subscriptions = PushSubscription.objects.filter(user=tutor.user)
-            print('subscriptions', subscriptions)
-            for subscription in subscriptions:
-                send_push_notification(subscription, 'Attendance Alert', 'Your student was marked absent')
-                print('notification sent')
+            tokens = FCMDevice.objects.filter(user=tutor.user)
+            print('subscriptions', tokens)
+            for token in tokens:
+                send_push_notification(token.device_token, 'Attendance Alert', 'Your student was marked absent')
 
         # return super().create(request, *args, **kwargs)
         return Response({"success": True})

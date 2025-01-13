@@ -164,5 +164,5 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = "/vol/media"
 
 # Firebase Initialization
-FIREBASE_CRED = credentials.Certificate("firebase_service_account.json")
+FIREBASE_CRED = credentials.Certificate(os.path.join(BASE_DIR, "settings/firebase_service_account.json"))
 firebase_admin.initialize_app(FIREBASE_CRED)

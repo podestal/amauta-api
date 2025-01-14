@@ -89,20 +89,32 @@ class AtendanceViewSet(ModelViewSet):
     
     def create(self, request, *args, **kwargs):
 
-        if request.data['status'] != 'O':
-            student_id = request.data['student']
-            print('student_id', student_id)
-            student = models.Student.objects.get(uid=student_id)
-            print('student', student)
-            tutor = models.Tutor.objects.get(students=student)
-            print('tutor', tutor)
-            tokens = FCMDevice.objects.filter(user=tutor.user)
-            print('subscriptions', tokens)
-            for token in tokens:
-                send_push_notification(token.device_token, 'Attendance Alert', 'Your student was marked absent')
+        status = request.data['status']
 
-        # return super().create(request, *args, **kwargs)
-        return Response({"success": True})
+        if status != 'O':
+
+            
+            student_id = request.data['student']
+            student = models.Student.objects.get(uid=student_id)
+
+            tutor = models.Tutor.objects.get(students=student)
+            tokens = FCMDevice.objects.filter(user=tutor.user)
+
+            message = ''
+
+            if status == 'L':
+                message = f'{student.first_name} llegó tarde'
+            elif status == 'N':
+                message = f'{student.first_name} no asistió'
+            elif status == 'T':
+                message = f'{student.first_name} se retiró temprano'
+            elif status == 'E':
+                message = f'{student.first_name} fué excusado'
+
+            for token in tokens:
+                send_push_notification(token.device_token, 'Alerta de Asistencia', message)
+
+        return super().create(request, *args, **kwargs)
 
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):
@@ -237,9 +249,14 @@ class AnnouncementViewSet(ModelViewSet):
 
         student_id = request.data['student']
         student = models.Student.objects.get(uid=student_id)
-        tutor = models.Tutor.objects.get(students=student)
-        subscription = PushSubscription.objects.get(user=tutor.user)
 
-        send_push_notification(subscription, 'New Announcement', 'You have a new announcement')
+        tutor = models.Tutor.objects.get(students=student)
+        tokens = FCMDevice.objects.filter(user=tutor.user)
+
+        message = f'Tienes un nuevo mensaje sobre {student.first_name}'
+
+        for token in tokens:
+                send_push_notification(token.device_token, 'Nuevo Mensaje', )
+        
         return super().create(request, *args, **kwargs)
 

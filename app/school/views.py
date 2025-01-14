@@ -97,7 +97,11 @@ class AtendanceViewSet(ModelViewSet):
             student_id = request.data['student']
             student = models.Student.objects.get(uid=student_id)
 
-            tutor = models.Tutor.objects.get(students=student)
+            try:
+                tutor = models.Tutor.objects.get(students=student)
+            except:
+                return super().create(request, *args, **kwargs)
+            
             tokens = FCMDevice.objects.filter(user=tutor.user)
 
             message = ''
@@ -250,7 +254,11 @@ class AnnouncementViewSet(ModelViewSet):
         student_id = request.data['student']
         student = models.Student.objects.get(uid=student_id)
 
-        tutor = models.Tutor.objects.get(students=student)
+        try:
+            tutor = models.Tutor.objects.get(students=student)
+        except:
+            return super().create(request, *args, **kwargs)
+
         tokens = FCMDevice.objects.filter(user=tutor.user)
 
         message = f'Tienes un nuevo mensaje sobre {student.first_name}'

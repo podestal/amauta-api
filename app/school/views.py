@@ -256,7 +256,7 @@ class AnnouncementViewSet(ModelViewSet):
         message = f'Tienes un nuevo mensaje sobre {student.first_name}'
 
         for token in tokens:
-                send_push_notification(token.device_token, 'Nuevo Mensaje', )
+                send_push_notification(token.device_token, 'Nuevo Mensaje', message)
         
         return super().create(request, *args, **kwargs)
 

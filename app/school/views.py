@@ -1,15 +1,14 @@
 from datetime import date
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
-from django.db.models import Prefetch
-from django.db.models import Subquery, OuterRef, TextField
+from django.db.models import Subquery, OuterRef
 from datetime import datetime
 
 from notification.push_notifications import send_push_notification
-from notification.models import PushSubscription, FCMDevice
+from notification.models import FCMDevice
 
 from . import models
 from . import serializers
@@ -90,12 +89,22 @@ class AtendanceViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
 
         status = request.data['status']
+        student_id = request.data['student']
+        student = models.Student.objects.get(uid=student_id)
+        existing_attendance = models.Atendance.objects.filter(
+            student__uid=student_id,
+            created_at__date=date.today()
+        )
+
+        if existing_attendance.exists():
+            return Response({"error": "Alumno ya fué escaneado"}, status=400)
 
         if status != 'O':
 
-            
-            student_id = request.data['student']
             student = models.Student.objects.get(uid=student_id)
+
+            if not student:
+                return Response({"error": "No se pudo encontrar alumno"}, status=400)
 
             try:
                 tutor = models.Tutor.objects.get(students=student)

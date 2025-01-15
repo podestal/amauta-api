@@ -60,36 +60,36 @@ class CreateInstructorSerializer(serializers.ModelSerializer):
 class GetAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Atendance
-        fields = ['id', 'student', 'status', 'created_by', 'created_at', 'updated_at', 'observations', 'attendance_type']
+        fields = ['id', 'student', 'status', 'created_by', 'created_at', 'updated_at', 'observations', 'attendance_type', 'kind']
 
 class GetSimpleAttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Atendance
-        fields = ['id', 'status', 'student', 'attendance_type']
+        fields = ['id', 'status', 'student', 'attendance_type', 'kind']
 
 class SimpleAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Atendance
-        fields = ['id', 'status', 'observations']
+        fields = ['id', 'status', 'observations', 'kind']
 
 class CreateAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Atendance
-        fields = ['id', 'student', 'status', 'created_by', 'observations', 'attendance_type']
+        fields = ['id', 'student', 'status', 'created_by', 'observations', 'attendance_type', 'kind']
 
 class GetStudentSerializer(serializers.ModelSerializer):
 
-    attendance = serializers.SerializerMethodField()
+    attendances = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'attendance', 'tutor_phone']
+        fields = ['first_name', 'last_name', 'uid', 'attendances', 'tutor_phone']
 
-    def get_attendance(self, obj):
+    def get_attendances(self, obj):
         
         if obj.today_attendance:
-            attendance = models.Atendance.objects.get(id=obj.today_attendance)
-            return SimpleAtendanceSerializer(attendance).data
+            attendances = models.Atendance.objects.filter(id=obj.today_attendance)
+            return SimpleAtendanceSerializer(attendances, many=True).data
         return None
     
 class GetStudentForTutorSerializer(serializers.ModelSerializer):

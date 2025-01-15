@@ -56,6 +56,7 @@ class InstructorViewSet(ModelViewSet):
         return Response(serializer.data)
     
 class AtendanceViewSet(ModelViewSet):
+
     queryset = models.Atendance.objects.select_related('student')
     
     def get_serializer_class(self):
@@ -81,6 +82,7 @@ class AtendanceViewSet(ModelViewSet):
             month = datetime.today().month
         student = get_object_or_404(models.Student, uid=student_id)
         attendances = self.queryset.filter(student=student, created_at__month=month).order_by('-created_at')
+        print(f'{student.first_name} attendances', attendances)
         if not attendances.exists():
             return Response([])
         serializer = serializers.GetAtendanceSerializer(attendances, many=True)
@@ -89,6 +91,7 @@ class AtendanceViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
 
         status = request.data['status']
+        kind = request.data['kind']
         student_id = request.data['student']
         student = models.Student.objects.get(uid=student_id)
         existing_attendance = models.Atendance.objects.filter(
@@ -96,7 +99,12 @@ class AtendanceViewSet(ModelViewSet):
             created_at__date=date.today()
         )
 
-        if existing_attendance.exists():
+        if existing_attendance.count() == 2:
+            print('two attendances', existing_attendance)
+            return Response({"error": "Alumno ya fué escaneado"}, status=400)
+        
+        if existing_attendance.count() == 1 and kind == 'I':
+            print('one attendance and in already', existing_attendance)
             return Response({"error": "Alumno ya fué escaneado"}, status=400)
 
         if status != 'O':
@@ -269,11 +277,8 @@ class AnnouncementViewSet(ModelViewSet):
             return super().create(request, *args, **kwargs)
 
         tokens = FCMDevice.objects.filter(user=tutor.user)
-
         message = f'Tienes un nuevo mensaje sobre {student.first_name}'
-
         for token in tokens:
                 send_push_notification(token.device_token, 'Nuevo Mensaje', message)
-        
         return super().create(request, *args, **kwargs)
 

@@ -88,7 +88,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
     def get_attendances(self, obj):
         
         if obj.today_attendance:
-            attendances = models.Atendance.objects.filter(id=obj.today_attendance)
+            attendances = models.Atendance.objects.filter(created_at__date=date.today(), student=obj.uid)
             return SimpleAtendanceSerializer(attendances, many=True).data
         return None
     

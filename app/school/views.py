@@ -104,7 +104,7 @@ class AtendanceViewSet(ModelViewSet):
         return cache_data
     
     def create(self, request, *args, **kwargs):
-        
+
         status = request.data['status']
         kind = request.data['kind']
         student_id = request.data['student']
@@ -130,7 +130,9 @@ class AtendanceViewSet(ModelViewSet):
             try:
                 tutor = models.Tutor.objects.get(students=student)
             except:
-                return super().create(request, *args, **kwargs)
+                cache = self.save_to_cache(student, kind, status, request)
+                super().create(request, *args, **kwargs)
+                return Response(cache, status=201)
             
             tokens = FCMDevice.objects.filter(user=tutor.user)
 
@@ -147,7 +149,7 @@ class AtendanceViewSet(ModelViewSet):
 
             for token in tokens:
                 send_push_notification(token.device_token, 'Alerta de Asistencia', message)
-            
+
             super().create(request, *args, **kwargs)
         
         cache = self.save_to_cache(student, kind, status, request)

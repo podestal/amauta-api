@@ -26,6 +26,16 @@ CORS_ALLOWED_ORIGINS.extend(
 
 CORS_ALLOW_CREDENTIALS = True
 
+CACHE = {
+    'default': {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("REDIS_URL"),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
 # CORS_ALLOW_HEADERS = list(default_headers) + [
 #     'Session-ID',
 # ]

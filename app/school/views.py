@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django.db.models import Subquery, OuterRef
+from django.core.cache import cache
 from datetime import datetime
 
 from notification.push_notifications import send_push_notification
@@ -88,8 +89,22 @@ class AtendanceViewSet(ModelViewSet):
         serializer = serializers.GetAtendanceSerializer(attendances, many=True)
         return Response(serializer.data)
     
-    def create(self, request, *args, **kwargs):
+    def save_to_cache(self, student, kind, status, request):
 
+        cache_key = f"attendance_{student.uid}_{kind}"
+        cache_data = {
+            "status": status,
+            "kind": kind,
+            "created_by": request.data.get('created_by'),
+            "observations": request.data.get('observations', ''),
+            "created_at": datetime.now().isoformat(),
+        }
+
+        cache.set(cache_key, cache_data, timeout=43200)
+        return cache_data
+    
+    def create(self, request, *args, **kwargs):
+        
         status = request.data['status']
         kind = request.data['kind']
         student_id = request.data['student']
@@ -100,16 +115,14 @@ class AtendanceViewSet(ModelViewSet):
         )
 
         if existing_attendance.count() == 2:
-            print('two attendances', existing_attendance)
             return Response({"error": "Alumno ya fué escaneado"}, status=400)
         
         if existing_attendance.count() == 1 and kind == 'I':
-            print('one attendance and in already', existing_attendance)
             return Response({"error": "Alumno ya fué escaneado"}, status=400)
+        
+        student = models.Student.objects.get(uid=student_id)
 
         if status != 'O':
-
-            student = models.Student.objects.get(uid=student_id)
 
             if not student:
                 return Response({"error": "No se pudo encontrar alumno"}, status=400)
@@ -134,8 +147,12 @@ class AtendanceViewSet(ModelViewSet):
 
             for token in tokens:
                 send_push_notification(token.device_token, 'Alerta de Asistencia', message)
-
-        return super().create(request, *args, **kwargs)
+            
+            super().create(request, *args, **kwargs)
+        
+        cache = self.save_to_cache(student, kind, status, request)
+        return Response(cache, status=201)
+    
 
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):

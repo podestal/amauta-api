@@ -1,5 +1,6 @@
 from datetime import date
 from rest_framework import serializers
+from django.core.cache import cache
 from . import models
 
 class AreaSerializer(serializers.ModelSerializer):
@@ -86,11 +87,17 @@ class GetStudentSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'uid', 'attendances', 'tutor_phone']
 
     def get_attendances(self, obj):
+
+        in_key = f"attendance_{obj.uid}_I"
+        out_key = f"attendance_{obj.uid}_O"
+
+        attendances_in = cache.get(in_key)
+        attendances_out = cache.get(out_key)
         
-        if obj.today_attendance:
-            attendances = models.Atendance.objects.filter(created_at__date=date.today(), student=obj.uid)
-            return SimpleAtendanceSerializer(attendances, many=True).data
-        return None
+        return {
+            "In": attendances_in if attendances_in is not None else "",
+            "Out": attendances_out if attendances_out is not None else ""
+        }
     
 class GetStudentForTutorSerializer(serializers.ModelSerializer):
 

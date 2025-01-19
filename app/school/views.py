@@ -89,10 +89,11 @@ class AtendanceViewSet(ModelViewSet):
         serializer = serializers.GetAtendanceSerializer(attendances, many=True)
         return Response(serializer.data)
     
-    def save_to_cache(self, student, kind, status, request):
+    def save_to_cache(self, student, kind, status, request, attendance_id=None):
 
         cache_key = f"attendance_{student.uid}_{kind}"
         cache_data = {
+            "attendance_id": attendance_id,
             "status": status,
             "kind": kind,
             "created_by": request.data.get('created_by'),
@@ -103,12 +104,59 @@ class AtendanceViewSet(ModelViewSet):
         cache.set(cache_key, cache_data, timeout=43200)
         return cache_data
     
+    def send_notification(self, student, tutor, status):
+
+        tokens = FCMDevice.objects.filter(user=tutor.user)
+
+        message = ''
+
+        if status == 'L':
+            message = f'{student.first_name} llegó tarde'
+        elif status == 'N':
+            message = f'{student.first_name} no asistió'
+        elif status == 'T':
+            message = f'{student.first_name} se retiró temprano'
+        elif status == 'E':
+            message = f'{student.first_name} fué excusado'
+
+        for token in tokens:
+                send_push_notification(token.device_token, 'Alerta de Asistencia', message)
+
+    # def update(self, request, *args, **kwargs):
+    #     print('request', request.data)
+    #     super().update(request, *args, **kwargs)
+        # status = request.data['status']
+        # kind = request.data['kind']
+        # student_id = request.data['student']
+        # student = models.Student.objects.get(uid=student_id)
+
+        # if not student: 
+        #     return Response({"error": "No se pudo encontrar alumno"}, status=400)
+
+        # try:
+        #     tutor = models.Tutor.objects.get(students=student)
+        # except:
+        #     cache = self.save_to_cache(student, kind, status, request)
+        #     super().create(request, *args, **kwargs)
+        #     return Response(cache, status=201)
+        
+        # self.send_notification(student, tutor, status)
+        
+        # super().update(request, *args, **kwargs)
+        # cache = self.save_to_cache(student, kind, status, request)
+        # return Response(cache, status=201)
+    
     def create(self, request, *args, **kwargs):
 
         status = request.data['status']
         kind = request.data['kind']
         student_id = request.data['student']
         student = models.Student.objects.get(uid=student_id)
+        attendance_id = ''
+
+        if not student:
+            return Response({"error": "No se pudo encontrar alumno"}, status=400)
+
         existing_attendance = models.Atendance.objects.filter(
             student__uid=student_id,
             created_at__date=date.today()
@@ -119,40 +167,21 @@ class AtendanceViewSet(ModelViewSet):
         
         if existing_attendance.count() == 1 and kind == 'I':
             return Response({"error": "Alumno ya fué escaneado"}, status=400)
-        
-        student = models.Student.objects.get(uid=student_id)
 
         if status != 'O':
-
-            if not student:
-                return Response({"error": "No se pudo encontrar alumno"}, status=400)
 
             try:
                 tutor = models.Tutor.objects.get(students=student)
             except:
-                cache = self.save_to_cache(student, kind, status, request)
-                super().create(request, *args, **kwargs)
+                attendance_id = super().create(request, *args, **kwargs).data['id']
+                cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
                 return Response(cache, status=201)
             
-            tokens = FCMDevice.objects.filter(user=tutor.user)
+            self.send_notification(student, tutor, status)
 
-            message = ''
+            attendance_id = super().create(request, *args, **kwargs).data['id']
 
-            if status == 'L':
-                message = f'{student.first_name} llegó tarde'
-            elif status == 'N':
-                message = f'{student.first_name} no asistió'
-            elif status == 'T':
-                message = f'{student.first_name} se retiró temprano'
-            elif status == 'E':
-                message = f'{student.first_name} fué excusado'
-
-            for token in tokens:
-                send_push_notification(token.device_token, 'Alerta de Asistencia', message)
-
-            super().create(request, *args, **kwargs)
-        
-        cache = self.save_to_cache(student, kind, status, request)
+        cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
         return Response(cache, status=201)
     
 

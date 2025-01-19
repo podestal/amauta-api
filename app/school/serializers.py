@@ -127,7 +127,7 @@ class GetTutorSerializer(serializers.ModelSerializer):
 class CreateTutorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Tutor
-        fields = ['id', 'user', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email']
+        fields = ['id', 'user', 'students', 'phone_number', 'address', 'email']
 
 
 class CategorySerializer(serializers.ModelSerializer):

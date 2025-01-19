@@ -13,7 +13,7 @@ def api_client():
 @pytest.fixture
 def create_user():
     """Fixture to create a normal user."""
-    return baker.make(User) 
+    return baker.make(User, first_name='John', last_name='Doe') 
 
 @pytest.fixture
 def create_authenticate_user(api_client, create_user):
@@ -27,5 +27,3 @@ def create_admin_user(api_client):
     admin_user = baker.make(User, is_staff=True)
     api_client.force_authenticate(user=admin_user)
     return api_client
-
-

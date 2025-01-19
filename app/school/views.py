@@ -46,12 +46,18 @@ class ClaseViewSet(ModelViewSet):
         return [IsAdminUser()]
 
 class InstructorViewSet(ModelViewSet):
+
     queryset = models.Instructor.objects.select_related('user').prefetch_related('clases')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateInstructorSerializer
         return serializers.GetInstructorSerializer
+    
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
     
     @action(detail=False, methods=['get'])
     def me(self, request):

@@ -4,6 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import IsAdminUser, SAFE_METHODS, IsAuthenticated
 from django.db.models import Subquery, OuterRef
 from django.core.cache import cache
 from datetime import datetime
@@ -32,11 +33,17 @@ class CapacityViewSet(ModelViewSet):
 
 class ClaseViewSet(ModelViewSet):
     queryset = models.Clase.objects.prefetch_related('students')
+    permission_classes = [IsAdminUser]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateClaseSerializer
         return serializers.GetClaseSerializer
+    
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
 
 class InstructorViewSet(ModelViewSet):
     queryset = models.Instructor.objects.select_related('user').prefetch_related('clases')

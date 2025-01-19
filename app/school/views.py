@@ -93,7 +93,7 @@ class AtendanceViewSet(ModelViewSet):
 
         cache_key = f"attendance_{student.uid}_{kind}"
         cache_data = {
-            "attendance_id": attendance_id,
+            "id": attendance_id,
             "status": status,
             "kind": kind,
             "created_by": request.data.get('created_by'),
@@ -104,9 +104,7 @@ class AtendanceViewSet(ModelViewSet):
         cache.set(cache_key, cache_data, timeout=43200)
         return cache_data
     
-    def send_notification(self, student, tutor, status):
-
-        tokens = FCMDevice.objects.filter(user=tutor.user)
+    def get_notification_message(self, student, status):
 
         message = ''
 
@@ -119,32 +117,50 @@ class AtendanceViewSet(ModelViewSet):
         elif status == 'E':
             message = f'{student.first_name} fué excusado'
 
+        return message
+
+    
+    def send_notification(self, student, tutor, status, apologize_message=None):
+
+        tokens = FCMDevice.objects.filter(user=tutor.user)
+        message = ''
+        if apologize_message:
+            message = apologize_message
+        else:
+            message = self.get_notification_message(student, status)
+
         for token in tokens:
                 send_push_notification(token.device_token, 'Alerta de Asistencia', message)
 
-    # def update(self, request, *args, **kwargs):
-    #     print('request', request.data)
-    #     super().update(request, *args, **kwargs)
-        # status = request.data['status']
-        # kind = request.data['kind']
-        # student_id = request.data['student']
-        # student = models.Student.objects.get(uid=student_id)
+    def update(self, request, *args, **kwargs):
+        print('request', request.data)
 
-        # if not student: 
-        #     return Response({"error": "No se pudo encontrar alumno"}, status=400)
+        status = request.data['status']
+        kind = request.data['kind']
+        student_id = request.data['student']
+        student = models.Student.objects.get(uid=student_id)
 
-        # try:
-        #     tutor = models.Tutor.objects.get(students=student)
-        # except:
-        #     cache = self.save_to_cache(student, kind, status, request)
-        #     super().create(request, *args, **kwargs)
-        #     return Response(cache, status=201)
-        
-        # self.send_notification(student, tutor, status)
-        
-        # super().update(request, *args, **kwargs)
-        # cache = self.save_to_cache(student, kind, status, request)
-        # return Response(cache, status=201)
+        if not student: 
+            return Response({"error": "No se pudo encontrar alumno"}, status=400)
+    
+        if status == 'O':
+            cache_data = self.save_to_cache(student, kind, status, request)
+            super().destroy(request, *args, **kwargs)
+            try:
+                tutor = models.Tutor.objects.get(students=student)
+                self.send_notification(student, tutor, status, apologize_message=f'{student.first_name} llegó a tiempo')
+            except:
+                print('could not find tutor')
+            return Response(cache_data, status=201)
+
+        updated_attendance_id = super().update(request, *args, **kwargs).data['id']
+        cache_data = self.save_to_cache(student, kind, status, request, attendance_id=updated_attendance_id)
+        try:
+            tutor = models.Tutor.objects.get(students=student)
+            self.send_notification(student, tutor, status)
+        except:
+            print('could not find tutor')
+        return Response(cache_data, status=201)
     
     def create(self, request, *args, **kwargs):
 

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'corsheaders',
+    'django_celery_beat',
     'core',
     'notification',
     'school',
@@ -166,3 +167,8 @@ MEDIA_ROOT = "/vol/media"
 # Firebase Initialization
 FIREBASE_CRED = credentials.Certificate(os.path.join(BASE_DIR, "settings/firebase_service_account.json"))
 firebase_admin.initialize_app(FIREBASE_CRED)
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/0") 
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/0")

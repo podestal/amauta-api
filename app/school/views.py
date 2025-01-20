@@ -119,7 +119,7 @@ class AtendanceViewSet(ModelViewSet):
             "created_at": datetime.now().isoformat(),
         }
 
-        cache.set(cache_key, cache_data, timeout=43200)
+        cache.set(cache_key, cache_data, timeout=64800)
         return cache_data
     
     def get_notification_message(self, student, status):

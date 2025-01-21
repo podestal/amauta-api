@@ -12,12 +12,13 @@ PERU_HOLIDAYS = holidays.Peru()
 @shared_task
 def mark_absent_students():
     """Mark students as absent."""
-    today = date.today()
     students = models.Student.objects.select_related('clase')
     for student in students:
         cache_id = f"attendance_{student.uid}_I"
+        print(f"Fetching cache for ID: {cache_id}")
         attendance_in = cache.get(cache_id)
-        print('attendance_in', attendance_in)
+        print(f"Cache result for {cache_id}: {attendance_in}")
+        
         if not attendance_in:
             attendance = models.Atendance.objects.create(
                 student=student,

@@ -65,6 +65,19 @@ class TestAtendance:
         assert response.json()['status'] == 'O'
         assert response.json()['kind'] == 'I'
         assert response.json()['created_by'] == 'John Doe'
+        
+    def test_create_atendance_student_not_found(self, create_authenticate_user):
+        """Test creating an attendance when the student is not found."""
+        payload = {
+            "student": "nonexistent",
+            "status": "O",
+            "attendance_type": "A",
+            "kind": "I",
+            "created_by": "John Doe",
+        }
+        response = create_authenticate_user.post("/api/atendance/", payload)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"error": "No se pudo encontrar alumno"}
 
     def test_get_atendance_anonymous_user_return_401(self, api_client):
         """Test getting a atendance."""

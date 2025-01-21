@@ -80,24 +80,27 @@ class CreateAtendanceSerializer(serializers.ModelSerializer):
 
 class GetStudentSerializer(serializers.ModelSerializer):
 
-    attendances = serializers.SerializerMethodField()
+    attendances_in = serializers.SerializerMethodField()
+    attendances_out = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'attendances', 'tutor_phone']
+        fields = ['first_name', 'last_name', 'uid', 'attendances_in', 'attendances_out', 'tutor_phone']
 
-    def get_attendances(self, obj):
+    def get_attendances_in(self, obj):
+        attendance_in = getattr(obj, 'attendance_in', None)
+        try:
+            return GetSimpleAttendanceSerializer(attendance_in[0]).data if attendance_in else ""
+        except:
+            return ""
+    
+    def get_attendances_out(self, obj):
+        attendance_out = getattr(obj, 'attendance_out', None)
+        try:
+            return GetSimpleAttendanceSerializer(attendance_out[0]).data if attendance_out else ""
+        except:
+            return ""
 
-        in_key = f"attendance_{obj.uid}_I"
-        out_key = f"attendance_{obj.uid}_O"
-
-        attendances_in = cache.get(in_key)
-        attendances_out = cache.get(out_key)
-        
-        return {
-            "In": attendances_in if attendances_in is not None else "",
-            "Out": attendances_out if attendances_out is not None else ""
-        }
     
 class GetStudentForTutorSerializer(serializers.ModelSerializer):
 

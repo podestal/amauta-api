@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS, IsAuthenticated
-from django.db.models import Subquery, OuterRef
+from django.db.models import Subquery, OuterRef, Prefetch
 from django.core.cache import cache
 from datetime import datetime
 
@@ -120,6 +120,7 @@ class AtendanceViewSet(ModelViewSet):
         }
 
         cache.set(cache_key, cache_data, timeout=64800)
+        print('Cache created', cache_key)
         return cache_data
     
     def get_notification_message(self, student, status):
@@ -224,19 +225,39 @@ class StudentViewSet(ModelViewSet):
 
         today = date.today()
 
-        today_attendance = models.Atendance.objects.filter(
-            student=OuterRef('uid'), 
+        attendance_today = models.Atendance.objects.filter(
             created_at__date=today
-        ).order_by('id')
+        )
+
+        # print('attendance_today', attendance_today)
+
+        attendance_in = attendance_today.filter(kind='I')
+        attendance_out = attendance_today.filter(kind='O')
+
+        # print('attendance_in', attendance_in)
+        # print('attendance_out', attendance_out)
 
         return (
             models.Student.objects.select_related('clase')
-            .annotate(
-                today_attendance=Subquery(
-                    today_attendance.values('id')[:1]
-                )
+            .prefetch_related(
+                Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
+                Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')
             )
         )
+
+        # today_attendance = models.Atendance.objects.filter(
+        #     student=OuterRef('uid'), 
+        #     created_at__date=today
+        # ).order_by('id')
+
+        # return (
+        #     models.Student.objects.select_related('clase')
+        #     .annotate(
+        #         today_attendance=Subquery(
+        #             today_attendance.values('id')[:1]
+        #         )
+        #     )
+        # )
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

@@ -186,10 +186,11 @@ class AtendanceViewSet(ModelViewSet):
         status = request.data['status']
         kind = request.data['kind']
         student_id = request.data['student']
-        student = models.Student.objects.get(uid=student_id)
-        attendance_id = ''
+        # attendance_id = ''
 
-        if not student:
+        try:
+            student = models.Student.objects.get(uid=student_id)
+        except:
             return Response({"error": "No se pudo encontrar alumno"}, status=400)
 
         existing_attendance = models.Atendance.objects.filter(
@@ -208,16 +209,17 @@ class AtendanceViewSet(ModelViewSet):
             try:
                 tutor = models.Tutor.objects.get(students=student)
             except:
-                attendance_id = super().create(request, *args, **kwargs).data['id']
-                cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
-                return Response(cache, status=201)
+                # attendance_id = super().create(request, *args, **kwargs).data['id']
+                # cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
+                # return Response(cache, status=201)
+                return super().create(request, *args, **kwargs)
             
             self.send_notification(student, tutor, status)
 
-            attendance_id = super().create(request, *args, **kwargs).data['id']
+            # attendance_id = super().create(request, *args, **kwargs).data['id']
 
-        cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
-        return Response(cache, status=201)
+        # cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
+        return super().create(request, *args, **kwargs)
     
 
 class StudentViewSet(ModelViewSet):
@@ -229,13 +231,8 @@ class StudentViewSet(ModelViewSet):
             created_at__date=today
         )
 
-        # print('attendance_today', attendance_today)
-
         attendance_in = attendance_today.filter(kind='I')
         attendance_out = attendance_today.filter(kind='O')
-
-        # print('attendance_in', attendance_in)
-        # print('attendance_out', attendance_out)
 
         return (
             models.Student.objects.select_related('clase')
@@ -244,20 +241,6 @@ class StudentViewSet(ModelViewSet):
                 Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')
             )
         )
-
-        # today_attendance = models.Atendance.objects.filter(
-        #     student=OuterRef('uid'), 
-        #     created_at__date=today
-        # ).order_by('id')
-
-        # return (
-        #     models.Student.objects.select_related('clase')
-        #     .annotate(
-        #         today_attendance=Subquery(
-        #             today_attendance.values('id')[:1]
-        #         )
-        #     )
-        # )
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

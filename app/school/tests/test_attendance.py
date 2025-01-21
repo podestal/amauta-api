@@ -1,8 +1,9 @@
 import pytest
 from datetime import date
+from django.utils import timezone
 from rest_framework import status
 from model_bakery import baker
-from school.models import Atendance, Student, Clase
+from school.models import Atendance, Student, Clase, Tutor
 
 @pytest.fixture
 def create_student():
@@ -27,6 +28,11 @@ def create_clase():
     level = 'S'
     section = 'A'
     return baker.make(Clase, grade=grade, level=level, section=section)
+
+@pytest.fixture
+def create_tutor(create_student):
+    """Fixture to create a tutor."""
+    return baker.make(Tutor, students=[create_student], first_name='John', last_name='Doe', phone_number='123456789')
 
 @pytest.mark.django_db
 class TestAtendance:
@@ -69,7 +75,7 @@ class TestAtendance:
     def test_create_atendance_student_not_found(self, create_authenticate_user):
         """Test creating an attendance when the student is not found."""
         payload = {
-            "student": "nonexistent",
+            "student": 13564,
             "status": "O",
             "attendance_type": "A",
             "kind": "I",
@@ -78,6 +84,50 @@ class TestAtendance:
         response = create_authenticate_user.post("/api/atendance/", payload)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == {"error": "No se pudo encontrar alumno"}
+
+    def test_create_atendance_student_already_scanned_twice(self, create_authenticate_user, create_student):
+        """Test creating an attendance when the student has already been scanned twice today."""
+        baker.make(Atendance, student=create_student, created_at=timezone.now())
+        baker.make(Atendance, student=create_student, created_at=timezone.now())
+        payload = {
+            "student": create_student.uid,
+            "status": "O",
+            "attendance_type": "A",
+            "kind": "I",
+            "created_by": "John Doe",
+        }
+        response = create_authenticate_user.post("/api/atendance/", payload)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"error": "Alumno ya fué escaneado"}
+
+    def test_create_atendance_student_already_scanned_once_kind_I(self, create_authenticate_user, create_student):
+        """Test creating an attendance when the student has already been scanned once today and the kind is 'I'."""
+        baker.make(Atendance, student=create_student, created_at=timezone.now())
+        payload = {
+            "student": create_student.uid,
+            "status": "O",
+            "attendance_type": "A",
+            "kind": "I",
+            "created_by": "John Doe",
+        }
+        response = create_authenticate_user.post("/api/atendance/", payload)
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"error": "Alumno ya fué escaneado"}
+
+    def test_create_atendance_status_not_tutor_found(self, create_authenticate_user, create_student, create_tutor):
+        """Test creating an attendance when the status is not 'O' and the tutor is found."""
+        payload = {
+            "student": create_student.uid,
+            "status": "N",
+            "attendance_type": "A",
+            "kind": "I",
+            "created_by": "John Doe",
+        }
+        response = create_authenticate_user.post("/api/atendance/", payload)
+        assert response.status_code == status.HTTP_201_CREATED
+        assert response.json()['status'] == 'N'
+        assert response.json()['kind'] == 'I'
+        assert response.json()['created_by'] == 'John Doe'
 
     def test_get_atendance_anonymous_user_return_401(self, api_client):
         """Test getting a atendance."""

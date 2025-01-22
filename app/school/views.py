@@ -221,6 +221,25 @@ class AtendanceViewSet(ModelViewSet):
         # cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
         return super().create(request, *args, **kwargs)
     
+class AssistantViewSet(ModelViewSet):
+
+    queryset = models.Assistant.objects.select_related('user')
+    serializer_class = serializers.GetAssistantSerializer
+    
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
+    
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        user = self.request.user
+        try:
+            assistant = self.queryset.get(user=user)
+        except:
+            return Response({"error": "Assistant not found for the current user"}, status=404)
+        serializer = serializers.GetAssistantSerializer(assistant)
+        return Response(serializer.data)
 
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):

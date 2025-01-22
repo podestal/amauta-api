@@ -78,6 +78,11 @@ class CreateAtendanceSerializer(serializers.ModelSerializer):
         model = models.Atendance
         fields = ['id', 'student', 'status', 'created_by', 'observations', 'attendance_type', 'kind']
 
+class GetAssistantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Assistant
+        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'address', 'email']
+
 class GetStudentSerializer(serializers.ModelSerializer):
 
     attendances_in = serializers.SerializerMethodField()

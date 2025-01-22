@@ -2,7 +2,7 @@ import pytest
 from model_bakery import baker
 from rest_framework.test import APIClient
 from core.models import User
-from school.models import Clase, Student, Tutor, Atendance
+from school.models import Clase, Student, Tutor, Atendance, Assistant
 
 """Fixtures for the school app tests."""
 
@@ -57,3 +57,8 @@ def create_atendance(create_student):
                 observations='Observations', 
                 attendance_type='A',
                 kind='I')
+
+@pytest.fixture
+def create_assistant(create_user):
+    """Fixture to create a assistant"""
+    return baker.make(Assistant, user=create_user, first_name='Jane', last_name='Doe', phone_number='123456789', address='Calle 123',)

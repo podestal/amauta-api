@@ -1,5 +1,4 @@
 import pytest
-from datetime import date
 from django.utils import timezone
 from rest_framework import status
 from model_bakery import baker

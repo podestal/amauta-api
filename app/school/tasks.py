@@ -14,29 +14,50 @@ def mark_absent_students():
     """Mark students as absent."""
     students = models.Student.objects.select_related('clase')
     for student in students:
-        cache_id = f"attendance_{student.uid}_I"
-        print(f"Fetching cache for ID: {cache_id}")
-        attendance_in = cache.get(cache_id)
-        print(f"Cache result for {cache_id}: {attendance_in}")
-        
-        if not attendance_in:
-            attendance = models.Atendance.objects.create(
+        try:
+            models.Atendance.objects.get(
+                student=student,
+                kind='I',
+                created_at__date=date.today()
+            )
+
+            print(f"Student {student.uid} already have an attendance In for today")
+        except:
+            models.Atendance.objects.create(
                 student=student,
                 status='N',
                 attendance_type='A',
                 kind='I',
                 created_by='System'
             )
-            cache_data = {
-                "id": attendance.id,
-                "status": attendance.status,
-                "kind": attendance.kind,
-                "created_by": attendance.created_by,
-                "observations": '',
-                "created_at": datetime.now().isoformat(),
-            }
-            cache.set(cache_id, cache_data, timeout=54000)
             print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
+
+    # Using Cache memroy to store the attendance
+    # students = models.Student.objects.select_related('clase')
+    # for student in students:
+    #     cache_id = f"attendance_{student.uid}_I"
+    #     print(f"Fetching cache for ID: {cache_id}")
+    #     attendance_in = cache.get(cache_id)
+    #     print(f"Cache result for {cache_id}: {attendance_in}")
+        
+    #     if not attendance_in:
+    #         attendance = models.Atendance.objects.create(
+    #             student=student,
+    #             status='N',
+    #             attendance_type='A',
+    #             kind='I',
+    #             created_by='System'
+    #         )
+    #         cache_data = {
+    #             "id": attendance.id,
+    #             "status": attendance.status,
+    #             "kind": attendance.kind,
+    #             "created_by": attendance.created_by,
+    #             "observations": '',
+    #             "created_at": datetime.now().isoformat(),
+    #         }
+    #         cache.set(cache_id, cache_data, timeout=54000)
+    #         print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
 
 def should_run_today():
     """Check if the task should run today."""

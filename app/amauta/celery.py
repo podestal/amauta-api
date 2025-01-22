@@ -13,6 +13,6 @@ celery_app.autodiscover_tasks()
 celery_app.conf.beat_schedule = {
     'run_task_everyday_at_9am': {
         'task': 'school.tasks.run_if_valid_day',
-        'schedule': crontab(hour=11, minute=38),
+        'schedule': crontab(hour=19, minute=7),
     }
 }

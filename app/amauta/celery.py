@@ -14,5 +14,9 @@ celery_app.conf.beat_schedule = {
     'run_task_everyday_at_9am': {
         'task': 'school.tasks.run_if_valid_day',
         'schedule': crontab(hour=19, minute=7),
+    },
+    'run_task_everyday_at_midnigth': {
+        'task': 'school.tasks.remove_on_time_records',
+        'schedule': crontab(hour=19, minute=24),
     }
 }

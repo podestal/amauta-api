@@ -79,3 +79,18 @@ def run_if_valid_day():
         mark_absent_students()
     else:
         print("Today is not a valid day to run the task.")
+
+@shared_task
+def remove_on_time_records():
+    """Remove attendance with on time status from db."""
+    if should_run_today():
+        try:
+            models.Atendance.objects.filter(
+                status='O',
+                created_at__date=date.today()
+            ).delete()
+            print("On time records removed")
+        except: 
+            print("No on time records to remove")
+    else:
+        print("Today is not a valid day to run the task.")

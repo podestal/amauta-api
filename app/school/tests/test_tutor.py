@@ -1,26 +1,5 @@
 import pytest
 from rest_framework import status
-from model_bakery import baker
-from school.models import Tutor, Student, Clase
-
-@pytest.fixture
-def create_clase():
-    """Fixture to create a category for the authenticated user."""
-    grade = '1'
-    level = 'S'
-    section = 'A'
-    return baker.make(Clase, grade=grade, level=level, section=section)
-
-@pytest.fixture
-def create_student(create_clase):
-    """Fixture to create a student"""
-    return baker.make(Student, uid='46345643', clase=create_clase, first_name='Tom', last_name='Doe', tutor_phone='123456789')
-
-@pytest.fixture
-def create_tutor(create_user, create_student):
-    """Fixture to create a tutor"""
-    return baker.make(Tutor, user=create_user, students=[create_student], phone_number='123456789', address='Calle 123', email='tutor@tutor.com')
-
 
 @pytest.mark.django_db
 class TestTutor:

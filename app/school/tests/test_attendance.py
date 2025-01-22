@@ -6,30 +6,6 @@ from model_bakery import baker
 from school.models import Atendance, Student, Clase, Tutor
 
 @pytest.fixture
-def create_student():
-    """Fixture to create a student."""
-    return baker.make(Student, uid='46345643', first_name='Tom', last_name='Doe', tutor_phone='123456789')
-
-@pytest.fixture
-def create_atendance(create_student):
-    """Fixture to create a atendance."""
-    return baker.make(Atendance, 
-                student=create_student, 
-                status='O', 
-                created_by='John Doe', 
-                observations='Observations', 
-                attendance_type='A',
-                kind='I')
-
-@pytest.fixture
-def create_clase():
-    """Fixture to create a category for the authenticated user."""
-    grade = '1'
-    level = 'S'
-    section = 'A'
-    return baker.make(Clase, grade=grade, level=level, section=section)
-
-@pytest.fixture
 def create_tutor(create_student):
     """Fixture to create a tutor."""
     return baker.make(Tutor, students=[create_student], first_name='John', last_name='Doe', phone_number='123456789')

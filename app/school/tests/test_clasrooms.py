@@ -1,15 +1,6 @@
 import pytest
 from rest_framework import status
-from model_bakery import baker
 from school.models import Clase
-
-@pytest.fixture
-def create_clase():
-    """Fixture to create a category for the authenticated user."""
-    grade = '1'
-    level = 'S'
-    section = 'A'
-    return baker.make(Clase, grade=grade, level=level, section=section)
 
 @pytest.mark.django_db
 class TestClase:

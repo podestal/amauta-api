@@ -101,6 +101,7 @@ class Assistant(models.Model):
     phone_number = models.CharField(max_length=255, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
+    clases = models.ManyToManyField(Clase, related_name='assistants')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

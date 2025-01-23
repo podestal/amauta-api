@@ -223,7 +223,7 @@ class AtendanceViewSet(ModelViewSet):
     
 class AssistantViewSet(ModelViewSet):
 
-    queryset = models.Assistant.objects.select_related('user')
+    queryset = models.Assistant.objects.select_related('user').prefetch_related('clases')
     serializer_class = serializers.GetAssistantSerializer
     
     def get_permissions(self):

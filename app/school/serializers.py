@@ -81,7 +81,7 @@ class CreateAtendanceSerializer(serializers.ModelSerializer):
 class GetAssistantSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Assistant
-        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'address', 'email']
+        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'clases']
 
 class GetStudentSerializer(serializers.ModelSerializer):
 

@@ -79,9 +79,18 @@ class CreateAtendanceSerializer(serializers.ModelSerializer):
         fields = ['id', 'student', 'status', 'created_by', 'observations', 'attendance_type', 'kind']
 
 class GetAssistantSerializer(serializers.ModelSerializer):
+
+    clases_details = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Assistant
-        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'clases']
+        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'clases_details']
+
+    def get_clases_details(self, obj):
+        return [
+            f"{clase.grade}-{clase.section}-{clase.level}-{clase.id}"
+            for clase in obj.clases.all()
+        ]
 
 class GetStudentSerializer(serializers.ModelSerializer):
 

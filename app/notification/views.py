@@ -77,16 +77,19 @@ class FCMDeviceView(APIView):
     def post(self, request):
         serializer = FCMDeviceSerializer(data=request.data)
         if serializer.is_valid():
-            # Check if the device token already exists for the user
             device_token = serializer.validated_data['device_token']
             device_type = serializer.validated_data.get('device_type', 'unknown')
-            
-            # Update or create the device token
+
+            # Remove the existing device token if it's already linked to another user
+            FCMDevice.objects.filter(device_token=device_token).exclude(user=request.user).delete()
+
+            # Update or create the device token for the current user
             fcm_device, created = FCMDevice.objects.update_or_create(
                 user=request.user,
                 device_token=device_token,
                 defaults={'device_type': device_type}
             )
+
             return Response(
                 {
                     "message": "Device token registered successfully",
@@ -95,3 +98,4 @@ class FCMDeviceView(APIView):
                 status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

@@ -184,7 +184,7 @@ class TestAtendance:
             "student": create_atendance.student.uid,
         }
         response = create_authenticate_user.patch(f"/api/atendance/{create_atendance.id}/", payload)
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()['status'] == 'L'
         assert response.json()['kind'] == 'O'
 
@@ -196,7 +196,7 @@ class TestAtendance:
             "student": create_atendance.student.uid,
         }
         response = create_admin_user.patch(f"/api/atendance/{create_atendance.id}/", payload)
-        assert response.status_code == status.HTTP_201_CREATED
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()['status'] == 'L'
         assert response.json()['kind'] == 'O'
 

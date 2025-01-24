@@ -161,25 +161,13 @@ class AtendanceViewSet(ModelViewSet):
 
         if not student: 
             return Response({"error": "No se pudo encontrar alumno"}, status=400)
-    
-        if status == 'O':
-            cache_data = self.save_to_cache(student, kind, status, request)
-            super().destroy(request, *args, **kwargs)
-            try:
-                tutor = models.Tutor.objects.get(students=student)
-                self.send_notification(student, tutor, status, apologize_message=f'{student.first_name} llegó a tiempo')
-            except:
-                print('could not find tutor')
-            return Response(cache_data, status=201)
-
-        updated_attendance_id = super().update(request, *args, **kwargs).data['id']
-        cache_data = self.save_to_cache(student, kind, status, request, attendance_id=updated_attendance_id)
+        
         try:
             tutor = models.Tutor.objects.get(students=student)
-            self.send_notification(student, tutor, status)
+            self.send_notification(student, tutor, status, apologize_message=f'{student.first_name} llegó a tiempo')
         except:
             print('could not find tutor')
-        return Response(cache_data, status=201)
+        return super().update(request, *args, **kwargs)
     
     def create(self, request, *args, **kwargs):
 

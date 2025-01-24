@@ -88,6 +88,7 @@ class Student(models.Model):
     last_name = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')
     tutor_phone = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
     # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
 
     def __str__(self):

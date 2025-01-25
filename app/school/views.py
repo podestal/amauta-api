@@ -331,7 +331,7 @@ class QuarterGradeViewSet(ModelViewSet):
 
 class AnnouncementViewSet(ModelViewSet):
 
-    queryset = models.Announcement.objects.select_related('student')
+    queryset = models.Announcement.objects.select_related('student').order_by('created_at')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -343,7 +343,7 @@ class AnnouncementViewSet(ModelViewSet):
         student = request.query_params.get('student')
         if not student:
             return Response({"error": "Student parameter is required"}, status=400)
-        announcements = self.queryset.filter(student=student)
+        announcements = self.queryset.filter(student=student).order_by('-created_at')
         serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)
     

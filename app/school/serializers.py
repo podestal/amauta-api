@@ -26,7 +26,7 @@ class CapacitySerializer(serializers.ModelSerializer):
 class GetClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clase
-        fields = ['id', 'grade', 'level', 'section', 'students']
+        fields = ['id', 'grade', 'level', 'section']
 
 class GetSimpleClaseSerializer(serializers.ModelSerializer):
     class Meta:

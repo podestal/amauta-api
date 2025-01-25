@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 
 class Area(models.Model):
     title = models.CharField(max_length=255)
@@ -133,7 +134,7 @@ class Atendance(models.Model):
         ('O', 'Exit'),
     ]
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES)
     attendance_type = models.CharField(max_length=1, choices=TYPE_CHOICES)

@@ -1,5 +1,7 @@
 from datetime import date
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -232,14 +234,25 @@ class AssistantViewSet(ModelViewSet):
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):
 
-        today = date.today()
+        now = timezone.now()
 
-        attendance_today = models.Atendance.objects.filter(
-            created_at__date=today
+        filter_range = self.request.query_params.get('range', 'day')
+
+        if filter_range == 'day':
+            start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        elif filter_range == 'week':
+            start_date = now - timedelta(days=now.weekday())
+        elif filter_range == 'month':
+            start_date = now.replace(day=1)
+        elif filter_range == 'year':
+            start_date = now.replace(month=1, day=1)
+
+        attendance_in = models.Atendance.objects.filter(
+            kind='I', created_at__gte=start_date, created_at__lte=now
         )
-
-        attendance_in = attendance_today.filter(kind='I')
-        attendance_out = attendance_today.filter(kind='O')
+        attendance_out = models.Atendance.objects.filter(
+            kind='O', created_at__gte=start_date, created_at__lte=now
+        )
 
         return (
             models.Student.objects.select_related('clase')

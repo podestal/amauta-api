@@ -104,16 +104,16 @@ class GetStudentSerializer(serializers.ModelSerializer):
     def get_attendances_in(self, obj):
         attendance_in = getattr(obj, 'attendance_in', None)
         try:
-            return SimpleAtendanceSerializer(attendance_in[0]).data if attendance_in else ""
+            return [SimpleAtendanceSerializer(attendance_in[0]).data for attendance in attendance_in] if attendance_in else []
         except:
-            return ""
+            return []
     
     def get_attendances_out(self, obj):
         attendance_out = getattr(obj, 'attendance_out', None)
         try:
-            return SimpleAtendanceSerializer(attendance_out[0]).data if attendance_out else ""
+            return [SimpleAtendanceSerializer(attendance_out[0]).data for attendance in attendance_out ]if attendance_out else []
         except:
-            return ""
+            return []
 
     
 class GetStudentForTutorSerializer(serializers.ModelSerializer):

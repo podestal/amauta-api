@@ -1,5 +1,6 @@
 from datetime import date
 from django.shortcuts import get_object_or_404
+from django.db.models.functions import ExtractWeek, ExtractMonth
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.viewsets import ModelViewSet
@@ -234,6 +235,8 @@ class AssistantViewSet(ModelViewSet):
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):
 
+        '''Test his new implementation'''
+
         now = timezone.now()
 
         filter_range = self.request.query_params.get('range', 'day')
@@ -247,12 +250,23 @@ class StudentViewSet(ModelViewSet):
         elif filter_range == 'year':
             start_date = now.replace(month=1, day=1)
 
+        week_param = self.request.query_params.get('week')
+        month_param = self.request.query_params.get('month')
+
         attendance_in = models.Atendance.objects.filter(
             kind='I', created_at__gte=start_date, created_at__lte=now
         )
         attendance_out = models.Atendance.objects.filter(
             kind='O', created_at__gte=start_date, created_at__lte=now
         )
+
+        if week_param:
+            attendance_in = attendance_in.annotate(week=ExtractWeek('created_at')).filter(week=week_param)
+            attendance_out = attendance_out.annotate(week=ExtractWeek('created_at')).filter(week=week_param)
+        
+        if month_param:
+            attendance_in = attendance_in.annotate(month=ExtractMonth('created_at')).filter(month=month_param)
+            attendance_out = attendance_out.annotate(month=ExtractMonth('created_at')).filter(month=month_param)
 
         return (
             models.Student.objects.select_related('clase')
@@ -280,7 +294,7 @@ class StudentViewSet(ModelViewSet):
 
         students = self.get_queryset().filter(clase=classroom)
         if not students.exists():
-            return Response({"error": "No students found"}, status=400)
+            return Response([], status=200)
 
         serializer = serializers.GetStudentSerializer(students, many=True)
         return Response(serializer.data)

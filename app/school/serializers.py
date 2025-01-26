@@ -71,7 +71,7 @@ class GetSimpleAttendanceSerializer(serializers.ModelSerializer):
 class SimpleAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Atendance
-        fields = ['id', 'status', 'observations', 'kind']
+        fields = ['id', 'status', 'observations', 'kind', 'created_at']
 
 class CreateAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -103,7 +103,6 @@ class GetStudentSerializer(serializers.ModelSerializer):
 
     def get_attendances_in(self, obj):
         attendance_in = getattr(obj, 'attendance_in', None)
-        print('attendances_in', attendance_in)
         try:
             return [SimpleAtendanceSerializer(attendance).data for attendance in attendance_in] if attendance_in else []
         except:

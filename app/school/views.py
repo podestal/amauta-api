@@ -1,6 +1,6 @@
 from datetime import date
 from django.shortcuts import get_object_or_404
-from django.db.models.functions import ExtractWeek, ExtractMonth
+from django.db.models.functions import ExtractWeek, ExtractMonth, ExtractDay
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.viewsets import ModelViewSet
@@ -91,7 +91,8 @@ class AtendanceViewSet(ModelViewSet):
         classroom = request.query_params.get('classroom')
         if not classroom:
             return Response({"error": "Classroom parameter is required"}, status=400)
-        attendances = self.queryset.filter(student__clase=classroom, created_at__date=date.today())
+        # attendances = self.queryset.filter(student__clase=classroom, created_at__date=date.today())
+        attendances = self.queryset.filter(student__clase=classroom)
         serializer = serializers.GetSimpleAttendanceSerializer(attendances, many=True)
         return Response(serializer.data)
     
@@ -238,10 +239,13 @@ class StudentViewSet(ModelViewSet):
         '''Test his new implementation'''
 
         now = timezone.now()
+        current_day = now.day
+        current_month = now.month
         start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
+        day_param = self.request.query_params.get('day')
         week_param = self.request.query_params.get('week')
-        month_param = self.request.query_params.get('month')
+        month_param = self.request.query_params.get('month', current_month)
 
         attendance_in = models.Atendance.objects.filter(
             kind='I'
@@ -250,7 +254,11 @@ class StudentViewSet(ModelViewSet):
             kind='O'
         )
 
-        if week_param:
+        if day_param:
+            attendance_in = attendance_in.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(month_param))
+            attendance_out = attendance_out.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(month_param))
+
+        elif week_param:
             attendance_in = attendance_in.annotate(week=ExtractWeek('created_at')).filter(week=int(week_param))
             attendance_out = attendance_out.annotate(week=ExtractWeek('created_at')).filter(week=int(week_param))
         

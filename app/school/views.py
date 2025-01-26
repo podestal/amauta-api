@@ -238,43 +238,37 @@ class StudentViewSet(ModelViewSet):
         '''Test his new implementation'''
 
         now = timezone.now()
-
-        filter_range = self.request.query_params.get('range', 'day')
-
-        if filter_range == 'day':
-            start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        elif filter_range == 'week':
-            start_date = now - timedelta(days=now.weekday())
-        elif filter_range == 'month':
-            start_date = now.replace(day=1)
-        elif filter_range == 'year':
-            start_date = now.replace(month=1, day=1)
+        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
         week_param = self.request.query_params.get('week')
         month_param = self.request.query_params.get('month')
 
         attendance_in = models.Atendance.objects.filter(
-            kind='I', created_at__gte=start_date, created_at__lte=now
+            kind='I'
         )
         attendance_out = models.Atendance.objects.filter(
-            kind='O', created_at__gte=start_date, created_at__lte=now
+            kind='O'
         )
 
         if week_param:
-            attendance_in = attendance_in.annotate(week=ExtractWeek('created_at')).filter(week=week_param)
-            attendance_out = attendance_out.annotate(week=ExtractWeek('created_at')).filter(week=week_param)
+            attendance_in = attendance_in.annotate(week=ExtractWeek('created_at')).filter(week=int(week_param))
+            attendance_out = attendance_out.annotate(week=ExtractWeek('created_at')).filter(week=int(week_param))
         
-        if month_param:
-            attendance_in = attendance_in.annotate(month=ExtractMonth('created_at')).filter(month=month_param)
-            attendance_out = attendance_out.annotate(month=ExtractMonth('created_at')).filter(month=month_param)
+        elif month_param:
+            attendance_in = attendance_in.annotate(month=ExtractMonth('created_at')).filter(month=int(month_param))
+            attendance_out = attendance_out.annotate(month=ExtractMonth('created_at')).filter(month=int(month_param))
+
+        else:
+            attendance_in = attendance_in.filter(created_at__gte=start_date, created_at__lte=now)
+            attendance_out = attendance_out.filter(created_at__gte=start_date, created_at__lte=now)
 
         return (
-            models.Student.objects.select_related('clase')
-            .prefetch_related(
-                Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
-                Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')
+                models.Student.objects.select_related('clase')
+                .prefetch_related(
+                    Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
+                    Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')
+                )
             )
-        )
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

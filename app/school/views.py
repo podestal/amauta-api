@@ -88,11 +88,24 @@ class AtendanceViewSet(ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def byClassroom(self, request):
+        '''Get all attendances by classroom and dates'''
+        attendances = self.queryset
         classroom = request.query_params.get('classroom')
+        week_param = request.query_params.get('week')
+        day_param = request.query_params.get('day')
+        month_param = request.query_params.get('month')
+
         if not classroom:
             return Response({"error": "Classroom parameter is required"}, status=400)
-        # attendances = self.queryset.filter(student__clase=classroom, created_at__date=date.today())
-        attendances = self.queryset.filter(student__clase=classroom)
+        if (week_param):
+            print('filtering by week', week_param)
+            attendances = attendances.filter(student__clase=classroom, created_at__week=week_param )
+        if (day_param):
+            print(f'filtering by day {day_param} and month {month_param}')
+            attendances = attendances.filter(student__clase=classroom, created_at__day=day_param, created_at__month=month_param)
+        if (month_param):
+            print(f'filtering by month {month_param}')
+            attendances = attendances.filter(student__clase=classroom, created_at__month=month_param)
         serializer = serializers.GetSimpleAttendanceSerializer(attendances, many=True)
         return Response(serializer.data)
     
@@ -100,7 +113,6 @@ class AtendanceViewSet(ModelViewSet):
     def byStudent(self, request):
         student_id = request.query_params.get('student')
         month = request.query_params.get('month')
-        print('month', month)
         if not month:
             month = datetime.today().month
         student = get_object_or_404(models.Student, uid=student_id)
@@ -236,16 +248,12 @@ class AssistantViewSet(ModelViewSet):
 class StudentViewSet(ModelViewSet):
     def get_queryset(self):
 
-        '''Test his new implementation'''
-
         now = timezone.now()
-        current_day = now.day
         current_month = now.month
-        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
 
         day_param = self.request.query_params.get('day')
         week_param = self.request.query_params.get('week')
-        month_param = self.request.query_params.get('month', current_month)
+        month_param = self.request.query_params.get('month')
 
         attendance_in = models.Atendance.objects.filter(
             kind='I'
@@ -255,8 +263,8 @@ class StudentViewSet(ModelViewSet):
         )
 
         if day_param:
-            attendance_in = attendance_in.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(month_param))
-            attendance_out = attendance_out.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(month_param))
+            attendance_in = attendance_in.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(current_month))
+            attendance_out = attendance_out.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(current_month))
 
         elif week_param:
             attendance_in = attendance_in.annotate(week=ExtractWeek('created_at')).filter(week=int(week_param))
@@ -267,8 +275,8 @@ class StudentViewSet(ModelViewSet):
             attendance_out = attendance_out.annotate(month=ExtractMonth('created_at')).filter(month=int(month_param))
 
         else:
-            attendance_in = attendance_in.filter(created_at__gte=start_date, created_at__lte=now)
-            attendance_out = attendance_out.filter(created_at__gte=start_date, created_at__lte=now)
+            attendance_in = attendance_in.filter(created_at=now.today())
+            attendance_out = attendance_out.filter(created_at=now.today())
 
         return (
                 models.Student.objects.select_related('clase')

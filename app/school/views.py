@@ -109,12 +109,13 @@ class AtendanceViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byStudent(self, request):
         student_id = request.query_params.get('student')
+        if not student_id:
+            return Response({"error": "Student parameter is required"}, status=400)
         month = request.query_params.get('month')
         if not month:
             month = datetime.today().month
         student = get_object_or_404(models.Student, uid=student_id)
         attendances = self.queryset.filter(student=student, created_at__month=month).order_by('-created_at')
-        print(f'{student.first_name} attendances', attendances)
         if not attendances.exists():
             return Response([])
         serializer = serializers.GetAtendanceSerializer(attendances, many=True)

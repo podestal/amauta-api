@@ -148,6 +148,33 @@ class TestAtendance:
         assert len(response.json()) == 1
         assert response.json()[0]['student'] == int(create_atendance.student.uid)
 
+    def test_by_student_without_query_param_return_400(self, create_authenticate_user):
+        """Test the byStudent method when the 'student' query parameter is missing."""
+        response = create_authenticate_user.get("/api/atendance/byStudent/")
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.json() == {"error": "Student parameter is required"}
+
+    def test_by_student_with_current_month_filter(self, create_authenticate_user, create_student, create_atendance):
+        """Test the byStudent method with the student parameter and current month filter."""
+        response = create_authenticate_user.get(f"/api/atendance/byStudent/?student={create_student.uid}")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.json()) == 1
+        assert response.json()[0]['student'] == int(create_atendance.student.uid)
+
+    def test_by_student_with_specific_month_filter(self, create_authenticate_user, create_student, create_atendance):
+        """Test the byStudent method with the student parameter and specific month filter."""
+        specific_month = 1  # January
+        response = create_authenticate_user.get(f"/api/atendance/byStudent/?student={create_student.uid}&month={specific_month}")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.json()) == 1
+        assert response.json()[0]['student'] == int(create_atendance.student.uid)
+
+    def test_by_student_with_no_attendances_found(self, create_authenticate_user, create_student):
+        """Test the byStudent method with the student parameter but no attendances found."""
+        response = create_authenticate_user.get(f"/api/atendance/byStudent/?student={create_student.uid}&month=12")  # December
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.json()) == 0
+
     def test_update_atendance_anonymous_user_return_401(self, api_client, create_atendance):
         """Test updating a atendance."""
         payload = {

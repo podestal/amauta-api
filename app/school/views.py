@@ -98,13 +98,10 @@ class AtendanceViewSet(ModelViewSet):
         if not classroom:
             return Response({"error": "Classroom parameter is required"}, status=400)
         if (week_param):
-            print('filtering by week', week_param)
             attendances = attendances.filter(student__clase=classroom, created_at__week=week_param )
         if (day_param):
-            print(f'filtering by day {day_param} and month {month_param}')
             attendances = attendances.filter(student__clase=classroom, created_at__day=day_param, created_at__month=month_param)
         if (month_param):
-            print(f'filtering by month {month_param}')
             attendances = attendances.filter(student__clase=classroom, created_at__month=month_param)
         serializer = serializers.GetSimpleAttendanceSerializer(attendances, many=True)
         return Response(serializer.data)

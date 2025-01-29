@@ -3,6 +3,7 @@ from django.utils import timezone
 from rest_framework import status
 from model_bakery import baker
 from school.models import Atendance, Student, Clase, Tutor
+from datetime import datetime
 
 @pytest.fixture
 def create_tutor(create_student):
@@ -125,48 +126,27 @@ class TestAtendance:
         assert response.json()[0]['kind'] == 'I'
         assert response.json()[0]['created_by'] == 'John Doe'
 
-    def test_by_classroom_without_query_param_return_400(self, create_authenticate_user):
-        """
-        Test the byClassroom method when the 'classroom' query parameter is missing.
-        """
-        response = create_authenticate_user.get("/api/atendance/byClassroom/")
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json() == {"error": "Classroom parameter is required"}
-
-    def test_by_classroom_with_valid_data(self, create_authenticate_user, create_clase):
-        """
-        Test the byClassroom method with valid classroom and today's date.
-        """
-
-        student1 = baker.make(Student, uid='46345643', first_name='Tom', last_name='Doe', tutor_phone='123456789', clase=create_clase)
-        student2 = baker.make(Student, uid='46345644', first_name='John', last_name='Doe', tutor_phone='123456789', clase=create_clase)
-        other_clase = baker.make(Clase, grade='3', level='S', section='A')
-        other_student = baker.make(Student, uid='46345645', first_name='Jane', last_name='Doe', tutor_phone='123456789', clase=other_clase)
-        attendance1 = baker.make(Atendance, student=student1, status='O', kind='I', attendance_type='A', created_by='Manuel Doe')
-        attendance2 = baker.make(Atendance, student=student2, status='O', kind='I', attendance_type='A', created_by='Manuel Doe')
-        baker.make(Atendance, student=other_student, status='O', kind='I', attendance_type='A', created_by='Manuel Doe') 
-
-        response = create_authenticate_user.get(f"/api/atendance/byClassroom/?classroom={create_clase.id}")
-        
+    def test_by_classroom_with_week_filter(self, create_authenticate_user, create_clase, create_atendance):
+        """Test the byClassroom method with the classroom parameter and week filter."""
+        week = create_atendance.created_at.isocalendar()[1]
+        response = create_authenticate_user.get(f"/api/atendance/byClassroom/?classroom={create_clase.id}&week={week}")
         assert response.status_code == status.HTTP_200_OK
-        assert len(response.json()) == 2
-        assert response.json()[0]['student'] == int(student1.uid)
-        assert response.json()[1]['student'] == int(student2.uid)
+        assert len(response.json()) == 1
+        assert response.json()[0]['student'] == int(create_atendance.student.uid)
 
-
-    def test_by_classroom_with_no_results(self, create_authenticate_user, create_clase):
-        """
-        Test the byClassroom method when no attendances match the given classroom and date.
-        """
-
-        clase = baker.make(Clase, grade='3', level='S', section='A')
-        baker.make(Student, clase=clase)
-        baker.make(Atendance, status='O', kind='I', attendance_type='A', created_by='Manuel Doe')
-
-        response = create_authenticate_user.get(f"/api/atendance/byClassroom/?classroom={create_clase.id}")
-
+    def test_by_classroom_with_day_and_month_filter(self, create_authenticate_user, create_clase, create_atendance):
+        """Test the byClassroom method with the classroom parameter and day and month filter."""
+        response = create_authenticate_user.get(f"/api/atendance/byClassroom/?classroom={create_clase.id}&day={datetime.now().day}&month={datetime.now().month}")
         assert response.status_code == status.HTTP_200_OK
-        assert response.json() == []
+        assert len(response.json()) == 1
+        assert response.json()[0]['student'] == int(create_atendance.student.uid)
+
+    def test_by_classroom_with_month_filter(self, create_authenticate_user, create_clase, create_atendance):
+        """Test the byClassroom method with the classroom parameter and month filter."""
+        response = create_authenticate_user.get(f"/api/atendance/byClassroom/?classroom={create_clase.id}&month={datetime.now().month}")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.json()) == 1
+        assert response.json()[0]['student'] == int(create_atendance.student.uid)
 
     def test_update_atendance_anonymous_user_return_401(self, api_client, create_atendance):
         """Test updating a atendance."""

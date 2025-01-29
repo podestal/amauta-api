@@ -82,18 +82,103 @@ class Instructor(models.Model):
             self.last_name = self.user.last_name
         super().save(*args, **kwargs)
     
+class Language(models.Model):
+
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+class Religion(models.Model):
+
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+    
+class Insurance(models.Model):
+
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+    
+class Health_Information(models.Model):
+
+    weight = models.FloatField(null=True, blank=True)
+    height = models.FloatField(null=True, blank=True)
+    natural_birth = models.BooleanField(default=True)
+    illness = models.TextField(null=True, blank=True)
+
 class Student(models.Model):
+
+    # CATOLIC_RELIGION = 'C'
+    # EVANGELIC_RELIGION = 'E'
+    # ADVENTIST_RELIGION = 'A'
+    # MORMON_RELIGION = 'M'
+    # JEHOVAH_RELIGION = 'H'
+    # ISLAMIC_RELIGION = 'I'
+    # JEWISH_RELIGION = 'J'
+    # BUDDHIST_RELIGION = 'B'
+
+    # RELIGION_CHOICES = [
+    #     (CATOLIC_RELIGION, 'Catolic'),
+    #     (EVANGELIC_RELIGION, 'Evangelic'),
+    #     (ADVENTIST_RELIGION, 'Adventist'),
+    #     (MORMON_RELIGION, 'Mormon'),
+    #     (JEHOVAH_RELIGION, 'Jehovah'),
+    #     (ISLAMIC_RELIGION, 'Islamic'),
+    #     (JEWISH_RELIGION, 'Jewish'),
+    #     (BUDDHIST_RELIGION, 'Buddhist')
+    # ]
+
+    # ESSALUD_INSURANCE = 'E'
+    # SIS_INSURANCE = 'S'
+    # PRIVATE_INSURANCE = 'P'
+
+    # INSURANCE_CHOICES = [
+    #     (ESSALUD_INSURANCE, 'EsSalud'),
+    #     (SIS_INSURANCE, 'SIS'),
+    #     (PRIVATE_INSURANCE, 'Private')
+    # ]
 
     uid = models.BigIntegerField(primary_key=True, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')
-    tutor_phone = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
+    # prev_school = models.CharField(max_length=255, null=True, blank=True)
+    # main_language = models.ForeignKey(Language, on_delete=models.SET_NULL, related_name='students' )
+    # second_language = models.ForeignKey(Language, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
+    # number_of_siblings = models.IntegerField(default=0)
+    # place_in_family = models.IntegerField(default=0)
+    # religion = models.ForeignKey(Religion, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
+    # address = models.TextField()
+    # phone_number = models.CharField(max_length=255, blank=True, null=True)
+    # celphone_number = models.CharField(max_length=255, blank=True, null=True)
+    # map_location = models.CharField(max_length=255, blank=True, null=True)
+    # insurance = models.ForeignKey(Insurance, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
+    # lives_with = models.CharField(max_length=255)
+
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+    
+class Birth_Info(models.Model):
+
+    date_of_birth = models.DateField()
+    student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='birth_info')
+    state = models.CharField(max_length=255)
+    county = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    
+class Emergency_Contact(models.Model):
+
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="emergency_contacts")
+    name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=255)
+    address = models.TextField()
     
 class Assistant(models.Model):
 

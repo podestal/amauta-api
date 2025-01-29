@@ -40,7 +40,7 @@ def create_clase():
 @pytest.fixture
 def create_student(create_clase):
     """Fixture to create a student"""
-    return baker.make(Student, uid='46345643', clase=create_clase, first_name='Tom', last_name='Doe', tutor_phone='123456789')
+    return baker.make(Student, uid='46345643', clase=create_clase, first_name='Tom', last_name='Doe')
 
 @pytest.fixture
 def create_tutor(create_user, create_student):

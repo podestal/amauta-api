@@ -91,7 +91,7 @@ class GetAssistantSerializer(serializers.ModelSerializer):
             f"{clase.grade}-{clase.section}-{clase.level}-{clase.id}"
             for clase in obj.clases.all()
         ]
-
+    
 class GetStudentSerializer(serializers.ModelSerializer):
 
     attendances_in = serializers.SerializerMethodField()
@@ -99,7 +99,26 @@ class GetStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'attendances_in', 'attendances_out', 'created_at']
+        fields = [
+            'first_name', 
+            'last_name', 
+            'uid', 
+            'attendances_in', 
+            'attendances_out', 
+            'created_at',
+            'prev_school',
+            'main_language',
+            'second_language',
+            'number_of_siblings',
+            'place_in_family',
+            'religion',
+            'address',
+            'phone_number',
+            'celphone_number',
+            'map_location',
+            'insurance',
+            'lives_with',
+        ]
 
     def get_attendances_in(self, obj):
         attendance_in = getattr(obj, 'attendance_in', None)
@@ -132,7 +151,24 @@ class GetStudentForTutorSerializer(serializers.ModelSerializer):
 class CreateStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'clase']
+        fields = [
+            'first_name', 
+            'last_name', 
+            'uid', 
+            'clase',
+            'prev_school',
+            'main_language',
+            'second_language',
+            'number_of_siblings',
+            'place_in_family',
+            'religion',
+            'address',
+            'phone_number',
+            'celphone_number',
+            'map_location',
+            'insurance',
+            'lives_with',
+        ]
 
 class GetTutorSerializer(serializers.ModelSerializer):
 

@@ -8,4 +8,7 @@ admin.site.register(models.Student)
 admin.site.register(models.Tutor)
 admin.site.register(models.Atendance)
 admin.site.register(models.Announcement)
+admin.site.register(models.Language)
+admin.site.register(models.Religion)
+admin.site.register(models.Insurance)
 

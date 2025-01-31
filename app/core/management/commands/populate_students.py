@@ -23,14 +23,12 @@ class Command(BaseCommand):
             uid = fake.random_int(min=10000000, max=99999999)
             first_name = fake.first_name()
             last_name = fake.last_name()    
-            tutor_phone = fake.phone_number()
 
             student = models.Student.objects.create(
                 uid=uid,
                 first_name=first_name,
                 last_name=last_name,
                 clase=clase,
-                tutor_phone=tutor_phone
             )
 
             self.stdout.write(self.style.SUCCESS(f'Student {student} created'))

@@ -81,29 +81,46 @@ class Instructor(models.Model):
             self.first_name = self.user.first_name
             self.last_name = self.user.last_name
         super().save(*args, **kwargs)
-    
-class Language(models.Model):
-
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-class Religion(models.Model):
-
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-    
-class Insurance(models.Model):
-
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
 
 class Student(models.Model):
+
+    SPANISH_LANGUAGE = 'S'
+    ENGLISH_LANGUAGE = 'E'
+    QUECHUA_LANGUAGE = 'Q'
+    AYMARA_LANGUAGE = 'A'
+
+    LANGUAGE_CHOICES = [
+        (SPANISH_LANGUAGE, 'Spanish'),
+        (ENGLISH_LANGUAGE, 'English'),
+        (QUECHUA_LANGUAGE, 'Quechua'),
+        (AYMARA_LANGUAGE, 'Aymara'),
+    ]
+
+    CATHOLIC_RELIGION = 'C'
+    EVANGELIC_RELIGION = 'E'
+    JEWISH_RELIGION = 'J'
+    MUSLIM_RELIGION = 'I'
+    BUDDHIST_RELIGION = 'B'
+    MORMON_RELIGION = 'M'
+    JEHOVAH_RELIGION = 'T'
+    CHRISTIAN_RELIGION = 'R'
+    OTHER_RELIGION = 'O'
+
+    RELIGION_CHOICES = [
+        (CATHOLIC_RELIGION, 'Catholic'),
+        (EVANGELIC_RELIGION, 'Evangelic'),
+        (JEWISH_RELIGION, 'Jewish'),
+        (MUSLIM_RELIGION, 'Muslim'),
+        (BUDDHIST_RELIGION, 'Buddhist'),
+        (MORMON_RELIGION, 'Mormon'),
+        (JEHOVAH_RELIGION, 'Jehovah'),
+        (CHRISTIAN_RELIGION, 'Christian'),
+        (OTHER_RELIGION, 'Other'),
+    ]
+
+    ESSALUD_INSURANCE = 'E'
+    PRIVATE_INSURANCE = 'P'
+    SIS_INSURANCE = 'S'
 
     uid = models.BigIntegerField(primary_key=True, unique=True)
     first_name = models.CharField(max_length=255)
@@ -112,20 +129,16 @@ class Student(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
     prev_school = models.CharField(max_length=255, null=True, blank=True)
-    main_language = models.ForeignKey(
-        Language, on_delete=models.SET_NULL, null=True, blank=True, related_name='main_students'
-    )
-    second_language = models.ForeignKey(
-        Language, on_delete=models.SET_NULL, null=True, blank=True, related_name='second_students'
-    )
+    main_language = models.CharField(max_length=1, choices=LANGUAGE_CHOICES, default=SPANISH_LANGUAGE)
+    second_language = models.CharField(max_length=1, choices=LANGUAGE_CHOICES, null=True, blank=True)
     number_of_siblings = models.IntegerField(default=0)
     place_in_family = models.IntegerField(default=0)
-    religion = models.ForeignKey(Religion, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
+    religion = models.CharField(max_length=1, choices=RELIGION_CHOICES, default=CATHOLIC_RELIGION)
     address = models.TextField(blank=True, null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     celphone_number = models.CharField(max_length=255, blank=True, null=True)
     map_location = models.CharField(max_length=255, blank=True, null=True)
-    insurance = models.ForeignKey(Insurance, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
+    insurance = models.CharField(max_length=1, choices=RELIGION_CHOICES, blank=True, null=True)
     lives_with = models.CharField(max_length=255, blank=True, null=True)
 
 
@@ -136,7 +149,6 @@ class Health_Information(models.Model):
 
     weight = models.FloatField(null=True, blank=True)
     height = models.FloatField(null=True, blank=True)
-    natural_birth = models.BooleanField(default=True)
     illness = models.TextField(null=True, blank=True)
     student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='health_info')
     
@@ -147,6 +159,7 @@ class Birth_Info(models.Model):
     state = models.CharField(max_length=255)
     county = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
+    natural_birth = models.BooleanField(default=True)
     
 class Emergency_Contact(models.Model):
 

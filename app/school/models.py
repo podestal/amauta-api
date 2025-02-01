@@ -122,6 +122,13 @@ class Student(models.Model):
     PRIVATE_INSURANCE = 'P'
     SIS_INSURANCE = 'S'
 
+    INSURANCE_CHOICES = [
+        (ESSALUD_INSURANCE, 'Essalud'),
+        (PRIVATE_INSURANCE, 'Private'),
+        (SIS_INSURANCE, 'SIS'),
+
+    ]
+
     uid = models.BigIntegerField(primary_key=True, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
@@ -138,7 +145,7 @@ class Student(models.Model):
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     celphone_number = models.CharField(max_length=255, blank=True, null=True)
     map_location = models.CharField(max_length=255, blank=True, null=True)
-    insurance = models.CharField(max_length=1, choices=RELIGION_CHOICES, blank=True, null=True)
+    insurance = models.CharField(max_length=1, choices=INSURANCE_CHOICES, blank=True, null=True)
     lives_with = models.CharField(max_length=255, blank=True, null=True)
 
 

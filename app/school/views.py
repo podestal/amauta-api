@@ -269,7 +269,7 @@ class StudentViewSet(ModelViewSet):
 
         day_param = self.request.query_params.get('day')
         week_param = self.request.query_params.get('week')
-        month_param = self.request.query_params.get('month')
+        month_param = self.request.query_params.get('month', current_month)
 
         attendance_in = models.Atendance.objects.filter(
             kind='I'
@@ -279,8 +279,8 @@ class StudentViewSet(ModelViewSet):
         )
 
         if day_param:
-            attendance_in = attendance_in.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(current_month))
-            attendance_out = attendance_out.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(current_month))
+            attendance_in = attendance_in.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(month_param))
+            attendance_out = attendance_out.annotate(day=ExtractDay('created_at'), month=ExtractMonth('created_at')).filter(day=int(day_param), month=int(month_param))
 
         elif week_param:
             attendance_in = attendance_in.annotate(week=ExtractWeek('created_at')).filter(week=int(week_param))

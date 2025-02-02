@@ -170,7 +170,7 @@ class Birth_Info(models.Model):
     
 class Emergency_Contact(models.Model):
 
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="emergency_contacts")
+    student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name="emergency_contact")
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=255)
     address = models.TextField()

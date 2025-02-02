@@ -48,6 +48,7 @@ class GetEmergencyContactSerializer(serializers.ModelSerializer):
         model = models.Emergency_Contact
         fields = ['id', 'name', 'phone_number', 'address']
 
+
 class CreateEmergencyContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Emergency_Contact
@@ -125,6 +126,9 @@ class GetAssistantSerializer(serializers.ModelSerializer):
     
 class GetStudentSerializer(serializers.ModelSerializer):
 
+    health_info = GetHealthInfoSerializer()
+    birth_info = GetBirthInfoSerializer()
+    emergency_contact = GetEmergencyContactSerializer()
     attendances_in = serializers.SerializerMethodField()
     attendances_out = serializers.SerializerMethodField()
 
@@ -149,6 +153,9 @@ class GetStudentSerializer(serializers.ModelSerializer):
             'map_location',
             'insurance',
             'lives_with',
+            'health_info',
+            'birth_info',
+            'emergency_contact',
         ]
 
     def get_attendances_in(self, obj):

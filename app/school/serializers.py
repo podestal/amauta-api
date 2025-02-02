@@ -23,6 +23,37 @@ class CapacitySerializer(serializers.ModelSerializer):
         model = models.Capacity
         fields = '__all__'
 
+class GetHealthInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Health_Information
+        fields = ['id', 'weight', 'height', 'illness']
+
+class CreateHealthInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Health_Information
+        fields = ['id', 'weight', 'height', 'illness', 'student']
+
+class GetBirthInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Birth_Info
+        fields = ['id', 'date_of_birth', 'state', 'county', 'city', 'natural_birth']
+
+class CreateBirthInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Birth_Info
+        fields = ['id', 'date_of_birth', 'state', 'county', 'city', 'natural_birth', 'student']
+
+class GetEmergencyContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Emergency_Contact
+        fields = ['id', 'name', 'phone_number', 'address']
+
+class CreateEmergencyContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Emergency_Contact
+        fields = ['id', 'name', 'phone_number', 'address', 'student']
+
+
 class GetClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clase

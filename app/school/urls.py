@@ -19,5 +19,8 @@ router.register('atendance', views.AtendanceViewSet)
 # router.register('grade', views.GradeViewSet)
 # router.register('quarter-grade', views.QuarterGradeViewSet)
 router.register('announcement', views.AnnouncementViewSet)
+router.register('birth-info', views.BirthInfoViewSet)   
+router.register('emergency-contact', views.EmergencyContactViewSet)
+router.register('health-info', views.HealthInfoViewSet)
 
 urlpatterns = router.urls

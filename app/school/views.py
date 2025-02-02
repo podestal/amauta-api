@@ -433,3 +433,26 @@ class AnnouncementViewSet(ModelViewSet):
                 send_push_notification(token.device_token, 'Nuevo Mensaje', message)
         return super().create(request, *args, **kwargs)
 
+class HealthInfoViewSet(ModelViewSet):
+    queryset = models.Health_Information.objects.select_related('student')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateHealthInfoSerializer
+        return serializers.GetHealthInfoSerializer
+    
+class BirthInfoViewSet(ModelViewSet):
+    queryset = models.Birth_Info.objects.select_related('student')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateBirthInfoSerializer
+        return serializers.GetBirthInfoSerializer
+    
+class EmergencyContactViewSet(ModelViewSet):
+    queryset = models.Emergency_Contact.objects.select_related('student')
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateEmergencyContactSerializer
+        return serializers.GetEmergencyContactSerializer

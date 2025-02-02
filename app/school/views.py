@@ -295,7 +295,7 @@ class StudentViewSet(ModelViewSet):
             attendance_out = attendance_out.filter(created_at=now.today())
 
         return (
-                models.Student.objects.select_related('clase', 'main_language', 'second_language', 'religion', 'insurance')
+                models.Student.objects.select_related('clase').prefetch_related('health_info', 'birth_info', 'emergency_contacts')
                 .prefetch_related(
                     Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
                     Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')

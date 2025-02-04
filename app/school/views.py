@@ -245,23 +245,6 @@ class AssistantViewSet(ModelViewSet):
 
 class StudentViewSet(ModelViewSet):
 
-    # prev_school = models.CharField(max_length=255, null=True, blank=True)
-    # main_language = models.ForeignKey(
-    #     Language, on_delete=models.SET_NULL, null=True, blank=True, related_name='main_students'
-    # )
-    # second_language = models.ForeignKey(
-    #     Language, on_delete=models.SET_NULL, null=True, blank=True, related_name='second_students'
-    # )
-    # number_of_siblings = models.IntegerField(default=0)
-    # place_in_family = models.IntegerField(default=0)
-    # religion = models.ForeignKey(Religion, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
-    # address = models.TextField(blank=True, null=True)
-    # phone_number = models.CharField(max_length=255, blank=True, null=True)
-    # celphone_number = models.CharField(max_length=255, blank=True, null=True)
-    # map_location = models.CharField(max_length=255, blank=True, null=True)
-    # insurance = models.ForeignKey(Insurance, on_delete=models.SET_NULL, related_name='students', null=True, blank=True)
-    # lives_with = models.CharField(max_length=255, blank=True, null=True)
-
     def get_queryset(self):
 
         now = timezone.now()
@@ -295,7 +278,7 @@ class StudentViewSet(ModelViewSet):
             attendance_out = attendance_out.filter(created_at=now.today())
 
         return (
-                models.Student.objects.select_related('clase').prefetch_related('health_info', 'birth_info', 'emergency_contact')
+                models.Student.objects.select_related('clase').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors')
                 .prefetch_related(
                     Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
                     Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')

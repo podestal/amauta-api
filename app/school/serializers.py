@@ -124,6 +124,26 @@ class GetAssistantSerializer(serializers.ModelSerializer):
             for clase in obj.clases.all()
         ]
     
+class GetTutorForStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Tutor
+        fields = [
+            'id', 
+            'first_name', 
+            'last_name', 
+            'phone_number', 
+            'address', 
+            'email', 
+            'dni',
+            'date_of_birth',
+            'state',
+            'county',
+            'city',
+            'ocupation',
+            'employer',
+            'civil_status'
+        ]
+    
 class GetStudentSerializer(serializers.ModelSerializer):
 
     health_info = GetHealthInfoSerializer()
@@ -132,6 +152,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
     emergency_contact = GetEmergencyContactSerializer()
     attendances_in = serializers.SerializerMethodField()
     attendances_out = serializers.SerializerMethodField()
+    tutors = GetTutorForStudentSerializer(many=True)
 
     class Meta:
         model = models.Student
@@ -158,6 +179,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
             'health_info',
             'birth_info',
             'emergency_contact',
+            'tutors'
         ]
 
     def get_attendances_in(self, obj):
@@ -239,12 +261,12 @@ class GetTutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Tutor
-        fields = ['id', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'can_access']
+        fields = ['id', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'can_access', 'tutor_type']
 
 class CreateTutorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Tutor
-        fields = ['id', 'user', 'students', 'phone_number', 'address', 'email']
+        fields = ['id', 'user', 'students', 'phone_number', 'address', 'email', 'tutor_type']
 
 
 class CategorySerializer(serializers.ModelSerializer):

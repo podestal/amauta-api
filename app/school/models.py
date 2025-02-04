@@ -225,8 +225,41 @@ class Atendance(models.Model):
 
 class Tutor(models.Model):
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    TUTOR_MOTHER = 'M'
+    TUTOR_FATHER = 'F'
+    TUTOR_OTHER = 'O'
+
+    TUTOR_TYPE_CHOICES = [
+        (TUTOR_MOTHER, 'Mother'),
+        (TUTOR_FATHER, 'Father'),
+        (TUTOR_OTHER, 'Other'),
+    ]
+
+    CIVIL_STATUS_SINGLE = 'S'
+    CIVIL_STATUS_MARRIED = 'M'
+    CIVIL_STATUS_DIVORCED = 'D'
+    CIVIL_STATUS_WIDOWED = 'W'
+    CIVIL_STATUS_OTHER = 'O'
+
+    CIVIL_STATUS_CHOICES = [
+        (CIVIL_STATUS_SINGLE, 'Single'),
+        (CIVIL_STATUS_MARRIED, 'Married'),
+        (CIVIL_STATUS_DIVORCED, 'Divorced'),
+        (CIVIL_STATUS_WIDOWED, 'Widowed'),
+        (CIVIL_STATUS_OTHER, 'Other'),
+    ]
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank=True, null=True)
     students = models.ManyToManyField(Student, related_name='tutors')
+    dni = models.CharField(max_length=255, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    state = models.CharField(max_length=255, null=True, blank=True)
+    county = models.CharField(max_length=255, null=True, blank=True)
+    city = models.CharField(max_length=255, null=True, blank=True)
+    instruction_grade = models.CharField(max_length=255, null=True, blank=True)
+    ocupation = models.CharField(max_length=255, null=True, blank=True)
+    employer = models.CharField(max_length=255, null=True, blank=True)
+    civil_status = models.CharField(max_length=1, choices=CIVIL_STATUS_CHOICES, null=True, blank=True)
     # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='tutors')
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
@@ -234,6 +267,9 @@ class Tutor(models.Model):
     address = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     can_access = models.BooleanField(default=True)
+    tutor_type = models.CharField(max_length=1, choices=TUTOR_TYPE_CHOICES, default=TUTOR_MOTHER)
+    tutor_relationship = models.CharField(max_length=255, null=True, blank=True)
+
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

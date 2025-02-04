@@ -210,6 +210,29 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             'lives_with',
         ]
 
+class UpdateStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Student
+        fields = [
+            'first_name', 
+            'last_name', 
+            'clase',
+            'uid', 
+            'created_at',
+            'prev_school',
+            'main_language',
+            'second_language',
+            'number_of_siblings',
+            'place_in_family',
+            'religion',
+            'address',
+            'phone_number',
+            'celphone_number',
+            'map_location',
+            'insurance',
+            'lives_with',
+        ]
+
 class GetTutorSerializer(serializers.ModelSerializer):
 
     students = GetStudentForTutorSerializer(many=True)

@@ -305,6 +305,8 @@ class StudentViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateStudentSerializer
+        if self.request.method in ['PUT', 'PATCH']:
+            return serializers.UpdateStudentSerializer
         return serializers.GetStudentSerializer
 
     @action(detail=False, methods=['get'])

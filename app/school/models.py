@@ -147,7 +147,7 @@ class Student(models.Model):
     map_location = models.CharField(max_length=255, blank=True, null=True)
     insurance = models.CharField(max_length=1, choices=INSURANCE_CHOICES, blank=True, null=True)
     lives_with = models.CharField(max_length=255, blank=True, null=True)
-
+    tutor_name = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

@@ -128,6 +128,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
 
     health_info = GetHealthInfoSerializer()
     birth_info = GetBirthInfoSerializer()
+    clase = GetSimpleClaseSerializer()
     emergency_contact = GetEmergencyContactSerializer()
     attendances_in = serializers.SerializerMethodField()
     attendances_out = serializers.SerializerMethodField()
@@ -137,6 +138,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
         fields = [
             'first_name', 
             'last_name', 
+            'clase',
             'uid', 
             'attendances_in', 
             'attendances_out', 

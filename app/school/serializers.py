@@ -141,7 +141,8 @@ class GetTutorForStudentSerializer(serializers.ModelSerializer):
             'city',
             'ocupation',
             'employer',
-            'civil_status'
+            'civil_status',
+            'lives_with_student',
         ]
     
 class GetStudentSerializer(serializers.ModelSerializer):

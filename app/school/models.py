@@ -260,6 +260,7 @@ class Tutor(models.Model):
     ocupation = models.CharField(max_length=255, null=True, blank=True)
     employer = models.CharField(max_length=255, null=True, blank=True)
     civil_status = models.CharField(max_length=1, choices=CIVIL_STATUS_CHOICES, null=True, blank=True)
+    lives_with_student = models.BooleanField(blank=True, null=True)
     # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='tutors')
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)

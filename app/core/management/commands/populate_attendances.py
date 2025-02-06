@@ -46,16 +46,17 @@ class Command(BaseCommand):
                     kind="I",
                 )
 
-                Atendance.objects.create(
-                    created_at=date,
-                    updated_at=date,
-                    status=status_out,
-                    attendance_type=attendance_type,
-                    student=student,
-                    created_by="System",
-                    observations="Generated automatically",
-                    kind="O",
-                )
+                if status_in != 'N':
+                    Atendance.objects.create(
+                        created_at=date,
+                        updated_at=date,
+                        status=status_out,
+                        attendance_type=attendance_type,
+                        student=student,
+                        created_by="System",
+                        observations="Generated automatically",
+                        kind="O",
+                    )
 
                 attendances_created += 2
 

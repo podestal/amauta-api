@@ -275,12 +275,6 @@ class Tutor(models.Model):
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
     
-    def save(self, *args, **kwargs):
-        if self.user:
-            self.first_name = self.user.first_name
-            self.last_name = self.user.last_name
-        super().save(*args, **kwargs)
-    
     
 class Category(models.Model):
 

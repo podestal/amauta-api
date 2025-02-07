@@ -143,6 +143,7 @@ class GetTutorForStudentSerializer(serializers.ModelSerializer):
             'employer',
             'civil_status',
             'lives_with_student',
+            'tutor_type'
         ]
     
 class GetStudentSerializer(serializers.ModelSerializer):
@@ -267,7 +268,29 @@ class GetTutorSerializer(serializers.ModelSerializer):
 class CreateTutorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Tutor
-        fields = ['id', 'user', 'students', 'phone_number', 'address', 'email', 'tutor_type']
+        fields = [
+            'id', 
+            'user', 
+            'students', 
+            'phone_number', 
+            'address', 
+            'email', 
+            'dni',
+            'date_of_birth',
+            'state',
+            'county',
+            'city',
+            'ocupation',
+            'instruction_grade',
+            'employer',
+            'civil_status',
+            'lives_with_student',
+            'first_name',
+            'last_name',
+            'tutor_type',
+            'tutor_relationship'
+
+        ]
 
 
 class CategorySerializer(serializers.ModelSerializer):

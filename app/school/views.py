@@ -81,10 +81,10 @@ class AtendanceViewSet(ModelViewSet):
             return serializers.CreateAtendanceSerializer
         return serializers.GetAtendanceSerializer
     
-    def get_permissions(self):
-        if self.request.method == 'DELETE':
-            return [IsAdminUser()]
-        return [IsAuthenticated()]
+    # def get_permissions(self):
+    #     if self.request.method == 'DELETE':
+    #         return [IsAdminUser()]
+    #     return [IsAuthenticated()]
 
     @action(detail=False, methods=['get'])
     def byClassroom(self, request):

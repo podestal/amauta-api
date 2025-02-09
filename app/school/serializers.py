@@ -143,7 +143,8 @@ class GetTutorForStudentSerializer(serializers.ModelSerializer):
             'employer',
             'civil_status',
             'lives_with_student',
-            'tutor_type'
+            'tutor_type',
+            'instruction_grade',
         ]
     
 class GetStudentSerializer(serializers.ModelSerializer):
@@ -289,7 +290,6 @@ class CreateTutorSerializer(serializers.ModelSerializer):
             'last_name',
             'tutor_type',
             'tutor_relationship'
-
         ]
 
 

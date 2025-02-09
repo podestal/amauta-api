@@ -228,10 +228,10 @@ class AssistantViewSet(ModelViewSet):
     queryset = models.Assistant.objects.select_related('user').prefetch_related('clases')
     serializer_class = serializers.GetAssistantSerializer
     
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
+    # def get_permissions(self):
+    #     if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
+    #         return [IsAuthenticated()]
+    #     return [IsAdminUser()]
     
     @action(detail=False, methods=['get'])
     def me(self, request):
@@ -324,17 +324,19 @@ class StudentViewSet(ModelViewSet):
 
 
 class TutorViewSet(ModelViewSet):
+
     queryset = models.Tutor.objects.select_related('user').prefetch_related('students')
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
             return serializers.CreateTutorSerializer
         return serializers.GetTutorSerializer
     
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
+    # def get_permissions(self):
+    #     if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
+    #         return [IsAuthenticated()]
+    #     return [IsAdminUser()]
     
     @action(detail=False, methods=['get'])
     def me(self, request):

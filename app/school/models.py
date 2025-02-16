@@ -154,10 +154,24 @@ class Student(models.Model):
     
 class Health_Information(models.Model):
 
+    HANDYCAP_CHOICES = [
+        ('V', 'Visual'),
+        ('A', 'Autism'),
+        ('M', 'Motor'),
+        ('C', 'Cognitive'),
+        ('P', 'Psychological'),
+        ('H', 'Hearing-Vision'),
+        ('O', 'Other'),
+        ('N', 'None'),
+    ]
+
     weight = models.FloatField(null=True, blank=True)
     height = models.FloatField(null=True, blank=True)
     illness = models.TextField(null=True, blank=True)
     student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='health_info')
+    handycap = models.CharField(max_length=1, choices=HANDYCAP_CHOICES, default='N')
+    saanee = models.BooleanField(default=False)
+    psicopedagogic = models.BooleanField(default=False)
     
 class Birth_Info(models.Model):
 

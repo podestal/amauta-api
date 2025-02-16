@@ -146,6 +146,13 @@ class GetTutorForStudentSerializer(serializers.ModelSerializer):
             'tutor_type',
             'instruction_grade',
         ]
+
+class GetStudentsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Student
+        fields = ['first_name', 'last_name', 'uid', 'clase', 'health_info', 'birth_info', 'emergency_contact']
+
     
 class GetStudentSerializer(serializers.ModelSerializer):
 

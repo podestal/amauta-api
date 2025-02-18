@@ -121,11 +121,13 @@ class Student(models.Model):
     ESSALUD_INSURANCE = 'E'
     PRIVATE_INSURANCE = 'P'
     SIS_INSURANCE = 'S'
+    OTHER_INSURANCE = 'O'
 
     INSURANCE_CHOICES = [
         (ESSALUD_INSURANCE, 'Essalud'),
         (PRIVATE_INSURANCE, 'Private'),
         (SIS_INSURANCE, 'SIS'),
+        (OTHER_INSURANCE, 'Other'),
 
     ]
 
@@ -146,6 +148,7 @@ class Student(models.Model):
     celphone_number = models.CharField(max_length=255, blank=True, null=True)
     map_location = models.CharField(max_length=255, blank=True, null=True)
     insurance = models.CharField(max_length=1, choices=INSURANCE_CHOICES, blank=True, null=True)
+    other_insurance= models.CharField(max_length=255, blank=True, null=True)
     lives_with = models.CharField(max_length=255, blank=True, null=True)
     tutor_name = models.CharField(max_length=255, blank=True, null=True)
 

@@ -185,6 +185,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
             'celphone_number',
             'map_location',
             'insurance',
+            'other_insurance',
             'lives_with',
             'health_info',
             'birth_info',
@@ -239,6 +240,7 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             'celphone_number',
             'map_location',
             'insurance',
+            'other_insurance',
             'lives_with',
         ]
 
@@ -262,6 +264,7 @@ class UpdateStudentSerializer(serializers.ModelSerializer):
             'celphone_number',
             'map_location',
             'insurance',
+            'other_insurance',
             'lives_with',
         ]
 

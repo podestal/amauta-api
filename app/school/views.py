@@ -72,6 +72,30 @@ class InstructorViewSet(ModelViewSet):
         serializer = serializers.GetInstructorSerializer(instructor)
         return Response(serializer.data)
     
+class ManagerViewSet(ModelViewSet):
+
+    queryset = models.Manager.objects.select_related('user')
+    
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateManagerSerializer
+        return serializers.GetManagerSerializer
+    
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
+    
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        user = self.request.user
+        try:
+            manager = self.queryset.get(user=user)
+        except:
+            raise NotFound("Manager not found for the current user.")
+        serializer = serializers.GetManagerSerializer(manager)
+        return Response(serializer.data)
+    
 class AtendanceViewSet(ModelViewSet):
 
     queryset = models.Atendance.objects.select_related('student')

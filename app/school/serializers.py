@@ -70,6 +70,17 @@ class CreateClaseSerializer(serializers.ModelSerializer):
         model = models.Clase
         fields = ['id', 'grade', 'level', 'section']
 
+class GetManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Manager
+        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'email']
+
+class CreateManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Manager
+        fields = ['id', 'user', 'phone_number', 'email']
+
+
 class GetInstructorSerializer(serializers.ModelSerializer):
 
     clases_details = serializers.SerializerMethodField()

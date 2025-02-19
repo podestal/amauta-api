@@ -61,23 +61,23 @@ services:
       - app
       - redis
 
-  celery-beat:
-    build: .
-    command: celery -A amauta beat --loglevel=info -s /app/celerybeat-data/celerybeat-schedule
-    environment:
-      - REDIS_HOST=redis
-      - DB_HOST=db
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
-    volumes:
-      - ./celerybeat-data:/app/celerybeat-data
-    depends_on:
-      - app
-      - redis
+  # celery-beat:
+  #   build: .
+  #   command: celery -A amauta beat --loglevel=info -s /app/celerybeat-data/celerybeat-schedule
+  #   environment:
+  #     - REDIS_HOST=redis
+  #     - DB_HOST=db
+  #     - DB_NAME=${DB_NAME}
+  #     - DB_USER=${DB_USER}
+  #     - DB_PASS=${DB_PASS}
+  #     - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+  #     - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+  #     - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+  #   volumes:
+  #     - ./celerybeat-data:/app/celerybeat-data
+  #   depends_on:
+  #     - app
+  #     - redis
 
   nginx:
     build: ./nginx

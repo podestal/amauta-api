@@ -57,7 +57,7 @@ class Clase(models.Model):
         (LEVEL_SECONDARY, 'Secondary')
     ]
 
-    # school = models.ForeignKey(School, on_delete=models.CASCADE)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
     grade =  models.CharField(max_length=1, choices=GRADE_CHOICES, null=True, blank=True)
     level = models.CharField(max_length=1, choices=LEVEL_CHOICES)
     section = models.CharField(max_length=1, default='A')
@@ -68,7 +68,7 @@ class Clase(models.Model):
 class Instructor(models.Model):
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='instructor')
-    # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='instructors')
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='instructors')
     first_name = models.CharField(max_length=255, null=True, blank=True)
     last_name = models.CharField(max_length=255, null=True, blank=True)
     clases = models.ManyToManyField(Clase, related_name='instructors')
@@ -136,7 +136,7 @@ class Student(models.Model):
     last_name = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')
     created_at = models.DateTimeField(auto_now_add=True)
-    # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='students')
     prev_school = models.CharField(max_length=255, null=True, blank=True)
     main_language = models.CharField(max_length=1, choices=LANGUAGE_CHOICES, default=SPANISH_LANGUAGE)
     second_language = models.CharField(max_length=1, choices=LANGUAGE_CHOICES, null=True, blank=True)
@@ -201,6 +201,7 @@ class Assistant(models.Model):
     address = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     clases = models.ManyToManyField(Clase, related_name='assistants')
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='assistants')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -248,6 +249,7 @@ class Manager(models.Model):
     phone_number = models.CharField(max_length=255, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='managers')
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
@@ -305,6 +307,7 @@ class Tutor(models.Model):
     can_access = models.BooleanField(default=True)
     tutor_type = models.CharField(max_length=1, choices=TUTOR_TYPE_CHOICES, default=TUTOR_MOTHER)
     tutor_relationship = models.CharField(max_length=255, null=True, blank=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='tutors')
 
 
     def __str__(self):

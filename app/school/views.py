@@ -35,7 +35,7 @@ class CapacityViewSet(ModelViewSet):
     serializer_class = serializers.CapacitySerializer
 
 class ClaseViewSet(ModelViewSet):
-    queryset = models.Clase.objects.prefetch_related('students')
+    queryset = models.Clase.objects.select_related('school').prefetch_related('students')
     permission_classes = [IsAdminUser]
     
     def get_serializer_class(self):
@@ -50,7 +50,7 @@ class ClaseViewSet(ModelViewSet):
 
 class InstructorViewSet(ModelViewSet):
 
-    queryset = models.Instructor.objects.select_related('user').prefetch_related('clases')
+    queryset = models.Instructor.objects.select_related('user', 'school').prefetch_related('clases')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -74,7 +74,7 @@ class InstructorViewSet(ModelViewSet):
     
 class ManagerViewSet(ModelViewSet):
 
-    queryset = models.Manager.objects.select_related('user')
+    queryset = models.Manager.objects.select_related('user', 'school')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -249,7 +249,7 @@ class AtendanceViewSet(ModelViewSet):
     
 class AssistantViewSet(ModelViewSet):
 
-    queryset = models.Assistant.objects.select_related('user').prefetch_related('clases')
+    queryset = models.Assistant.objects.select_related('user', 'school').prefetch_related('clases')
     serializer_class = serializers.GetAssistantSerializer
     
     # def get_permissions(self):
@@ -302,7 +302,7 @@ class StudentViewSet(ModelViewSet):
             attendance_out = attendance_out.filter(created_at=now.today())
 
         return (
-                models.Student.objects.select_related('clase').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors')
+                models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors')
                 .prefetch_related(
                     Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
                     Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')
@@ -352,7 +352,7 @@ class StudentViewSet(ModelViewSet):
 
 class TutorViewSet(ModelViewSet):
 
-    queryset = models.Tutor.objects.select_related('user').prefetch_related('students')
+    queryset = models.Tutor.objects.select_related('user', 'school').prefetch_related('students')
     permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):

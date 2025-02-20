@@ -58,27 +58,27 @@ class CreateEmergencyContactSerializer(serializers.ModelSerializer):
 class GetClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clase
-        fields = ['id', 'grade', 'level', 'section']
+        fields = ['id', 'grade', 'level', 'section', 'school']
 
 class GetSimpleClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clase
-        fields = ['id', 'grade', 'level', 'section']
+        fields = ['id', 'grade', 'level', 'section', 'school']
 
 class CreateClaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Clase
-        fields = ['id', 'grade', 'level', 'section']
+        fields = ['id', 'grade', 'level', 'section', 'school']
 
 class GetManagerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Manager
-        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'email']
+        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'email', 'school']
 
 class CreateManagerSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Manager
-        fields = ['id', 'user', 'phone_number', 'email']
+        fields = ['id', 'user', 'phone_number', 'email', 'school']
 
 
 class GetInstructorSerializer(serializers.ModelSerializer):
@@ -87,7 +87,7 @@ class GetInstructorSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = models.Instructor
-        fields = ['id', 'user', 'clases_details', 'first_name', 'last_name']
+        fields = ['id', 'user', 'clases_details', 'first_name', 'last_name', 'school']
 
     def get_clases_details(self, obj):
         return [
@@ -99,7 +99,7 @@ class CreateInstructorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Instructor
-        fields = ['id', 'user', 'clases']
+        fields = ['id', 'user', 'clases', 'school']
 
 class GetAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -127,7 +127,7 @@ class GetAssistantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Assistant
-        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'clases_details']
+        fields = ['id', 'user', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'clases_details', 'school']
 
     def get_clases_details(self, obj):
         return [
@@ -156,13 +156,14 @@ class GetTutorForStudentSerializer(serializers.ModelSerializer):
             'lives_with_student',
             'tutor_type',
             'instruction_grade',
+            'school',
         ]
 
 class GetStudentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'clase', 'health_info', 'birth_info', 'emergency_contact']
+        fields = ['first_name', 'last_name', 'uid', 'clase', 'health_info', 'birth_info', 'emergency_contact', 'school']
 
     
 class GetStudentSerializer(serializers.ModelSerializer):
@@ -201,7 +202,8 @@ class GetStudentSerializer(serializers.ModelSerializer):
             'health_info',
             'birth_info',
             'emergency_contact',
-            'tutors'
+            'tutors',
+            'school',
         ]
 
     def get_attendances_in(self, obj):
@@ -253,6 +255,7 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             'insurance',
             'other_insurance',
             'lives_with',
+            'school',
         ]
 
 class UpdateStudentSerializer(serializers.ModelSerializer):
@@ -277,6 +280,7 @@ class UpdateStudentSerializer(serializers.ModelSerializer):
             'insurance',
             'other_insurance',
             'lives_with',
+            'school',
         ]
 
 class GetTutorSerializer(serializers.ModelSerializer):
@@ -285,7 +289,7 @@ class GetTutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Tutor
-        fields = ['id', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'can_access', 'tutor_type']
+        fields = ['id', 'students', 'first_name', 'last_name', 'phone_number', 'address', 'email', 'can_access', 'tutor_type', 'school']
 
 class CreateTutorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -310,7 +314,8 @@ class CreateTutorSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'tutor_type',
-            'tutor_relationship'
+            'tutor_relationship',
+            'school',
         ]
 
 

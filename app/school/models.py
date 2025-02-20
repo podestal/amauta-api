@@ -60,7 +60,7 @@ class Clase(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)
     grade =  models.CharField(max_length=1, choices=GRADE_CHOICES, null=True, blank=True)
     level = models.CharField(max_length=1, choices=LEVEL_CHOICES)
-    section = models.CharField(max_length=1, default='A')
+    section = models.CharField(max_length=1, default='U')
 
     def __str__(self):
         return f'{self.grade}-{self.section}-{self.level}'

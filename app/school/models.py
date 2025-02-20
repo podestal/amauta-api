@@ -55,7 +55,8 @@ class Clase(models.Model):
 
     LEVEL_CHOICES = [
         (LEVEL_PRIMARY, 'Primary'),
-        (LEVEL_SECONDARY, 'Secondary')
+        (LEVEL_SECONDARY, 'Secondary'),
+        (LELEL_INITIAL, 'Initial'),
     ]
 
     school = models.ForeignKey(School, on_delete=models.CASCADE, null=True, blank=True)

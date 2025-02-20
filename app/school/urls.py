@@ -4,7 +4,7 @@ from . import views
 router = routers.DefaultRouter()
 
 # router.register('area', views.AreaViewSet)
-# router.register('school', views.SchoolViewSet)
+router.register('school', views.SchoolViewSet)
 # router.register('competence', views.CompetenceViewSet)
 # router.register('capacity', views.CapacityViewSet)
 router.register('clase', views.ClaseViewSet)

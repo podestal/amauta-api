@@ -49,6 +49,7 @@ class Clase(models.Model):
         (GRADE_SIXTH, 'Sixth'),
     ]
 
+    LELEL_INITIAL = 'I'
     LEVEL_PRIMARY = 'P'
     LEVEL_SECONDARY = 'S'
 

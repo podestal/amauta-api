@@ -11,7 +11,7 @@ class AreaSerializer(serializers.ModelSerializer):
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.School
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'type_of_institution', 'picture_name', 'address', 'phone_number', 'email']
 
 class CompetenceSerializer(serializers.ModelSerializer):
     class Meta:

@@ -146,13 +146,28 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/{uid}/{token}/',
+    'SEND_ACTIVATION_EMAIL': False,
     'SERIALIZERS': {
         "current_user": "core.serializers.UserSerializer",
         "user": "core.serializers.UserSerializer",
         "user_create": "core.serializers.CreateUserSerializer",
+    },
+    "EMAIL": {
+        "password_reset": "core.email.CustomPasswordResetEmail",
     }
 }
 
+
+# from django.core.mail import send_mail
+
+# send_mail(
+#     "Test Email",
+#     "This is a test email from Django.",
+#     "support@podestalservers.com", 
+#     ["eltecladodesocrates@gmail.com"],
+#     fail_silently=False,
+# )
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('JWT',),
@@ -178,7 +193,18 @@ CACHE = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.zoho.com'
+EMAIL_PORT = 587 
+EMAIL_USE_TLS = True 
+# EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+# EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER='support@podestalservers.com'
+EMAIL_HOST_PASSWORD='13anguloX'
+DEFAULT_FROM_EMAIL = 'support@podestalservers.com'
+
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/1") 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379/1")
+

@@ -157,6 +157,7 @@ DJOSER = {
     },
     "EMAIL": {
         "password_reset": "core.email.CustomPasswordResetEmail",
+        "password_changed_confirmation": "core.email.PasswordResetConfirmationEmail",
     }
 }
 

@@ -202,9 +202,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True 
 # EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 # EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
-EMAIL_HOST_USER='support@podestalservers.com'
-EMAIL_HOST_PASSWORD='13anguloX'
-DEFAULT_FROM_EMAIL = 'support@podestalservers.com'
+EMAIL_HOST_USER=os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD=os.environ.get("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379/1") 
 CELERY_ACCEPT_CONTENT = ['json']

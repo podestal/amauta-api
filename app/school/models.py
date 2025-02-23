@@ -181,6 +181,7 @@ class Health_Information(models.Model):
     illness = models.TextField(null=True, blank=True)
     student = models.OneToOneField(Student, on_delete=models.CASCADE, related_name='health_info')
     handycap = models.CharField(max_length=1, choices=HANDYCAP_CHOICES, default='N')
+    hsndyCap_description = models.TextField(null=True, blank=True)
     saanee = models.BooleanField(default=False)
     psicopedagogic = models.BooleanField(default=False)
     

@@ -26,12 +26,12 @@ class CapacitySerializer(serializers.ModelSerializer):
 class GetHealthInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Health_Information
-        fields = ['id', 'weight', 'height', 'illness', 'handycap', 'saanee', 'psicopedagogic']
+        fields = ['id', 'weight', 'height', 'illness', 'handycap', 'hsndyCap_description', 'saanee', 'psicopedagogic']
 
 class CreateHealthInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Health_Information
-        fields = ['id', 'weight', 'height', 'illness', 'student', 'handycap', 'saanee', 'psicopedagogic']
+        fields = ['id', 'weight', 'height', 'illness', 'student', 'handycap', 'hsndyCap_description', 'saanee', 'psicopedagogic']
 
 class GetBirthInfoSerializer(serializers.ModelSerializer):
     class Meta:

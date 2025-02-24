@@ -1,5 +1,7 @@
 from datetime import date
+from unidecode import unidecode
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from django.db.models.functions import ExtractWeek, ExtractMonth, ExtractDay
 from django.utils import timezone
 from datetime import timedelta
@@ -348,6 +350,25 @@ class StudentViewSet(ModelViewSet):
             return Response(serializer.data)
         except:
             return Response({"error": "Tutor not found"}, status=404)
+        
+    @action(detail=False, methods=['get'])
+    def byName(self, request):
+        school = request.query_params.get('school')
+        name = request.query_params.get('name')
+
+        if not name:
+            return Response({"error": "Name parameter is required"}, status=400)
+
+        normalized_name = unidecode(name)  # Removes accents
+
+        query = (
+            Q(first_name__icontains=normalized_name) | 
+            Q(last_name__icontains=normalized_name)
+        ) & Q(school_id=school)
+
+        students = self.get_queryset().filter(query)
+        serializer = serializers.GetStudentSerializer(students, many=True)
+        return Response(serializer.data)
 
 
 class TutorViewSet(ModelViewSet):

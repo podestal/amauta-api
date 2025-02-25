@@ -54,6 +54,15 @@ class ClaseViewSet(ModelViewSet):
         if self.request.method in SAFE_METHODS:
             return [IsAuthenticated()]
         return [IsAdminUser()]
+    
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return super().get_queryset()
+        school = self.request.query_params.get('school')
+        if not school:
+            return Response({"error": "School parameter is required"}, status=400)
+        return self.queryset.filter(school=school)
+        
 
 class InstructorViewSet(ModelViewSet):
 

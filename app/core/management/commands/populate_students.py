@@ -10,10 +10,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--count', type=int, default=10, help='Number of students to create')
+        parser.add_argument('--school', type=int, help='ID of the school to assign students to')
 
     def handle(self, *args, **kwargs):
         count = kwargs['count']
-        classrooms = models.Clase.objects.all()
+        classrooms = models.Clase.objects.filter(school_id=kwargs['school'])
 
         if not classrooms.exists():
             self.stdout.write(self.style.ERROR('No classrooms found'))
@@ -30,6 +31,7 @@ class Command(BaseCommand):
                 first_name=first_name,
                 last_name=last_name,
                 clase=clase,
+                school_id=kwargs['school'],
                 prev_school=fake.company(),
                 main_language=random.choice([lang[0] for lang in models.Student.LANGUAGE_CHOICES]),
                 second_language=random.choice([lang[0] for lang in models.Student.LANGUAGE_CHOICES]) if random.choice([True, False]) else None,

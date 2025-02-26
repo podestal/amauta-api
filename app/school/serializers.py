@@ -56,9 +56,15 @@ class CreateEmergencyContactSerializer(serializers.ModelSerializer):
 
 
 class GetClaseSerializer(serializers.ModelSerializer):
+
+    total_students = serializers.SerializerMethodField()
     class Meta:
         model = models.Clase
-        fields = ['id', 'grade', 'level', 'section', 'school']
+        fields = ['id', 'grade', 'level', 'section', 'school', 'total_students']
+    
+    def get_total_students(self, obj):
+        return obj.students.count()
+    
 
 class GetSimpleClaseSerializer(serializers.ModelSerializer):
     class Meta:

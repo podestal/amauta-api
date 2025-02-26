@@ -130,6 +130,7 @@ class Student(models.Model):
     PRIVATE_INSURANCE = 'P'
     SIS_INSURANCE = 'S'
     OTHER_INSURANCE = 'O'
+    # NOT_SPECIFIED_INSURANCE = 'N'
 
     INSURANCE_CHOICES = [
         (ESSALUD_INSURANCE, 'Essalud'),

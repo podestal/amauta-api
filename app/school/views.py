@@ -62,6 +62,16 @@ class ClaseViewSet(ModelViewSet):
         if not school:
             return Response({"error": "School parameter is required"}, status=400)
         return self.queryset.filter(school=school)
+    
+    # @action(detail=False, methods=['get'])
+    # def withStudentsCount(self, request):
+
+    #     school = request.query_params.get('school')
+    #     if not school:
+    #         return Response({"error": "School parameter is required"}, status=400)
+    #     clases = self.queryset.filter(school=school)
+    #     serializer = serializers.GetClaseForSummarySerializer(clases, many=True)
+    #     return Response(serializer.data)
         
 
 class InstructorViewSet(ModelViewSet):

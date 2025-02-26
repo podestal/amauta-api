@@ -159,6 +159,7 @@ class Student(models.Model):
     other_insurance= models.CharField(max_length=255, blank=True, null=True)
     lives_with = models.CharField(max_length=255, blank=True, null=True)
     tutor_name = models.CharField(max_length=255, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'

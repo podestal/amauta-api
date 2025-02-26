@@ -163,7 +163,7 @@ class GetStudentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'clase', 'health_info', 'birth_info', 'emergency_contact', 'school']
+        fields = ['first_name', 'last_name', 'uid', 'clase', 'health_info', 'birth_info', 'emergency_contact', 'school', 'is_active']
 
     
 class GetStudentSerializer(serializers.ModelSerializer):
@@ -204,6 +204,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
             'emergency_contact',
             'tutors',
             'school',
+            'is_active',
         ]
 
     def get_attendances_in(self, obj):
@@ -229,7 +230,7 @@ class GetStudentForTutorSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'clase', 'attendances', 'created_at']
+        fields = ['first_name', 'last_name', 'uid', 'clase', 'attendances', 'created_at', 'is_active']
 
     def get_attendances(self, obj):
         return models.Atendance.objects.filter(student=obj.uid).values('status', 'created_at', 'observations')
@@ -256,6 +257,7 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             'other_insurance',
             'lives_with',
             'school',
+            'is_active',
         ]
 
 class UpdateStudentSerializer(serializers.ModelSerializer):
@@ -281,6 +283,7 @@ class UpdateStudentSerializer(serializers.ModelSerializer):
             'other_insurance',
             'lives_with',
             'school',
+            'is_active',
         ]
 
 class GetTutorSerializer(serializers.ModelSerializer):

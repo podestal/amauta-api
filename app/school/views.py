@@ -383,6 +383,13 @@ class StudentViewSet(ModelViewSet):
         students = self.get_queryset().filter(query)
         serializer = serializers.GetStudentSerializer(students, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byLastTen(self, request):
+        school = request.query_params.get('school')
+        students = self.get_queryset().filter(school=school).order_by('-created_at')[:10]
+        serializer = serializers.GetStudentSerializer(students, many=True)
+        return Response(serializer.data)
 
 
 class TutorViewSet(ModelViewSet):

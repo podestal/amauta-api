@@ -23,6 +23,11 @@ from . import serializers
 class AreaViewSet(ModelViewSet):
     queryset = models.Area.objects.all()
     serializer_class = serializers.AreaSerializer
+    
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
 
 class SchoolViewSet(ModelViewSet):
     queryset = models.School.objects.all()
@@ -34,12 +39,22 @@ class SchoolViewSet(ModelViewSet):
         return [IsAdminUser()]
 
 class CompetenceViewSet(ModelViewSet):
-    queryset = models.Competence.objects.all()
+    queryset = models.Competence.objects.select_related('area')
     serializer_class = serializers.CompetenceSerializer
 
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
+
 class CapacityViewSet(ModelViewSet):
-    queryset = models.Capacity.objects.all()
+    queryset = models.Capacity.objects.select_related('competence')
     serializer_class = serializers.CapacitySerializer
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
 
 class ClaseViewSet(ModelViewSet):
     queryset = models.Clase.objects.select_related('school').prefetch_related('students')
@@ -432,8 +447,22 @@ class CategoryViewSet(ModelViewSet):
     serializer_class = serializers.CategorySerializer  
 
 class AssignatureViewSet(ModelViewSet):
-    queryset = models.Assignature.objects.all()
+    queryset = models.Assignature.objects.select_related('clase', 'instructor', 'area')
     serializer_class = serializers.AssignatureSerializer  
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [IsAuthenticated()]
+        return [IsAdminUser()]
+
+    @action(detail=False, methods=['get'])
+    def byInstructor(self, request):
+        instructor = models.Instructor.objects.get(user=request.user)
+        if not instructor:
+            return Response({"error": "Instructor parameter is required"}, status=400)
+        assignatures = self.queryset.filter(instructor=instructor)
+        serializer = serializers.AssignatureSerializer(assignatures, many=True)
+        return Response(serializer.data)
 
 class ActivityViewSet(ModelViewSet):
     queryset = models.Activity.objects.all()

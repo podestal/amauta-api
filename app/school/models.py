@@ -3,6 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 
 class Area(models.Model):
+    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=255)
 
     def __str__(self):
@@ -22,7 +23,7 @@ class School(models.Model):
 
     
 class Competence(models.Model):
-
+    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=255)
     area = models.ForeignKey(Area, on_delete=models.CASCADE)
 
@@ -30,7 +31,7 @@ class Competence(models.Model):
         return self.title
     
 class Capacity(models.Model):
-
+    id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=255)
     competence = models.ForeignKey(Competence, on_delete=models.CASCADE)
 

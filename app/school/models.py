@@ -339,7 +339,7 @@ class Assignature(models.Model):
 
     title = models.CharField(max_length=255)
     clase =  models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='assignatures')
-    instructor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, blank=True, null=True, related_name='assignatures')
+    instructor = models.ForeignKey(Instructor, on_delete=models.SET_NULL, blank=True, null=True, related_name='assignatures')
     area = models.ForeignKey(Area, on_delete=models.CASCADE)
 
     def __str__(self):

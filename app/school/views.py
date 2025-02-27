@@ -457,12 +457,21 @@ class AssignatureViewSet(ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def byInstructor(self, request):
-        instructor = models.Instructor.objects.get(user=request.user)
-        if not instructor:
-            return Response({"error": "Instructor parameter is required"}, status=400)
-        assignatures = self.queryset.filter(instructor=instructor)
+        # instructor = request.query_params.get('instructor')
+        # if not instructor:
+        #     return Response({"error": "Instructor parameter is required"}, status=400)
+        # assignatures = self.queryset
+        # serializer = serializers.AssignatureSerializer(assignatures, many=True)
+        # return Response(serializer.data)
+        user = self.request.user
+        try:
+            instructor = models.Instructor.objects.get(user_id=user.id)
+        except:
+            return Response({"error": "Instructor not found for the current user"}, status=404)
+        assignatures = self.queryset.filter(instructor_id=instructor.id)
         serializer = serializers.AssignatureSerializer(assignatures, many=True)
         return Response(serializer.data)
+        return Response(serializers.GetInstructorSerializer(instructor).data)
 
 class ActivityViewSet(ModelViewSet):
     queryset = models.Activity.objects.all()

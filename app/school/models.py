@@ -361,8 +361,8 @@ class Activity(models.Model):
     due_date = models.DateField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
     quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
-    competences =  models.CharField(max_length=255)
-    capacities = models.CharField(max_length=255)
+    competences =  models.ManyToManyField(Competence, related_name='activities')
+    capacities = models.ManyToManyField(Capacity, related_name='activities')
 
 
     def __str__(self):

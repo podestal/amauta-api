@@ -448,7 +448,7 @@ class CategoryViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        
+
         if self.request.user.is_superuser:
             return super().get_queryset()
         user = self.request.user
@@ -480,8 +480,29 @@ class AssignatureViewSet(ModelViewSet):
         return Response(serializers.GetInstructorSerializer(instructor).data)
 
 class ActivityViewSet(ModelViewSet):
-    queryset = models.Activity.objects.all()
+
+
+    # title = models.CharField(max_length=255)
+    # assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE)
+    # description = models.TextField(null=True, blank=True)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # due_date = models.DateField(null=True, blank=True)
+    # category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    # quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
+    # competences =  models.ManyToManyField(Competence, related_name='activities')
+    # capacities = models.ManyToManyField(Capacity, related_name='activities')
+
+    queryset = models.Activity.objects.select_related('assignature', 'category').prefetch_related('competences', 'capacities')
     serializer_class = serializers.ActivitySerializer  
+    permission_classes = [IsAuthenticated]
+
+    def byAssignature(self, request):
+        assignature = request.query_params.get('assignature')
+        if not assignature:
+            return Response({"error": "Assignature parameter is required"}, status=400)
+        activities = self.queryset.filter(assignature_id=assignature)
+        serializer = serializers.ActivitySerializer(activities, many=True)
+        return Response(serializer.data)
 
 
 class GradeViewSet(ModelViewSet):

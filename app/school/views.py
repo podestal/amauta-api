@@ -443,9 +443,21 @@ class TutorViewSet(ModelViewSet):
         return Response(serializer.data)
 
 class CategoryViewSet(ModelViewSet):
-    queryset = models.Category.objects.all()
+    queryset = models.Category.objects.select_related('instructor')
     serializer_class = serializers.CategorySerializer  
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        
+        if self.request.user.is_superuser:
+            return super().get_queryset()
+        user = self.request.user
+        try:
+            instructor = models.Instructor.objects.get(user_id=user.id)
+        except:
+            return Response({"error": "Instructor not found for the current user"}, status=404)
+        return self.queryset.filter(instructor_id=instructor.id)
+    
 class AssignatureViewSet(ModelViewSet):
     queryset = models.Assignature.objects.select_related('clase', 'instructor', 'area')
     serializer_class = serializers.AssignatureSerializer  
@@ -457,12 +469,6 @@ class AssignatureViewSet(ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def byInstructor(self, request):
-        # instructor = request.query_params.get('instructor')
-        # if not instructor:
-        #     return Response({"error": "Instructor parameter is required"}, status=400)
-        # assignatures = self.queryset
-        # serializer = serializers.AssignatureSerializer(assignatures, many=True)
-        # return Response(serializer.data)
         user = self.request.user
         try:
             instructor = models.Instructor.objects.get(user_id=user.id)

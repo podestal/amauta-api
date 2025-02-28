@@ -348,6 +348,19 @@ class GradeSerializer(serializers.ModelSerializer):
         model = models.Grade
         fields = '__all__'
 
+class GetStudentForGradesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Student
+        fields = ['first_name', 'last_name', 'uid']
+
+class GradesByActivitySerializer(serializers.ModelSerializer):
+    
+    student = GetStudentForGradesSerializer()
+
+    class Meta:
+        model = models.Grade
+        fields = ['id', 'student', 'calification', 'observations']
+
 class QuarterGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.QuarterGrade

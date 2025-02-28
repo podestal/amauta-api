@@ -415,7 +415,7 @@ class StudentViewSet(ModelViewSet):
         students = self.get_queryset().filter(school=school).order_by('-created_at')[:10]
         serializer = serializers.GetStudentSerializer(students, many=True)
         return Response(serializer.data)
-
+    
 
 class TutorViewSet(ModelViewSet):
 
@@ -477,37 +477,44 @@ class AssignatureViewSet(ModelViewSet):
         assignatures = self.queryset.filter(instructor_id=instructor.id)
         serializer = serializers.AssignatureSerializer(assignatures, many=True)
         return Response(serializer.data)
-        return Response(serializers.GetInstructorSerializer(instructor).data)
 
 class ActivityViewSet(ModelViewSet):
-
-
-    # title = models.CharField(max_length=255)
-    # assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE)
-    # description = models.TextField(null=True, blank=True)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # due_date = models.DateField(null=True, blank=True)
-    # category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
-    # quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
-    # competences =  models.ManyToManyField(Competence, related_name='activities')
-    # capacities = models.ManyToManyField(Capacity, related_name='activities')
 
     queryset = models.Activity.objects.select_related('assignature', 'category').prefetch_related('competences', 'capacities')
     serializer_class = serializers.ActivitySerializer  
     permission_classes = [IsAuthenticated]
 
+    @action(detail=False, methods=['get'])
     def byAssignature(self, request):
         assignature = request.query_params.get('assignature')
+        print('assignature', assignature)
         if not assignature:
             return Response({"error": "Assignature parameter is required"}, status=400)
         activities = self.queryset.filter(assignature_id=assignature)
+        print('activities', activities)
         serializer = serializers.ActivitySerializer(activities, many=True)
         return Response(serializer.data)
 
 
 class GradeViewSet(ModelViewSet):
-    queryset = models.Grade.objects.all()
+
+    queryset = models.Grade.objects.select_related('student', 'activity', 'assignature')
     serializer_class = serializers.GradeSerializer  
+    # permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            return serializers.GradesByActivitySerializer
+        return serializers.GradeSerializer  
+
+    @action(detail=False, methods=['get'])
+    def byActivity(self, request):
+        activity = request.query_params.get('activity')
+        if not activity:
+            return Response({"error": "Activity parameter is required"}, status=400)
+        grades = self.queryset.filter(activity_id=activity)
+        serializer = serializers.GradesByActivitySerializer(grades, many=True)
+        return Response(serializer.data)
 
 class QuarterGradeViewSet(ModelViewSet):
     queryset = models.QuarterGrade.objects.all()

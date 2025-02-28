@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.db import transaction
 
 class Area(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -363,6 +364,23 @@ class Activity(models.Model):
     quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
     competences =  models.ManyToManyField(Competence, related_name='activities')
     capacities = models.ManyToManyField(Capacity, related_name='activities')
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None  # Check if this is a new activity being created
+        super().save(*args, **kwargs)  # Save the activity first
+
+        if is_new:  # Only create grades for a new activity
+            clase = self.assignature.clase
+            students = Student.objects.filter(clase=clase)
+            
+            grades = [
+                Grade(student=student, activity=self, assignature=self.assignature)
+                for student in students
+            ]
+            
+            if grades:
+                with transaction.atomic():  # Ensure atomicity
+                    Grade.objects.bulk_create(grades)
 
 
     def __str__(self):

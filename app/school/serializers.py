@@ -338,10 +338,66 @@ class AssignatureSerializer(serializers.ModelSerializer):
         model = models.Assignature
         fields = '__all__'
 
+    
+
 class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Activity
         fields = '__all__'
+
+class GetActivityForTutorSerializer(serializers.ModelSerializer):
+
+    grade = serializers.SerializerMethodField()
+    observations = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Activity
+        fields = ['id', 'title', 'description', 'created_at', 'category', 'grade', 'observations']
+
+    def get_grade(self, obj):
+        studentUid =  self.context['studentUid']
+        grade = models.Grade.objects.get(activity=obj.id, student_id=studentUid)
+        return grade.calification
+    
+    def get_observations(self, obj):
+        studentUid =  self.context['studentUid']
+        grade = models.Grade.objects.get(activity=obj.id, student_id=studentUid)
+        return grade.observations
+
+class GetAssignaturesForTutorSerializer(serializers.ModelSerializer):
+
+    # grades
+    # averages
+    # activities = GetActivityForTutorSerializer(many=True)
+    average = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Assignature
+        fields = ['id', 'title', 'average']
+
+    def get_average(self, obj):
+
+        gradeConverter = {
+            'C': 1,
+            'B': 2,
+            'A': 3,
+            'AD': 4,
+            'NA': 1
+        }
+
+        gradeConverterReverse = {
+            0: 'NA',
+            1: 'C',
+            2: 'B',
+            3: 'A',
+            4: 'AD',
+        }
+
+        studentUid =  self.context['studentUid']
+        grades = models.Grade.objects.filter(activity__assignature=obj.id, student_id=studentUid).prefetch_related('activity').select_related('student', 'activity', 'assignature')
+        numericGrade = sum([gradeConverter[grade.calification] for grade in grades]) / len(grades) if grades else 0
+        average = gradeConverterReverse[round(round(numericGrade, 0))]
+        return average
 
 class GradeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -354,7 +410,7 @@ class GetStudentForGradesSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'uid']
 
 class GradesByActivitySerializer(serializers.ModelSerializer):
-    
+
     student = GetStudentForGradesSerializer()
 
     class Meta:

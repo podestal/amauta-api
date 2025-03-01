@@ -477,6 +477,18 @@ class AssignatureViewSet(ModelViewSet):
         assignatures = self.queryset.filter(instructor_id=instructor.id)
         serializer = serializers.AssignatureSerializer(assignatures, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byTutor(self, request):
+        studentUid = request.query_params.get('student')
+        user = self.request.user
+        try:
+            tutor = models.Tutor.objects.get(user_id=user.id)
+        except:
+            return Response({"error": "Tutor not found for the current user"}, status=404)
+        assignatures = self.queryset.filter(clase__students__tutors=tutor)
+        serializer = serializers.GetAssignaturesForTutorSerializer(assignatures, many=True, context={'studentUid': studentUid})
+        return Response(serializer.data)
 
 class ActivityViewSet(ModelViewSet):
 

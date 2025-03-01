@@ -356,7 +356,7 @@ class Activity(models.Model):
     ]
 
     title = models.CharField(max_length=255)
-    assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE)
+    assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, related_name='activities')
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField(null=True, blank=True)
@@ -421,7 +421,7 @@ class QuarterGrade(models.Model):
     ]
 
     calification = models.CharField(max_length=2, choices=CALIFICATION_CHOICES)
-    assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE)
+    assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, related_name='averages')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='averages')
     quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
     competence = models.CharField(max_length=255)

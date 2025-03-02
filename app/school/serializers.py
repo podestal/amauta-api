@@ -352,7 +352,7 @@ class GetActivityForTutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Activity
-        fields = ['id', 'title', 'description', 'created_at', 'category', 'grade', 'observations']
+        fields = ['id', 'title', 'description', 'due_date', 'category', 'grade', 'observations']
 
     def get_grade(self, obj):
         studentUid =  self.context['studentUid']

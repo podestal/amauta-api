@@ -499,12 +499,20 @@ class ActivityViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byAssignature(self, request):
         assignature = request.query_params.get('assignature')
-        print('assignature', assignature)
         if not assignature:
             return Response({"error": "Assignature parameter is required"}, status=400)
         activities = self.queryset.filter(assignature_id=assignature)
-        print('activities', activities)
         serializer = serializers.ActivitySerializer(activities, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def byTutor(self, request):
+        assignature = request.query_params.get('assignature')
+        studentUid = request.query_params.get('student')
+        if not assignature:
+            return Response({"error": "Assignature parameter is required"}, status=400)
+        activities = self.queryset.filter(assignature_id=assignature)
+        serializer = serializers.GetActivityForTutorSerializer(activities, many=True, context={'studentUid': studentUid})
         return Response(serializer.data)
 
 

@@ -356,13 +356,15 @@ class GetActivityForTutorSerializer(serializers.ModelSerializer):
 
     def get_grade(self, obj):
         studentUid =  self.context['studentUid']
-        grade = models.Grade.objects.get(activity=obj.id, student_id=studentUid)
-        return grade.calification
+        quarter = self.context['quarter']
+        grade = models.Grade.objects.get(activity=obj.id, student_id=studentUid, activity__quarter=quarter)
+        return grade.calification if grade.calification else 'NA'
     
     def get_observations(self, obj):
         studentUid =  self.context['studentUid']
-        grade = models.Grade.objects.get(activity=obj.id, student_id=studentUid)
-        return grade.observations
+        quarter = self.context['quarter']
+        grade = models.Grade.objects.get(activity=obj.id, student_id=studentUid, activity__quarter=quarter)
+        return grade.observations if grade.observations else ''
 
 class GetAssignaturesForTutorSerializer(serializers.ModelSerializer):
 
@@ -394,7 +396,8 @@ class GetAssignaturesForTutorSerializer(serializers.ModelSerializer):
         }
 
         studentUid =  self.context['studentUid']
-        grades = models.Grade.objects.filter(activity__assignature=obj.id, student_id=studentUid).prefetch_related('activity').select_related('student', 'activity', 'assignature')
+        quarter = self.context['quarter']
+        grades = models.Grade.objects.filter(activity__assignature=obj.id, student_id=studentUid, activity__quarter=quarter).prefetch_related('activity').select_related('student', 'activity', 'assignature')
         numericGrade = sum([gradeConverter[grade.calification] for grade in grades]) / len(grades) if grades else 0
         average = gradeConverterReverse[round(round(numericGrade, 0))]
         return average

@@ -481,13 +481,14 @@ class AssignatureViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byTutor(self, request):
         studentUid = request.query_params.get('student')
+        quarter = request.query_params.get('quarter')
         user = self.request.user
         try:
             tutor = models.Tutor.objects.get(user_id=user.id)
         except:
             return Response({"error": "Tutor not found for the current user"}, status=404)
         assignatures = self.queryset.filter(clase__students__tutors=tutor)
-        serializer = serializers.GetAssignaturesForTutorSerializer(assignatures, many=True, context={'studentUid': studentUid})
+        serializer = serializers.GetAssignaturesForTutorSerializer(assignatures, many=True, context={'studentUid': studentUid, 'quarter': quarter})
         return Response(serializer.data)
 
 class ActivityViewSet(ModelViewSet):
@@ -509,10 +510,11 @@ class ActivityViewSet(ModelViewSet):
     def byTutor(self, request):
         assignature = request.query_params.get('assignature')
         studentUid = request.query_params.get('student')
+        quarter = request.query_params.get('quarter')
         if not assignature:
             return Response({"error": "Assignature parameter is required"}, status=400)
-        activities = self.queryset.filter(assignature_id=assignature)
-        serializer = serializers.GetActivityForTutorSerializer(activities, many=True, context={'studentUid': studentUid})
+        activities = self.queryset.filter(assignature_id=assignature, quarter=quarter)
+        serializer = serializers.GetActivityForTutorSerializer(activities, many=True, context={'studentUid': studentUid, 'quarter': quarter})
         return Response(serializer.data)
 
 

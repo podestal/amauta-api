@@ -2,6 +2,8 @@ from datetime import date
 from rest_framework import serializers
 from django.core.cache import cache
 from . import models
+from django.db.models import Q
+
 
 class AreaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -291,6 +293,96 @@ class UpdateStudentSerializer(serializers.ModelSerializer):
             'school',
             'is_active',
         ]
+
+class QuarterGradeForStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.QuarterGrade
+        fields = ['id', 'calification', 'competence', 'conclusion']
+
+class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
+
+    # quarter_grades = serializers.SerializerMethodField()
+    averages = QuarterGradeForStudentSerializer(many=True)
+
+    class Meta:
+        model = models.Student
+        fields = ['uid', 'first_name', 'last_name', 'averages', 'averages']
+
+    # def get_quarter_grades(self, obj):
+    #     competencies = self.context['competencies'].split(',')
+    #     competencies = [c.strip() for c in competencies if c.strip().isdigit()]
+    #     quarter_grades_qs = models.QuarterGrade.objects.select_related('assignature', 'student', 'competence').filter(
+    #         student=obj,
+    #         competence__id__in=competencies  # Filter all at once
+    #     ).values('id', 'calification', 'conclusion', 'competence_id')
+
+    #     # Convert to a dictionary for faster lookup
+    #     quarter_grades_dict = {qg['competence_id']: qg for qg in quarter_grades_qs}
+
+    #     # Build the response using the dictionary
+    #     quarter_grades = [
+    #         quarter_grades_dict.get(int(competency), {
+    #             'id': None,
+    #             'calification': 'NA',
+    #             'conclusion': '',
+    #             'competence_id': competency
+    #         })
+    #         for competency in competencies
+    #     ]
+
+    #     return quarter_grades
+
+    # def get_quarter_grades(self, obj):
+    #     competencies = self.context['competencies'].split(',')
+    #     competencies = [int(c.strip()) for c in competencies if c.strip().isdigit()]
+
+    #     # Fetch all QuarterGrades for all students at once
+    #     quarter_grades_qs = models.QuarterGrade.objects.filter(
+    #         student=obj,
+    #         competence_id__in=competencies  # Get all at once
+    #     ).values('id', 'calification', 'conclusion', 'competence_id')
+
+    #     # Convert to dictionary for fast lookup
+    #     quarter_grades_dict = {qg['competence_id']: qg for qg in quarter_grades_qs}
+
+    #     # Build response: If missing, return NA
+    #     return [
+    #         quarter_grades_dict.get(competence, {
+    #             'id': None, 'calification': 'NA', 'conclusion': '', 'competence_id': competence
+    #         })
+    #         for competence in competencies
+    #     ]
+
+    # def get_quarter_grades(self, obj):
+
+    #     competencies = self.context['competencies'].split(',')
+    #     quarter_grades = []
+
+    #     for competency in competencies:
+
+    #         competency = competency.strip()
+    #         if not competency.isdigit(): 
+    #             continue  
+
+    #         quarter_grade = models.QuarterGrade.objects.select_related('competence', 'student', 'assignature').filter(
+    #             student=obj.uid,
+    #             # competence__id=competency
+    #         ).values('id', 'calification', 'conclusion').first() 
+
+    #         if quarter_grade:
+    #             quarter_grades.append(quarter_grade)
+    #         else:
+    #             # grades = models.Grade.objects.filter(
+    #             #     student=obj.uid,
+    #             # ).filter(
+    #             #     Q(activity__competences__id__in=competencies)
+    #             # ).values('calification', 'student')
+
+    #             # print(f'grades {grades}')
+    #             quarter_grades.append({'id': None, 'calification': 'NA', 'conclusion': '', 'competency': competency})  # Default if no grade
+
+    #     return quarter_grades
+
 
 class GetTutorSerializer(serializers.ModelSerializer):
 

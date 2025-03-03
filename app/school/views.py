@@ -343,7 +343,7 @@ class StudentViewSet(ModelViewSet):
             attendance_out = attendance_out.filter(created_at=now.today())
 
         return (
-                models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors')
+                models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages')
                 .prefetch_related(
                     Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
                     Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')
@@ -414,6 +414,14 @@ class StudentViewSet(ModelViewSet):
         school = request.query_params.get('school')
         students = self.get_queryset().filter(school=school).order_by('-created_at')[:10]
         serializer = serializers.GetStudentSerializer(students, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byQuarterGrade(self, request):
+        clase = request.query_params.get('clase')
+        competencies = request.query_params.get('competencies')
+        students = self.get_queryset().filter(clase=clase)
+        serializer = serializers.GetStudentForQuarterGradeSerializer(students, many=True, context={'competencies': competencies})
         return Response(serializer.data)
     
 
@@ -539,8 +547,26 @@ class GradeViewSet(ModelViewSet):
         return Response(serializer.data)
 
 class QuarterGradeViewSet(ModelViewSet):
-    queryset = models.QuarterGrade.objects.all()
+
+    queryset = models.QuarterGrade.objects.select_related('student', 'assignature', 'competence')
     serializer_class = serializers.QuarterGradeSerializer  
+
+    # @action(detail=False, methods=['get'])
+    # def forInstructor(self, request):
+        # quarter = request.query_params.get('quarter') 
+        # assignature = request.query_params.get('assignature')
+        # quarter_grades = self.queryset.filter(quarter='Q1', assignature=7)
+        # serializer = serializers.GetQuarterGradeForInstructorSerializer(quarter_grades, many=True)
+        # return Response(serializer.data)
+
+        # user = self.request.user
+        # try:
+        #     instructor = models.Instructor.objects.get(user_id=user.id)
+        # except:
+        #     return Response({"error": "Instructor not found for the current user"}, status=404)
+        # quarter_grades = self.queryset.filter(assignature__instructor=instructor)
+        # serializer = serializers.QuarterGradeSerializer(quarter_grades, many=True)
+        # return Response(serializer.data)
 
 class AnnouncementViewSet(ModelViewSet):
 

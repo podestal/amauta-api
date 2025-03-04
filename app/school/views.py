@@ -420,8 +420,9 @@ class StudentViewSet(ModelViewSet):
     def byQuarterGrade(self, request):
         clase = request.query_params.get('clase')
         competencies = request.query_params.get('competencies')
+        quarter = request.query_params.get('quarter')
         students = self.get_queryset().filter(clase=clase)
-        serializer = serializers.GetStudentForQuarterGradeSerializer(students, many=True, context={'competencies': competencies})
+        serializer = serializers.GetStudentForQuarterGradeSerializer(students, many=True, context={'competencies': competencies, 'quarter': quarter})
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])

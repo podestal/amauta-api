@@ -299,6 +299,8 @@ class QuarterGradeForStudentSerializer(serializers.ModelSerializer):
         model = models.QuarterGrade
         fields = ['id', 'calification', 'competence', 'conclusion']
 
+    
+
 class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
 
     filtered_grades = serializers.SerializerMethodField()
@@ -309,11 +311,11 @@ class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
         fields = ['uid', 'first_name', 'last_name', 'filtered_grades', 'averages']
 
     def get_filtered_grades(self, obj):
-        competence_id = self.context['competence']  # This is a single number, not a list
+        competence_id = self.context['competence'] 
 
         grades_qs = models.Grade.objects.filter(
             student=obj,
-            activity__competences=competence_id  # Direct match with Many-to-Many field
+            activity__competences=competence_id,
         ).select_related('activity', 'assignature').distinct()
 
         return [
@@ -329,11 +331,18 @@ class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
 class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
 
     # quarter_grades = serializers.SerializerMethodField()
-    averages = QuarterGradeForStudentSerializer(many=True)
+    averages = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Student
-        fields = ['uid', 'first_name', 'last_name', 'averages', 'averages']
+        fields = ['uid', 'first_name', 'last_name', 'averages']
+
+    def get_averages(self, obj):
+        quarter = self.context['quarter']
+        if not quarter:
+            return []
+        averages = obj.averages.filter(quarter=quarter)
+        return QuarterGradeForStudentSerializer(averages, many=True).data
 
     # def get_quarter_grades(self, obj):
     #     competencies = self.context['competencies'].split(',')

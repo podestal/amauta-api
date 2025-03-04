@@ -429,7 +429,7 @@ class QuarterGrade(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            exist = QuarterGrade,object.filter(
+            exist = QuarterGrade.objects.filter(
                 student=self.student,
                 assignature=self.assignature,
                 quarter=self.quarter,

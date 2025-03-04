@@ -427,6 +427,21 @@ class QuarterGrade(models.Model):
     competence = models.ForeignKey(Competence, on_delete=models.CASCADE, related_name='averages')
     conclusion = models.TextField(null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            exist = QuarterGrade,object.filter(
+                student=self.student,
+                assignature=self.assignature,
+                quarter=self.quarter,
+                competence=self.competence
+            ).exists()
+
+            if exist:
+                raise ValueError('This quarter grade already exists')
+
+        
+        super().save(*args, **kwargs)
+
 class Announcement(models.Model):
 
     title = models.CharField(max_length=255)

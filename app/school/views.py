@@ -424,6 +424,14 @@ class StudentViewSet(ModelViewSet):
         serializer = serializers.GetStudentForQuarterGradeSerializer(students, many=True, context={'competencies': competencies})
         return Response(serializer.data)
     
+    @action(detail=False, methods=['get'])
+    def byGrade(self, request):
+        clase = request.query_params.get('clase')
+        competence = request.query_params.get('competence')
+        students = self.get_queryset().filter(clase=clase)
+        serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True, context={'competence': competence})
+        return Response(serializer.data)
+    
 
 class TutorViewSet(ModelViewSet):
 
@@ -508,9 +516,12 @@ class ActivityViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byAssignature(self, request):
         assignature = request.query_params.get('assignature')
+        competence = request.query_params.get('competence')
         if not assignature:
             return Response({"error": "Assignature parameter is required"}, status=400)
         activities = self.queryset.filter(assignature_id=assignature)
+        if competence:
+            activities = activities.filter(competences=competence)
         serializer = serializers.ActivitySerializer(activities, many=True)
         return Response(serializer.data)
 
@@ -524,7 +535,6 @@ class ActivityViewSet(ModelViewSet):
         activities = self.queryset.filter(assignature_id=assignature, quarter=quarter)
         serializer = serializers.GetActivityForTutorSerializer(activities, many=True, context={'studentUid': studentUid, 'quarter': quarter})
         return Response(serializer.data)
-
 
 class GradeViewSet(ModelViewSet):
 

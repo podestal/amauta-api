@@ -299,6 +299,33 @@ class QuarterGradeForStudentSerializer(serializers.ModelSerializer):
         model = models.QuarterGrade
         fields = ['id', 'calification', 'competence', 'conclusion']
 
+class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
+
+    filtered_grades = serializers.SerializerMethodField()
+    averages = QuarterGradeForStudentSerializer(many=True)
+
+    class Meta:
+        model = models.Student
+        fields = ['uid', 'first_name', 'last_name', 'filtered_grades', 'averages']
+
+    def get_filtered_grades(self, obj):
+        competence_id = self.context['competence']  # This is a single number, not a list
+
+        grades_qs = models.Grade.objects.filter(
+            student=obj,
+            activity__competences=competence_id  # Direct match with Many-to-Many field
+        ).select_related('activity', 'assignature').distinct()
+
+        return [
+            {   
+                'id': grade.id,
+                'calification': grade.calification,
+                'observations': grade.observations if grade.observations else '',
+                'activity': grade.activity.id,
+            }
+            for grade in grades_qs
+        ] if grades_qs else []
+
 class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
 
     # quarter_grades = serializers.SerializerMethodField()

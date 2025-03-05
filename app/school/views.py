@@ -518,9 +518,10 @@ class ActivityViewSet(ModelViewSet):
     def byAssignature(self, request):
         assignature = request.query_params.get('assignature')
         competence = request.query_params.get('competence')
+        quarter = request.query_params.get('quarter')
         if not assignature:
             return Response({"error": "Assignature parameter is required"}, status=400)
-        activities = self.queryset.filter(assignature_id=assignature)
+        activities = self.queryset.filter(assignature_id=assignature, quarter=quarter)
         if competence:
             activities = activities.filter(competences=competence)
         serializer = serializers.ActivitySerializer(activities, many=True)

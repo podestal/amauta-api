@@ -429,8 +429,9 @@ class StudentViewSet(ModelViewSet):
     def byGrade(self, request):
         clase = request.query_params.get('clase')
         competence = request.query_params.get('competence')
+        quarter = request.query_params.get('quarter')
         students = self.get_queryset().filter(clase=clase)
-        serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True, context={'competence': competence})
+        serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True, context={'competence': competence, 'quarter': quarter})
         return Response(serializer.data)
     
 

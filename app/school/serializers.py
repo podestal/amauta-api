@@ -319,6 +319,7 @@ class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
                     'observations': grade.observations if grade.observations else '',
                     'activity': grade.activity.id,
                     'category': grade.activity.category.id,
+                    'weight': grade.activity.category.weight,
                 }
                 for grade in obj.filtered_grades
             ]

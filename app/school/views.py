@@ -6,6 +6,7 @@ from django.db.models.functions import ExtractWeek, ExtractMonth, ExtractDay
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
@@ -506,6 +507,12 @@ class CategoryViewSet(ModelViewSet):
         except:
             return Response({"error": "Instructor not found for the current user"}, status=404)
         return self.queryset.filter(instructor_id=instructor.id)
+    
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except:
+            raise ValidationError("Esta categoría no puede ser eliminada porque tiene actividades asociadas.")
     
 class AssignatureViewSet(ModelViewSet):
     queryset = models.Assignature.objects.select_related('clase', 'instructor', 'area')

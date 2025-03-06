@@ -361,7 +361,7 @@ class Activity(models.Model):
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     due_date = models.DateField(null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT, null=True, blank=True)
     quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
     competences =  models.ManyToManyField(Competence, related_name='activities')
     capacities = models.ManyToManyField(Capacity, related_name='activities')

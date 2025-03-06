@@ -15,6 +15,9 @@ from django.db.models import Subquery, OuterRef, Prefetch
 from django.core.cache import cache
 from datetime import datetime
 
+import pandas as pd
+from django.http import HttpResponse
+
 from notification.push_notifications import send_push_notification
 from notification.models import FCMDevice
 
@@ -465,6 +468,24 @@ class StudentViewSet(ModelViewSet):
 
         serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=["get"])
+    def export_to_excel(self, request):
+        # Fetch data from model
+        data = list(models.Student.objects.values("uid", "first_name", "last_name"))  # Adjust fields
+        df = pd.DataFrame(data)
+
+        # Create an HTTP response
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = 'attachment; filename="students.xlsx"'
+
+        # Save the DataFrame to the response
+        with pd.ExcelWriter(response, engine="openpyxl") as writer:
+            df.to_excel(writer, sheet_name="Students", index=False)
+
+        return response
     
 
 class TutorViewSet(ModelViewSet):

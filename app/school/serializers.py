@@ -330,7 +330,6 @@ class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
 
 class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
 
-    # quarter_grades = serializers.SerializerMethodField()
     averages = serializers.SerializerMethodField()
 
     class Meta:
@@ -338,11 +337,7 @@ class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
         fields = ['uid', 'first_name', 'last_name', 'averages']
 
     def get_averages(self, obj):
-        quarter = self.context['quarter']
-        if not quarter:
-            return []
-        averages = obj.averages.filter(quarter=quarter)
-        return QuarterGradeForStudentSerializer(averages, many=True).data
+        return QuarterGradeForStudentSerializer(obj.filtered_averages, many=True).data if hasattr(obj, 'filtered_averages') else []
 
     # def get_quarter_grades(self, obj):
     #     competencies = self.context['competencies'].split(',')

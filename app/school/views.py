@@ -419,10 +419,21 @@ class StudentViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byQuarterGrade(self, request):
         clase = request.query_params.get('clase')
-        competencies = request.query_params.get('competencies')
+        competencies = request.query_params.get('competencies').split(',')
+        competencies = [c for c in competencies if c]
         quarter = request.query_params.get('quarter')
         students = self.get_queryset().filter(clase=clase)
-        serializer = serializers.GetStudentForQuarterGradeSerializer(students, many=True, context={'competencies': competencies, 'quarter': quarter})
+        students = students.prefetch_related(
+            Prefetch(
+                "averages",
+                queryset=models.QuarterGrade.objects.filter(
+                    quarter=quarter,
+                    competence__in=competencies
+                ),
+                to_attr="filtered_averages"
+            )
+        )
+        serializer = serializers.GetStudentForQuarterGradeSerializer(students, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
@@ -431,7 +442,7 @@ class StudentViewSet(ModelViewSet):
         competence = request.query_params.get('competence')
         quarter = request.query_params.get('quarter')
         students = self.get_queryset().filter(clase=clase)
-        students = students = students.prefetch_related(
+        students = students.prefetch_related(
             Prefetch(
                 "grades",
                 queryset=models.Grade.objects.filter(

@@ -311,31 +311,22 @@ class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
         fields = ['uid', 'first_name', 'last_name', 'filtered_grades', 'averages']
 
     def get_filtered_grades(self, obj):
-        competence_id = self.context['competence'] 
-        quarter = self.context['quarter']
-
-        grades_qs = models.Grade.objects.filter(
-            student=obj,
-            activity__competences=competence_id,
-            activity__quarter=quarter
-        ).select_related('activity', 'assignature').distinct()
-
-        return [
-            {   
-                'id': grade.id,
-                'calification': grade.calification,
-                'observations': grade.observations if grade.observations else '',
-                'activity': grade.activity.id,
-            }
-            for grade in grades_qs
-        ] if grades_qs else []
+        if hasattr(obj, 'filtered_grades'):
+            return [
+                {
+                    'id': grade.id,
+                    'calification': grade.calification,
+                    'observations': grade.observations if grade.observations else '',
+                    'activity': grade.activity.id,
+                    'category': grade.activity.category.id,
+                }
+                for grade in obj.filtered_grades
+            ]
+        return []
     
     def get_averages(self, obj):
-        quarter = self.context['quarter']
-        if not quarter:
-            return []
-        averages = obj.averages.filter(quarter=quarter)
-        return QuarterGradeForStudentSerializer(averages, many=True).data
+        return QuarterGradeForStudentSerializer(obj.filtered_averages, many=True).data if hasattr(obj, 'filtered_averages') else []
+
 
 class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
 

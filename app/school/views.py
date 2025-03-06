@@ -346,7 +346,7 @@ class StudentViewSet(ModelViewSet):
                 models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages')
                 .prefetch_related(
                     Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
-                    Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out')
+                    Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out'),
                 )
             )
 
@@ -431,7 +431,27 @@ class StudentViewSet(ModelViewSet):
         competence = request.query_params.get('competence')
         quarter = request.query_params.get('quarter')
         students = self.get_queryset().filter(clase=clase)
-        serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True, context={'competence': competence, 'quarter': quarter})
+        students = students = students.prefetch_related(
+            Prefetch(
+                "grades",
+                queryset=models.Grade.objects.filter(
+                    activity__competences=competence,
+                    activity__quarter=quarter
+                )
+                .select_related('activity', 'activity__category', 'assignature')
+                .prefetch_related('activity__competences'),
+                to_attr="filtered_grades"
+            ),
+            Prefetch(
+                "averages",
+                queryset=models.QuarterGrade.objects.filter(
+                    quarter=quarter
+                ),
+                to_attr="filtered_averages"
+            )
+        )
+
+        serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True)
         return Response(serializer.data)
     
 

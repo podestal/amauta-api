@@ -541,6 +541,7 @@ class StudentViewSet(ModelViewSet):
     @action(detail=False, methods=["get"])
     def export_to_excel(self, request):
         # Create a workbook and rename the default sheet
+        # classroom = request.query_params.get('classroom')
         wb = openpyxl.Workbook()
         ws_general = wb.active
         ws_general.title = "Generalidades"
@@ -586,7 +587,7 @@ class StudentViewSet(ModelViewSet):
         # "Año Académico" from B to C, "2019" from D to J
         ws_general["B8"] = "Año Académico :"
         ws_general.merge_cells("B8:C8")
-        ws_general["D8"] = "2019"
+        ws_general["D8"] = "2025"
         ws_general.merge_cells("D8:J8")
 
         # "Diseño Curricular" from B to C, value from D to J
@@ -620,11 +621,18 @@ class StudentViewSet(ModelViewSet):
             row += 1
 
         competences = models.Competence.objects.select_related('area')
+        students = self.get_queryset().filter(clase=15)  
+        students = students.prefetch_related(
+            Prefetch(
+                "averages",
+                queryset=models.QuarterGrade.objects.filter(
+                    quarter='Q1',
+                ),
+                to_attr="filtered_averages"
+            ))
 
         # Create separate sheets for each area
         for area in areas[:11]:  # Limit to 11 additional sheets
-
-
 
             ws_area = wb.create_sheet(title=area.title)
             ws_area["A1"] = 'ID'
@@ -651,7 +659,6 @@ class StudentViewSet(ModelViewSet):
             start_col = 4 
             start_row = 1
             description_row = 2
-            competence_start_row = 25 
 
             for index, competence in enumerate(filtered_competences, start=1):
                 col_letter = get_column_letter(start_col)  # Get letter for merging
@@ -678,19 +685,53 @@ class StudentViewSet(ModelViewSet):
 
                 # Move to the next pair of columns
                 start_col += 2
+            
+            start_row = 3
+            for student in students:
+                ws_area[f"A{start_row}"] = student.uid
+                ws_area[f"B{start_row}"] = '0000004567'
+                ws_area[f"C{start_row}"] = f"{student.first_name} {student.last_name}"
+                    # Start placing grades and conclusions dynamically
+                col = 4  # Start at first competence column
+                for competence in filtered_competences:
+                    col_letter = get_column_letter(col)
+                    next_col_letter = get_column_letter(col + 1)
+
+                    # Find the grade and conclusion for this competence
+                    grade = ''
+                    conclusion = ''
+                    for avg in student.filtered_averages:
+                        if avg.competence_id == competence.id:  # Match competence ID
+                            grade = avg.calification
+                            conclusion = avg.conclusion
+                            break  # Stop once found
+                    
+                    # Insert the grade
+                    ws_area[f"{col_letter}{start_row}"] = grade if grade else "NA"
+                    ws_area[f"{col_letter}{start_row}"].alignment = Alignment(horizontal="left")
+
+                    # Insert the conclusion
+                    ws_area[f"{next_col_letter}{start_row}"] = conclusion if conclusion else ""
+                    ws_area[f"{next_col_letter}{start_row}"].alignment = Alignment(horizontal="left", wrap_text=True)
+
+                    col += 2  # Move to next competence column
+
+                start_row += 1  # Move to the next student row
+
+
+            ws_area[f"B{len(students) + 4}"] = 'LEYENDA'
+            ws_area[f"B{len(students) + 4}"].font = Font(bold=True)
+
+            ws_area[f"B{len(students) + 5}"] = 'NL= Nivel de logro alcanzado'
+            ws_area.merge_cells(f"B{len(students) + 5}:C{len(students) + 5}")
+
+            competence_start_row = len(students) + 6 
 
             for index, competence in enumerate(filtered_competences, start=1):
                 row_number = competence_start_row + index - 1
                 ws_area[f"B{row_number}"] = f"{index:02d}={competence.title}"  # Format: 01=Title
                 ws_area.merge_cells(f"B{row_number}:C{row_number}")  # Merge B and C for better readability
 
-
-
-            ws_area["B23"] = 'LEYENDA'
-            ws_area["B23"].font = Font(bold=True)
-
-            ws_area["B24"] = 'NL= Nivel de logro alcanzado'
-            ws_area.merge_cells("B24:C24")
 
             # Auto-adjust column width
             for col in ws_area.columns:
@@ -703,7 +744,7 @@ class StudentViewSet(ModelViewSet):
                 
                 ws_area.column_dimensions[col_letter].width = max_length + 2
 
-            for row in ws_area.iter_rows(min_row=1, max_row=20, min_col=1, max_col=3+(2*len(filtered_competences))):
+            for row in ws_area.iter_rows(min_row=1, max_row=start_row-1, min_col=1, max_col=3+(2*len(filtered_competences))):
                 for cell in row:
                     cell.border = thin_border
 

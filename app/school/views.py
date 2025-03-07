@@ -16,7 +16,11 @@ from django.core.cache import cache
 from datetime import datetime
 
 import pandas as pd
+import openpyxl
 from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
 
 from notification.push_notifications import send_push_notification
 from notification.models import FCMDevice
@@ -469,22 +473,247 @@ class StudentViewSet(ModelViewSet):
         serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True)
         return Response(serializer.data)
     
+    # @action(detail=False, methods=["get"])
+    # def export_to_excel(self, request):
+    #     # Fetch data from model
+    #     data = list(models.Student.objects.values("uid", "first_name", "last_name"))  # Adjust fields
+    #     df = pd.DataFrame(data)
+
+    #     # Create an HTTP response
+    #     response = HttpResponse(
+    #         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    #     )
+    #     response["Content-Disposition"] = 'attachment; filename="students.xlsx"'
+
+    #     # Save the DataFrame to the response
+    #     with pd.ExcelWriter(response, engine="openpyxl") as writer:
+    #         df.to_excel(writer, sheet_name="Students", index=False)
+
+    #     return response
+    # @action(detail=False, methods=["get"])
+    # def export_to_excel(self, request):
+    #     # Create a new workbook and remove the default sheet
+    #     wb = Workbook()
+    #     wb.remove(wb.active)
+
+    #     # Define data sources (Adjust fields as needed)
+    #     student_data = list(models.Student.objects.values("uid", "first_name", "last_name"))
+    #     instructor_data = list(models.Instructor.objects.values("id", "first_name", "last_name"))
+
+    #     # Convert to DataFrame
+    #     df_students = pd.DataFrame(student_data)
+    #     df_instructors = pd.DataFrame(instructor_data)
+
+    #     # Add sheets and write data
+    #     self.write_to_sheet(wb, df_students, "Students")
+    #     self.write_to_sheet(wb, df_instructors, "Instructors")
+
+    #     # Prepare response
+    #     response = HttpResponse(
+    #         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    #     )
+    #     response["Content-Disposition"] = 'attachment; filename="school_data.xlsx"'
+
+    #     # Save workbook to response
+    #     wb.save(response)
+    #     return response
+
+    # def write_to_sheet(self, wb, df, sheet_name):
+    #     sheet = wb.create_sheet(title=sheet_name)
+
+    #     # Write headers with styling
+    #     header_font = Font(bold=True)
+    #     for col_num, column_title in enumerate(df.columns, 1):
+    #         cell = sheet.cell(row=1, column=col_num, value=column_title)
+    #         cell.font = header_font
+    #         cell.alignment = Alignment(horizontal="center")
+
+    #     # Write data rows
+    #     for row_num, row in enumerate(df.itertuples(index=False), 2):
+    #         for col_num, value in enumerate(row, 1):
+    #             sheet.cell(row=row_num, column=col_num, value=value)
+
+    #     # Auto-adjust column width
+    #     for col in sheet.columns:
+    #         max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
+    #         sheet.column_dimensions[col[0].column_letter].width = max_length + 2
+
     @action(detail=False, methods=["get"])
     def export_to_excel(self, request):
-        # Fetch data from model
-        data = list(models.Student.objects.values("uid", "first_name", "last_name"))  # Adjust fields
-        df = pd.DataFrame(data)
+        # Create a workbook and rename the default sheet
+        wb = openpyxl.Workbook()
+        ws_general = wb.active
+        ws_general.title = "Generalidades"
 
-        # Create an HTTP response
-        response = HttpResponse(
-            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-        response["Content-Disposition"] = 'attachment; filename="students.xlsx"'
+        # Define border style
+        thin_border = Border(left=Side(style="thin"), right=Side(style="thin"), 
+                            top=Side(style="thin"), bottom=Side(style="thin"))
 
-        # Save the DataFrame to the response
-        with pd.ExcelWriter(response, engine="openpyxl") as writer:
-            df.to_excel(writer, sheet_name="Students", index=False)
+        header_fill = PatternFill(start_color="000066", end_color="000066", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
 
+        # Format "DATOS GENERALES"
+        ws_general["B2"] = "DATOS GENERALES :"
+        ws_general["B2"].font = Font(bold=True, size=12)
+        
+        # "Institución Educativa" from B to J
+        ws_general["B4"] = "Institución Educativa :"
+        ws_general.merge_cells("B4:J4")
+        ws_general["B4"].fill = header_fill
+        ws_general["B4"].font = header_font
+        ws_general["B4"].alignment = Alignment(horizontal="center")
+
+        # "Código Modular - Anexo" from B to D
+        ws_general["B5"] = "Código Modular - Anexo :"
+        ws_general.merge_cells("B5:D5")
+        ws_general.merge_cells("E5:F5")
+
+        # "Nivel" at G, with space from H to J
+        ws_general["G5"] = "Nivel :"
+        ws_general.merge_cells("H5:J5")
+
+        # "Nombre" at B, space from C to J
+        ws_general["B6"] = "Nombre :"
+        ws_general.merge_cells("B6:J6")
+
+        # "Datos referentes al Registro de Notas" from B to J
+        ws_general["B7"] = "Datos referentes al Registro de Notas :"
+        ws_general.merge_cells("B7:J7")
+        ws_general["B7"].fill = header_fill
+        ws_general["B7"].font = header_font
+        ws_general["B7"].alignment = Alignment(horizontal="center")
+
+        # "Año Académico" from B to C, "2019" from D to J
+        ws_general["B8"] = "Año Académico :"
+        ws_general.merge_cells("B8:C8")
+        ws_general["D8"] = "2019"
+        ws_general.merge_cells("D8:J8")
+
+        # "Diseño Curricular" from B to C, value from D to J
+        ws_general["B9"] = "Diseño Curricular :"
+        ws_general.merge_cells("B9:C9")
+        ws_general["D9"] = "CURRÍCULO NACIONAL 2017"
+        ws_general.merge_cells("D9:J9")
+
+        # "Grado" from B to C, space from D to E, "Sección" at F, space from G to J
+        ws_general["B10"] = "Grado"
+        ws_general.merge_cells("B10:C10")
+        ws_general.merge_cells("D10:E10")
+        ws_general["F10"] = "Sección"
+        ws_general.merge_cells("G10:J10")
+
+        # Apply borders from B2 to J10
+        for row in ws_general.iter_rows(min_row=4, max_row=10, min_col=2, max_col=10):
+            for cell in row:
+                cell.border = thin_border
+
+        # "AREAS" Section
+        ws_general["B13"] = "AREAS"
+        ws_general["B13"].font = Font(bold=True)
+
+        # List areas from model in column B (ID) and column C (Title)
+        areas = models.Area.objects.all()
+        row = 14
+        for area in areas:
+            ws_general[f"B{row}"] = area.id
+            ws_general[f"C{row}"] = area.title
+            row += 1
+
+        competences = models.Competence.objects.select_related('area')
+
+        # Create separate sheets for each area
+        for area in areas[:11]:  # Limit to 11 additional sheets
+
+
+
+            ws_area = wb.create_sheet(title=area.title)
+            ws_area["A1"] = 'ID'
+            ws_area["A1"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")
+            ws_area['A1'].font = Font(bold=True, color="FFFFFF")
+            ws_area['A1'].alignment = Alignment(horizontal="center",  vertical="center")
+            ws_area['B1'].font = Font(bold=True, color="FFFFFF")
+            ws_area.merge_cells("A1:A2")
+
+            ws_area["B1"] = 'Cod. Estudiante'
+            ws_area["B1"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")
+            ws_area["B1"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")
+            ws_area['B1'].alignment = Alignment(horizontal="center", vertical="center")
+            ws_area.merge_cells("B1:B2")
+
+            ws_area["C1"] = 'Nombres'
+            ws_area["C1"].font = Font(bold=True, color="FFFFFF")
+            ws_area["C1"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")
+            ws_area['C1'].alignment = Alignment(horizontal="center", vertical="center")
+            ws_area.merge_cells("C1:C2")
+
+            filtered_competences = competences.filter(area=area)
+
+            start_col = 4 
+            start_row = 1
+            description_row = 2
+            competence_start_row = 25 
+
+            for index, competence in enumerate(filtered_competences, start=1):
+                col_letter = get_column_letter(start_col)  # Get letter for merging
+                next_col_letter = get_column_letter(start_col + 1)  # Next column for merging
+                
+                # Set the competence number
+                ws_area[f"{col_letter}{start_row}"] = f"{index:02d}"  # Format 01, 02, etc.
+                ws_area[f"{col_letter}{start_row}"].font = Font(bold=True, color="FFFFFF")
+                ws_area[f"{col_letter}{start_row}"].alignment = Alignment(horizontal="center", vertical="center")
+                ws_area[f"{col_letter}{start_row}"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")
+                ws_area.merge_cells(f"{col_letter}{start_row}:{next_col_letter}{start_row}")  # Merge columns
+
+                # Set the 'NL' label
+                ws_area[f"{col_letter}{description_row}"] = "NL"
+                ws_area[f"{col_letter}{description_row}"].font = Font(bold=True, color="FFFFFF")
+                ws_area[f"{col_letter}{description_row}"].alignment = Alignment(horizontal="center", vertical="center")
+                ws_area[f"{col_letter}{description_row}"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")
+
+                # Set the description header
+                ws_area[f"{next_col_letter}{description_row}"] = "Conclusión descriptiva de la competencia"
+                ws_area[f"{next_col_letter}{description_row}"].font = Font(bold=True, color="FFFFFF")
+                ws_area[f"{next_col_letter}{description_row}"].alignment = Alignment(horizontal="center", vertical="center")
+                ws_area[f"{next_col_letter}{description_row}"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")
+
+                # Move to the next pair of columns
+                start_col += 2
+
+            for index, competence in enumerate(filtered_competences, start=1):
+                row_number = competence_start_row + index - 1
+                ws_area[f"B{row_number}"] = f"{index:02d}={competence.title}"  # Format: 01=Title
+                ws_area.merge_cells(f"B{row_number}:C{row_number}")  # Merge B and C for better readability
+
+
+
+            ws_area["B23"] = 'LEYENDA'
+            ws_area["B23"].font = Font(bold=True)
+
+            ws_area["B24"] = 'NL= Nivel de logro alcanzado'
+            ws_area.merge_cells("B24:C24")
+
+            # Auto-adjust column width
+            for col in ws_area.columns:
+                max_length = 0
+                col_letter = get_column_letter(col[0].column)
+                
+                for cell in col:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                
+                ws_area.column_dimensions[col_letter].width = max_length + 2
+
+            for row in ws_area.iter_rows(min_row=1, max_row=20, min_col=1, max_col=3+(2*len(filtered_competences))):
+                for cell in row:
+                    cell.border = thin_border
+
+        # Prepare response
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = 'attachment; filename="data.xlsx"'
+        
+        # Save the workbook to the response
+        wb.save(response)
+        
         return response
     
 

@@ -540,8 +540,43 @@ class StudentViewSet(ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def export_to_excel(self, request):
+
+        quarter_description = {
+            'Q1': 'Primer Bimestre',
+            'Q2': 'Segundo Bimestre',
+            'Q3': 'Tercer Bimestre',
+            'Q4': 'Cuarto Bimestre',
+        }
+
+
+        classroom_grade_converter = {
+            '1': 'Primero',
+            '2': 'Segundo',
+            '3': 'Tercero',
+            '4': 'Cuarto',
+            '5': 'Quinto',
+            '6': 'Sexto',
+        }
+
+        classroom_level_converter = {
+            'I': 'Inicial',
+            'P': 'Primaria',
+            'S': 'Secundaria',
+        }
+
+
         # Create a workbook and rename the default sheet
         classroom = request.query_params.get('classroom')
+        quarter= request.query_params.get('quarter')
+        instructor_id = request.query_params.get('instructor_id')
+
+        clase = get_object_or_404(models.Clase, id=classroom)
+        classroom_section = clase.section if clase.section else ''
+        if classroom_section == 'U':
+            classroom_section = 'Única'
+        classroom_grade = clase.grade if clase.grade else ''
+        classroom_level = clase.level if clase.level else ''
+
         wb = openpyxl.Workbook()
         ws_general = wb.active
         ws_general.title = "Generalidades"
@@ -571,6 +606,7 @@ class StudentViewSet(ModelViewSet):
 
         # "Nivel" at G, with space from H to J
         ws_general["G5"] = "Nivel :"
+        ws_general['H5'] = f'{classroom_level_converter[classroom_level]}'
         ws_general.merge_cells("H5:J5")
 
         # "Nombre" at B, space from C to J
@@ -597,11 +633,14 @@ class StudentViewSet(ModelViewSet):
         ws_general.merge_cells("D9:J9")
 
         # "Grado" from B to C, space from D to E, "Sección" at F, space from G to J
-        ws_general["B10"] = "Grado"
+        ws_general["B10"] = "Periodo de evaluación :"
         ws_general.merge_cells("B10:C10")
-        ws_general.merge_cells("D10:E10")
-        ws_general["F10"] = "Sección"
-        ws_general.merge_cells("G10:J10")
+        ws_general["D10"] = f"{quarter_description[quarter]}"
+        ws_general.merge_cells("D10:F10")
+        ws_general["G10"] = "Grado"
+        ws_general["H10"] = f'{classroom_grade_converter[classroom_grade]}'
+        ws_general["I10"] = "Sección"
+        ws_general["J10"] = f'{classroom_section}'
 
         # Apply borders from B2 to J10
         for row in ws_general.iter_rows(min_row=4, max_row=10, min_col=2, max_col=10):
@@ -611,9 +650,9 @@ class StudentViewSet(ModelViewSet):
         # "AREAS" Section
         ws_general["B13"] = "AREAS"
         ws_general["B13"].font = Font(bold=True)
-
+        areas_ids = models.Assignature.objects.filter(clase=classroom,instructor=instructor_id).values_list('area_id', flat=True)
         # List areas from model in column B (ID) and column C (Title)
-        areas = models.Area.objects.all()
+        areas = models.Area.objects.filter(id__in=areas_ids)
         row = 14
         for area in areas:
             ws_general[f"B{row}"] = area.id
@@ -633,7 +672,6 @@ class StudentViewSet(ModelViewSet):
 
         # Create separate sheets for each area
         for area in areas[:11]:  # Limit to 11 additional sheets
-
             ws_area = wb.create_sheet(title=area.title)
             ws_area["A1"] = 'ID'
             ws_area["A1"].fill = PatternFill(start_color="808080", end_color="808080", fill_type="solid")

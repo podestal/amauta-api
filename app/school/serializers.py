@@ -450,7 +450,13 @@ class CreateTutorSerializer(serializers.ModelSerializer):
             'tutor_relationship',
             'school',
         ]
-
+# export interface Assignature {
+#     id: number
+#     title: string
+#     clase: number
+#     instructor: number
+#     area: number,
+# }
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -458,16 +464,28 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AssignatureSerializer(serializers.ModelSerializer):
+
+    classroom_description = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Assignature
-        fields = '__all__'
+        fields = ['id', 'title', 'clase', 'instructor', 'area', 'classroom_description']
+
+    def get_classroom_description(self, obj):
+        return f"{obj.clase.grade}-{obj.clase.section}-{obj.clase.level}"
 
     
 
 class ActivitySerializer(serializers.ModelSerializer):
+
+    category_name = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Activity
-        fields = '__all__'
+        fields = ['id', 'title', 'description', 'due_date', 'category', 'category_name', 'assignature', 'quarter', 'competences', 'capacities']
+
+    def get_category_name(self, obj):
+        return obj.category.title
 
 class GetActivityForTutorSerializer(serializers.ModelSerializer):
 

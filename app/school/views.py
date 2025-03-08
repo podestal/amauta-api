@@ -541,7 +541,7 @@ class StudentViewSet(ModelViewSet):
     @action(detail=False, methods=["get"])
     def export_to_excel(self, request):
         # Create a workbook and rename the default sheet
-        # classroom = request.query_params.get('classroom')
+        classroom = request.query_params.get('classroom')
         wb = openpyxl.Workbook()
         ws_general = wb.active
         ws_general.title = "Generalidades"
@@ -621,7 +621,7 @@ class StudentViewSet(ModelViewSet):
             row += 1
 
         competences = models.Competence.objects.select_related('area')
-        students = self.get_queryset().filter(clase=15)  
+        students = self.get_queryset().filter(clase=classroom)  
         students = students.prefetch_related(
             Prefetch(
                 "averages",

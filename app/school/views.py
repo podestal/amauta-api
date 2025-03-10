@@ -914,8 +914,18 @@ class ActivityViewSet(ModelViewSet):
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
         activity = super().create(request, *args, **kwargs)
         # print('activity', activity.data)
-        tasks.send_activity_notification.delay(list(users), activity.data, 'Nueva Actividad')
+        tasks.send_activity_notification.delay(list(users), activity.data, 'Nueva Actividad', False)
         return activity
+    
+    def update(self, request, *args, **kwargs):
+        classroom = request.query_params.get('classroom')
+        students_uids = models.Student.objects.filter(clase=classroom).values_list('uid', flat=True)
+        users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
+        activity = super().update(request, *args, **kwargs)
+        tasks.send_activity_notification.delay(list(users), activity.data, 'Cambios en actividad', True)
+        return activity
+    
+    
 
 class GradeViewSet(ModelViewSet):
 

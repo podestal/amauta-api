@@ -99,8 +99,9 @@ def remove_on_time_records():
 
 @shared_task
 def send_activity_notification(users, activity_data, notification_title, update):
-    
+    print('sending activity notification')
     tokens = FCMDevice.objects.filter(user_id__in=users)
+    print('tokens', tokens)
     message = f" {activity_data['title']} ha sido programada para el {activity_data['due_date']}"
 
     if update:

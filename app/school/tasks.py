@@ -109,3 +109,16 @@ def send_activity_notification(users, activity_data, notification_title, update)
     for token in tokens:
         send_push_notification(token.device_token, notification_title, message)
 
+@shared_task
+def send_attendance_notification(users, notification_message, apologize_message=None):
+    print('sending attendance notification')
+    tokens = FCMDevice.objects.filter(user_id__in=users)
+    message = ''
+    if apologize_message:
+        message = apologize_message
+    else:
+        message = notification_message
+
+    for token in tokens:
+            send_push_notification(token.device_token, 'Alerta de Asistencia', message)
+

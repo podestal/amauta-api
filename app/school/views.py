@@ -226,19 +226,6 @@ class AtendanceViewSet(ModelViewSet):
 
         return message
 
-    
-    def send_notification(self, student, tutor, status, apologize_message=None):
-
-        tokens = FCMDevice.objects.filter(user=tutor.user)
-        message = ''
-        if apologize_message:
-            message = apologize_message
-        else:
-            message = self.get_notification_message(student, status)
-
-        for token in tokens:
-                send_push_notification(token.device_token, 'Alerta de Asistencia', message)
-
     def update(self, request, *args, **kwargs):
         print('request', request.data)
 
@@ -246,23 +233,23 @@ class AtendanceViewSet(ModelViewSet):
         kind = request.data['kind']
         student_id = request.data['student']
         student = models.Student.objects.get(uid=student_id)
-
+    
         if not student: 
             return Response({"error": "No se pudo encontrar alumno"}, status=400)
-        
+        notification_message = self.get_notification_message(student, status)
         try:
-            tutor = models.Tutor.objects.get(students=student)
-            self.send_notification(student, tutor, status, apologize_message=f'{student.first_name} llegó a tiempo')
+            users = models.Tutor.objects.filter(students__uid=student_id).values_list('user', flat=True)
+            # def send_attendance_notification(users, notification_message, apologize_message=None):
         except:
-            print('could not find tutor')
+            print('could not find users')
+        tasks.send_attendance_notification.delay(list(users), notification_message, apologize_message=f'{student.first_name} llegó a tiempo')
         return super().update(request, *args, **kwargs)
     
     def create(self, request, *args, **kwargs):
-
+        print('data', request.data)
         status = request.data['status']
         kind = request.data['kind']
         student_id = request.data['student']
-        # attendance_id = ''
 
         try:
             student = models.Student.objects.get(uid=student_id)
@@ -281,17 +268,18 @@ class AtendanceViewSet(ModelViewSet):
             return Response({"error": "Alumno ya fué escaneado"}, status=400)
 
         if status != 'O':
-
+            notification_message = self.get_notification_message(student, status)
             try:
-                tutor = models.Tutor.objects.get(students=student)
+                users = models.Tutor.objects.filter(students__uid=student_id).values_list('user', flat=True)
             except:
                 # attendance_id = super().create(request, *args, **kwargs).data['id']
                 # cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
                 # return Response(cache, status=201)
+                print('could not find users')
                 return super().create(request, *args, **kwargs)
             
-            self.send_notification(student, tutor, status)
-
+            # self.send_notification(student, tutor, status)
+            tasks.send_attendance_notification.delay(list(users), notification_message)
             # attendance_id = super().create(request, *args, **kwargs).data['id']
 
         # cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)

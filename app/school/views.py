@@ -23,6 +23,7 @@ from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
 
 from notification.push_notifications import send_push_notification
+from . import tasks
 from notification.models import FCMDevice
 
 from . import models
@@ -905,6 +906,16 @@ class ActivityViewSet(ModelViewSet):
         activities = self.queryset.filter(assignature_id=assignature, quarter=quarter)
         serializer = serializers.GetActivityForTutorSerializer(activities, many=True, context={'studentUid': studentUid, 'quarter': quarter})
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+
+        classroom = request.query_params.get('classroom')
+        students_uids = models.Student.objects.filter(clase=classroom).values_list('uid', flat=True)
+        users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
+        activity = super().create(request, *args, **kwargs)
+        # print('activity', activity.data)
+        tasks.send_activity_notification.delay(list(users), activity.data, 'Nueva Actividad')
+        return activity
 
 class GradeViewSet(ModelViewSet):
 

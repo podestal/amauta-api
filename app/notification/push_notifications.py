@@ -62,3 +62,51 @@ def send_push_notification(token, title, body, data=None):
     except Exception as e:
         print(f"Error sending message: {e}")
         return {"success": False, "error": str(e)}
+
+# from firebase_admin import messaging
+
+# def send_push_notification(tokens, title, body, data=None):
+#     """
+#     Sends a push notification to one or multiple devices.
+    
+#     :param tokens: A single token (string) or a list of FCM device tokens
+#     :param title: Notification title
+#     :param body: Notification body
+#     :param data: Optional dictionary with additional data
+#     """
+
+#     print('Device tokens:', tokens)
+
+#     if not tokens:
+#         print("No device tokens provided")
+#         return {"success": False, "error": "No tokens"}
+
+#     try:
+#         # If only one token is passed as a string, convert it into a list
+#         if isinstance(tokens, str):
+#             tokens = [tokens]
+
+#         # Use MulticastMessage to send notifications to multiple devices
+#         message = messaging.MulticastMessage(
+#             notification=messaging.Notification(
+#                 title=title,
+#                 body=body,
+#             ),
+#             data=data or {},  # Optional custom data payload
+#             tokens=tokens,
+#         )
+
+#         response = messaging.send_multicast(message)
+#         print(f"Successfully sent {response.success_count} messages out of {len(tokens)}")
+
+#         return {
+#             "success": True,
+#             "success_count": response.success_count,
+#             "failure_count": response.failure_count,
+#             "responses": response.responses
+#         }
+
+#     except Exception as e:
+#         print(f"Error sending messages: {e}")
+#         return {"success": False, "error": str(e)}
+

@@ -6,6 +6,8 @@ import holidays
 import pytz
 
 from . import models
+from notification.models import FCMDevice
+from notification.push_notifications import send_push_notification
 
 PERU_HOLIDAYS = holidays.Peru()
 
@@ -94,3 +96,13 @@ def remove_on_time_records():
             print("No on time records to remove")
     else:
         print("Today is not a valid day to run the task.")
+
+@shared_task
+def send_activity_notification(users, activity_data, notification_title):
+    
+    tokens = FCMDevice.objects.filter(user_id__in=users)
+    message = f" {activity_data['title']} ha sido programada para el {activity_data['due_date']}"
+    
+    for token in tokens:
+        send_push_notification(token.device_token, notification_title, message)
+

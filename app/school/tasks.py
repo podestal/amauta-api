@@ -122,3 +122,11 @@ def send_attendance_notification(users, notification_message, apologize_message=
     for token in tokens:
             send_push_notification(token.device_token, 'Alerta de Asistencia', message)
 
+@shared_task
+def send_grade_notification(users, notification_message):
+    print('sending grade notification')
+    tokens = FCMDevice.objects.filter(user_id__in=users)
+    message = notification_message
+
+    for token in tokens:
+            send_push_notification(token.device_token, 'Alerta de Notas', message)

@@ -936,6 +936,14 @@ class GradeViewSet(ModelViewSet):
         grades = self.queryset.filter(activity_id=activity)
         serializer = serializers.GradesByActivitySerializer(grades, many=True)
         return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        student_id = self.request.query_params.get('student_uid')
+        student = models.Student.objects.get(uid=student_id)
+        users = models.Tutor.objects.filter(students__uid=student_id).values_list('user', flat=True)
+        notification_message = f'{student.first_name} ha recibido una nueva calificación'
+        tasks.send_grade_notification.delay(list(users), notification_message)
+        return super().update(request, *args, **kwargs)
 
 class QuarterGradeViewSet(ModelViewSet):
 

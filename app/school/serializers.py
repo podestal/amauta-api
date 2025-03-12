@@ -60,12 +60,17 @@ class CreateEmergencyContactSerializer(serializers.ModelSerializer):
 class GetClaseSerializer(serializers.ModelSerializer):
 
     total_students = serializers.SerializerMethodField()
+    missing_dni = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Clase
-        fields = ['id', 'grade', 'level', 'section', 'school', 'total_students']
+        fields = ['id', 'grade', 'level', 'section', 'school', 'total_students', 'missing_dni']
     
     def get_total_students(self, obj):
         return obj.students.count()
+    
+    def get_missing_dni(self, obj):
+        return obj.students.filter(dni__isnull=True).count()
     
 
 class GetSimpleClaseSerializer(serializers.ModelSerializer):

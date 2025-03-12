@@ -386,6 +386,15 @@ class StudentViewSet(ModelViewSet):
             return Response(serializer.data)
         except:
             return Response({"error": "Tutor not found"}, status=404)
+
+    @action(detail=False, methods=['get'])
+    def byDni(self, request):
+        dni = request.query_params.get('dni')
+        if not dni:
+            return Response({"error": "DNI parameter is required"}, status=400)
+        student = get_object_or_404(models.Student, dni=dni)
+        serializer = serializers.GetStudentSerializer(student)
+        return Response(serializer.data)
         
     @action(detail=False, methods=['get'])
     def byName(self, request):

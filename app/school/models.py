@@ -3,6 +3,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
 
+import random
+
 class Area(models.Model):
     id = models.IntegerField(primary_key=True)
     title = models.CharField(max_length=255)
@@ -142,7 +144,15 @@ class Student(models.Model):
 
     ]
 
-    uid = models.BigIntegerField(primary_key=True, unique=True)
+    def generate_uid():
+        """Generate a unique 8-digit UID."""
+        while True:
+            uid = random.randint(10_000_000, 99_999_999)
+            if not Student.objects.filter(uid=uid).exists():
+                return uid
+
+    uid = models.BigIntegerField(primary_key=True, unique=True, default=generate_uid, editable=False)
+    dni = models.CharField(max_length=8, unique=True, blank=True, null=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     clase = models.ForeignKey(Clase, on_delete=models.PROTECT, related_name='students')

@@ -171,7 +171,7 @@ class GetStudentsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Student
-        fields = ['first_name', 'last_name', 'uid', 'clase', 'tutor_phone', 'health_info', 'birth_info', 'emergency_contact', 'school', 'is_active']
+        fields = ['first_name', 'last_name', 'uid', 'dni', 'clase', 'tutor_phone', 'health_info', 'birth_info', 'emergency_contact', 'school', 'is_active']
 
     
 class GetStudentSerializer(serializers.ModelSerializer):
@@ -192,6 +192,7 @@ class GetStudentSerializer(serializers.ModelSerializer):
             'clase',
             'uid', 
             'tutor_phone',
+            'dni',   
             'attendances_in', 
             'attendances_out', 
             'created_at',
@@ -254,6 +255,7 @@ class CreateStudentSerializer(serializers.ModelSerializer):
             'clase',
             'prev_school',
             'tutor_phone',
+            'dni',
             'main_language',
             'second_language',
             'number_of_siblings',
@@ -280,6 +282,7 @@ class UpdateStudentSerializer(serializers.ModelSerializer):
             'uid', 
             'created_at',
             'tutor_phone',
+            'dni',
             'prev_school',
             'main_language',
             'second_language',

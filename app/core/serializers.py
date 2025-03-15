@@ -2,6 +2,9 @@ from djoser.serializers import UserSerializer as BasedUserSerializer, UserCreate
 from rest_framework import serializers
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
+from django.urls import reverse
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory
 
 user = get_user_model()
 
@@ -20,6 +23,20 @@ class CreateUserSerializer(UserCreateSerializer):
 
     class Meta(UserCreateSerializer.Meta):
         fields = ['id', 'username', 'email', 'password', 'profile', 'first_name', 'last_name']
+
+    def create(self, validated_data):
+        # Step 1: Create the user
+        user = super().create(validated_data)
+        
+        # Step 2: Simulate a password reset request to trigger the email
+        factory = APIRequestFactory()
+        request = factory.post(reverse("user-reset-password"), {"email": user.email})
+        # request = Request(request)  # Convert to Django REST framework request
+        
+        # # Step 3: Call Djoser's PasswordResetView
+        # PasswordResetView.as_view()(request)
+        
+        return user
 
 
 

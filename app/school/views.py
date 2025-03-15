@@ -290,7 +290,10 @@ class AtendanceViewSet(ModelViewSet):
 class AssistantViewSet(ModelViewSet):
 
     queryset = models.Assistant.objects.select_related('user', 'school').prefetch_related('clases')
-    serializer_class = serializers.GetAssistantSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return serializers.CreateAssistantSerializer
+        return serializers.GetAssistantSerializer
     
     # def get_permissions(self):
     #     if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:

@@ -66,25 +66,27 @@ class CapacityViewSet(ModelViewSet):
         return [IsAdminUser()]
 
 class ClaseViewSet(ModelViewSet):
+
     queryset = models.Clase.objects.select_related('school').prefetch_related('students')
-    permission_classes = [IsAdminUser]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateClaseSerializer
+        if self.request.method == 'DELETE':
+            return serializers.RemoveClaseSerializer
         return serializers.GetClaseSerializer
     
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
+    # def get_permissions(self):
+    #     if self.request.method in SAFE_METHODS:
+    #         return [IsAuthenticated()]
+    #     return [IsAdminUser()]
     
     def get_queryset(self):
         if self.request.user.is_superuser:
             return super().get_queryset()
         school = self.request.query_params.get('school')
         if not school:
-            return Response({"error": "School parameter is required"}, status=400)
+            return models.Clase.objects.none()
         return self.queryset.filter(school=school)
     
     # @action(detail=False, methods=['get'])

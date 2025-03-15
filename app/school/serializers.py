@@ -71,6 +71,11 @@ class GetClaseSerializer(serializers.ModelSerializer):
     
     def get_missing_dni(self, obj):
         return obj.students.filter(dni__isnull=True).count()
+
+class RemoveClaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Clase
+        fields = ['id']
     
 
 class GetSimpleClaseSerializer(serializers.ModelSerializer):

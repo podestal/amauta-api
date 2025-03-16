@@ -2,9 +2,13 @@ from djoser.serializers import UserSerializer as BasedUserSerializer, UserCreate
 from rest_framework import serializers
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
-from django.urls import reverse
-from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+from django.template.loader import render_to_string
 
 user = get_user_model()
 
@@ -25,47 +29,42 @@ class CreateUserSerializer(UserCreateSerializer):
         fields = ['id', 'username', 'email', 'password', 'profile', 'first_name', 'last_name']
 
     def create(self, validated_data):
-        # Step 1: Create the user
         user = super().create(validated_data)
-        
-        # Step 2: Simulate a password reset request to trigger the email
-        factory = APIRequestFactory()
-        request = factory.post(reverse("user-reset-password"), {"email": user.email})
-        # request = Request(request)  # Convert to Django REST framework request
-        
-        # # Step 3: Call Djoser's PasswordResetView
-        # PasswordResetView.as_view()(request)
-        
+        self.send_welcome_email(user)
         return user
-
-
-
-    # groups = serializers.ListField(
-    #     child=serializers.CharField(), 
-    #     required=False  
-    # )
     
-    # class Meta(UserCreateSerializer.Meta):
-    #     fields = ['id', 'username', 'email', 'password', 'groups']
+    def send_welcome_email(self, user):
+        """Send a welcome email with password reset link and username"""
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
 
-    # def validate_groups(self, value):
-    #     """Ensure that group names exist in the database."""
-    #     groups = Group.objects.filter(name__in=value)
-    #     if len(groups) != len(value):
-    #         missing_groups = set(value) - set(groups.values_list('name', flat=True))
-    #         raise serializers.ValidationError(f"Invalid group names: {missing_groups}")
-    #     return groups  # Return the actual Group queryset
+        subject = "🎉 ¡Bienvenido a Amautapp! Configura tu contraseña"
+        
+        # Render HTML email template
+        message = render_to_string("emails/welcome_email.html", {
+            "user": user,
+            "frontend_url": settings.FRONTEND_URL,
+            "uid": uid,
+            "token": token,
+            "username": user.username  # Ensure the template receives this
+        })
 
-    # def create(self, validated_data):
-    #     print('validated_data', validated_data)
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
-    #     # Pop groups before user creation to prevent direct assignment error
-    #     groups = validated_data.pop('groups', [])
+    # def send_welcome_email(self, user):
+    #     """Send a welcome email with password reset link"""
+    #     uid = urlsafe_base64_encode(force_bytes(user.pk))
+    #     token = default_token_generator.make_token(user)
 
-    #     # Create the user
-    #     user = super().create(validated_data)
+    #     subject = "🎉 ¡Bienvenido a Amautapp! Configura tu contraseña"
+        
+    #     # Render HTML email template
+    #     message = render_to_string("emails/welcome_email.html", {
+    #         "user": user,
+    #         "frontend_url": settings.FRONTEND_URL,
+    #         "uid": uid,
+    #         "token": token
+    #     })
 
-    #     # Assign groups after user creation
-    #     user.groups.set(groups)
+    #     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
 
-    #     return user

@@ -1,0 +1,23 @@
+{% block subject %}
+🎉 ¡Bienvenido a Amautapp! Configura tu contraseña
+{% endblock subject %}
+
+{% block text_body %}
+Hola {{ user.first_name }},
+
+¡Estamos emocionados de darte la bienvenida a **Amautapp**! 🎉
+
+Aquí están tus datos de acceso:
+👤 **Usuario:** `{{ user.username }}`
+
+🔗 Para completar la configuración de tu cuenta, por favor establece tu contraseña haciendo clic en el siguiente enlace:
+
+👉 [Configurar mi contraseña]({{ frontend_url }}/new-password/{{ uid }}/{{ token }}/)
+
+Si no realizaste esta solicitud, puedes ignorar este mensaje. Tu cuenta seguirá segura.
+
+💡 Si tienes alguna duda, no dudes en contactarnos.
+
+Atentamente,
+**Equipo de Amautapp** 🚀
+{% endblock text_body %}

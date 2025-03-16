@@ -107,6 +107,8 @@ class InstructorViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateInstructorSerializer
+        if self.request.method in ['PUT', 'PATCH']:
+            return serializers.UpdateInstructorSerializer
         return serializers.GetInstructorSerializer
     
     def get_permissions(self):
@@ -293,6 +295,8 @@ class AssistantViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateAssistantSerializer
+        if self.request.method in ['PUT', 'PATCH']:
+            return serializers.UpdateAssistantSerializer
         return serializers.GetAssistantSerializer
     
     # def get_permissions(self):

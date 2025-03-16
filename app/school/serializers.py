@@ -105,7 +105,7 @@ class GetInstructorSerializer(serializers.ModelSerializer):
 
     class Meta: 
         model = models.Instructor
-        fields = ['id', 'user', 'clases_details', 'first_name', 'last_name', 'school', 'phone_number', 'email']
+        fields = ['id', 'user', 'clases_details', 'first_name', 'last_name', 'school', 'phone_number', 'email'] 
 
     def get_clases_details(self, obj):
         return [
@@ -118,6 +118,11 @@ class CreateInstructorSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Instructor
         fields = ['id', 'user', 'clases', 'school', 'phone_number', 'email']
+
+class UpdateInstructorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Instructor
+        fields = ['id', 'clases', 'school', 'phone_number', 'email']
 
 class GetAtendanceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -157,6 +162,11 @@ class CreateAssistantSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Assistant
         fields = ['id', 'user', 'phone_number', 'email', 'school', 'clases']
+
+class UpdateAssistantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Assistant
+        fields = ['id', 'phone_number', 'email', 'school', 'clases']
     
 class GetTutorForStudentSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,7 +1,7 @@
 from celery import shared_task
 from datetime import datetime, date
 from django.core.cache import cache
-from amauta.celery import celery_app
+from amauta.celery import app
 import holidays
 import pytz
 

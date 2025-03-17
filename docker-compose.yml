@@ -89,6 +89,25 @@ services:
   # celery-beat:
   #   build: .
   #   working_dir: /app
+  #   command: sh -c "chown -R 1000:1000 /app/celerybeat-data && celery -A amauta beat --loglevel=info -s /app/celerybeat-data/celerybeat-schedule"
+  #   environment:
+  #     - REDIS_HOST=redis
+  #     - DB_HOST=db
+  #     - DB_NAME=${DB_NAME}
+  #     - DB_USER=${DB_USER}
+  #     - DB_PASS=${DB_PASS}
+  #     - DJANGO_SETTINGS_MODULE=amauta.settings
+  #     - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+  #     - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+  #   volumes:
+  #     - ./celerybeat-data:/app/celerybeat-data
+  #   depends_on:
+  #     - app
+  #     - redis
+
+  # celery-beat:
+  #   build: .
+  #   working_dir: /app
   #   command: celery -A amauta.celery beat --loglevel=info -s /app/celerybeat-data/celerybeat-schedule
   #   # command: sh -c "sleep 10 && celery -A amauta.celery beat --loglevel=info -s /app/celerybeat-data/celerybeat-schedule"
   #   environment:

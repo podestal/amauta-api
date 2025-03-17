@@ -10,4 +10,4 @@ htmlcov
 staticfiles
 mediafiles
 firebase_service_account.json
-celerybeat-schedule
+celerybeat-data/

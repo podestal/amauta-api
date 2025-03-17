@@ -18,6 +18,6 @@ app.conf.beat_schedule = {
     },
     'run_task_everyday_at_midnigth': {
         'task': 'school.tasks.remove_on_time_records',
-        'schedule': crontab(hour=22, minute=24),
+        'schedule': crontab(hour=23, minute=24),
     }
 }

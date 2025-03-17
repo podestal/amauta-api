@@ -1,5 +1,7 @@
 from celery import shared_task
 from datetime import datetime, date
+from django.utils import timezone
+from django.db.models import Q
 from django.core.cache import cache
 from amauta.celery import app
 import holidays
@@ -12,54 +14,74 @@ from notification.push_notifications import send_push_notification
 PERU_HOLIDAYS = holidays.Peru()
 
 @shared_task
-def mark_absent_students():
+def mark_absent_students_in():
     """Mark students as absent."""
-    students = models.Student.objects.select_related('clase')
-    for student in students:
-        try:
-            models.Atendance.objects.get(
-                student=student,
-                kind='I',
-                created_at__date=date.today()
+    schools = models.School.objects.all()
+
+    for school in schools:
+
+        today = timezone.localdate()
+
+        if not models.Atendance.objects.filter(created_at__date=today, student__school=school).exists():
+            print(f"Skipping school {school.id} (No attendance found for today)")
+            continue
+
+        students = models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages').filter(school=school)
+        for student in students:
+            try:
+                models.Atendance.objects.get(
+                    student=student,
+                    kind='I',
+                    created_at__date=date.today()
+                )
+
+                print(f"Student {student.uid} already have an attendance In for today")
+            except:
+                models.Atendance.objects.create(
+                    student=student,
+                    status='N',
+                    attendance_type='A',
+                    kind='I',
+                    created_by='System'
+                )
+                print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
+
+@shared_task
+def mark_on_time_students_out():
+
+    if should_run_today():
+        schools = models.School.objects.all()
+
+        for school in schools:
+
+            today = timezone.localdate()
+
+            if not models.Atendance.objects.filter(created_at__date=today, student__school=school).exists():
+                print(f"Skipping school {school.id} (No attendance found for today)")
+                continue
+            missing_attendance_count = 0
+            students_without_attendance = models.Student.objects.exclude(
+                    atendances__created_at__date=today,
+                    atendances__kind="O"
+                ).exclude(
+                    Q(atendances__created_at__date=today, atendances__kind="I", atendances__status="N")
             )
 
-            print(f"Student {student.uid} already have an attendance In for today")
-        except:
-            models.Atendance.objects.create(
-                student=student,
-                status='N',
-                attendance_type='A',
-                kind='I',
-                created_by='System'
-            )
-            print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
-
-    # Using Cache memroy to store the attendance
-    # students = models.Student.objects.select_related('clase')
-    # for student in students:
-    #     cache_id = f"attendance_{student.uid}_I"
-    #     print(f"Fetching cache for ID: {cache_id}")
-    #     attendance_in = cache.get(cache_id)
-    #     print(f"Cache result for {cache_id}: {attendance_in}")
-        
-    #     if not attendance_in:
-    #         attendance = models.Atendance.objects.create(
-    #             student=student,
-    #             status='N',
-    #             attendance_type='A',
-    #             kind='I',
-    #             created_by='System'
-    #         )
-    #         cache_data = {
-    #             "id": attendance.id,
-    #             "status": attendance.status,
-    #             "kind": attendance.kind,
-    #             "created_by": attendance.created_by,
-    #             "observations": '',
-    #             "created_at": datetime.now().isoformat(),
-    #         }
-    #         cache.set(cache_id, cache_data, timeout=54000)
-    #         print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
+            for student in students_without_attendance:
+                models.Atendance.objects.create(
+                    created_at=today,
+                    updated_at=today,
+                    status='O',
+                    attendance_type="A",
+                    student=student,
+                    created_by="System",
+                    kind='O',
+                )
+                missing_attendance_count += 1
+            
+            print(f'{missing_attendance_count} missing attendances created successfully for today with kind "O".')
+    else:
+        print("Today is not a valid day to run the task.")
 
 def should_run_today():
     """Check if the task should run today."""
@@ -68,9 +90,6 @@ def should_run_today():
 
     if today.weekday() in [5, 6]:
         return False
-
-    if today.date() in PERU_HOLIDAYS:
-        return False
     
     return True
 
@@ -78,9 +97,11 @@ def should_run_today():
 def run_if_valid_day():
     """Run the task if it's a valid day."""
     if should_run_today():
-        mark_absent_students()
+        mark_absent_students_in()
     else:
         print("Today is not a valid day to run the task.")
+
+
 
 @shared_task
 def remove_on_time_records():

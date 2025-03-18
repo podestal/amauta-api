@@ -11,3 +11,4 @@ staticfiles
 mediafiles
 firebase_service_account.json
 celerybeat-data/
+redis-data/

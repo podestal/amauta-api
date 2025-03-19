@@ -598,12 +598,26 @@ class QuarterGradeSerializer(serializers.ModelSerializer):
         model = models.QuarterGrade
         fields = '__all__'
 
+    #        title = models.CharField(max_length=255)
+    # description = models.TextField()
+    # created_at = models.DateField(auto_now_add=True)
+    # announcement_type = models.CharField(max_length=1, choices=ANNOUNCEMENT_TYPES, default='I')
+    # visibility_level = models.CharField(max_length=1, choices=VISIBILITY_LEVELS, default='G')
+
+    # # Relationships
+    # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="announcements")
+    # classroom = models.ForeignKey(Clase, on_delete=models.CASCADE, null=True, blank=True, related_name="announcements") 
+    # assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, null=True, blank=True, related_name="announcements")  
+    # student = models.ManyToManyField(Student, on_delete=models.CASCADE, null=True, blank=True, related_name="personal_announcements") 
+
+    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+
 class GetAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Announcement
-        fields = ['id', 'title', 'description', 'created_at', 'student', 'created_by', 'announcement_type']
+        fields = ['id', 'title', 'description', 'created_at', 'student', 'clase', 'created_by', 'announcement_type', 'visibility_level']
 
 class CreateAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Announcement
-        fields = ['id', 'title', 'description', 'student', 'created_by', 'school', 'announcement_type']
+        fields = ['id', 'title', 'description', 'student', 'created_by', 'school', 'clase', 'assignature', 'announcement_type', 'visibility_level']

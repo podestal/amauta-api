@@ -2,6 +2,7 @@ from datetime import date
 from unidecode import unidecode
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.utils.timezone import now
 from django.db.models.functions import ExtractWeek, ExtractMonth, ExtractDay
 from django.utils import timezone
 from datetime import timedelta
@@ -987,7 +988,7 @@ class QuarterGradeViewSet(ModelViewSet):
 
 class AnnouncementViewSet(ModelViewSet):
 
-    queryset = models.Announcement.objects.select_related('student', 'user', 'school').order_by('created_at')
+    queryset = models.Announcement.objects.select_related('created_by', 'school', 'clase', 'assignature').prefetch_related('student').order_by('created_at')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -1019,22 +1020,71 @@ class AnnouncementViewSet(ModelViewSet):
             return Response({"error": "Tutor not found"}, status=404)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
-        
-    def create(self, request, *args, **kwargs):
 
-        student_id = request.data['student']
-        student = models.Student.objects.get(uid=student_id)
-
+    @action(detail=False, methods=['get'])
+    def byDate(self, request):
+        """Retrieve announcements for the current day based on visibility level."""
+        student_uid = request.query_params.get('student')
+        date_param = request.query_params.get('date', now().date()) 
+        print('student_uid')
         try:
-            tutor = models.Tutor.objects.get(students=student)
-        except:
-            return super().create(request, *args, **kwargs)
+            student = models.Student.objects.get(uid=student_uid)
+            # General announcements for the school
+            general_announcements = self.queryset.filter(
+                visibility_level='G',
+                school=student.school,
+                created_at=date_param
+            )
 
-        tokens = FCMDevice.objects.filter(user=tutor.user)
-        message = f'Tienes un nuevo mensaje sobre {student.first_name}'
-        for token in tokens:
-                send_push_notification(token.device_token, 'Nuevo Mensaje', message)
-        return super().create(request, *args, **kwargs)
+            # Class announcements (for the student’s class)
+            class_announcements = self.queryset.filter(
+                visibility_level='C',
+                clase=student.clase.id,
+                created_at=date_param
+            )
+
+            # Assignature announcements (for subjects the student is in)
+            
+            assignature_announcements = self.queryset.filter(
+                visibility_level='A',
+                assignature__clase=student.clase,
+                created_at=date_param
+            )
+
+            # Personal announcements (specifically assigned to the student)
+            personal_announcements = self.queryset.filter(
+                visibility_level='P',
+                student=student,
+                created_at=date_param
+            )
+
+            # Combine querysets
+            announcements = general_announcements | class_announcements | assignature_announcements | personal_announcements
+            announcements = announcements.distinct().order_by('-created_at')
+
+            serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
+            return Response(serializer.data)
+
+        except models.Student.DoesNotExist:
+            return Response({"error": "Student not found"}, status=404)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+    # def create(self, request, *args, **kwargs):
+
+    #     student_id = request.data.get('student', []) 
+    #     student = models.Student.objects.get(uid=student_id)
+
+    #     try:
+    #         tutor = models.Tutor.objects.get(students=student)
+    #     except:
+    #         return super().create(request, *args, **kwargs)
+
+    #     tokens = FCMDevice.objects.filter(user=tutor.user)
+    #     message = f'Tienes un nuevo mensaje sobre {student.first_name}'
+    #     for token in tokens:
+    #             send_push_notification(token.device_token, 'Nuevo Mensaje', message)
+    #     return super().create(request, *args, **kwargs)
 
 class HealthInfoViewSet(ModelViewSet):
     queryset = models.Health_Information.objects.select_related('student')

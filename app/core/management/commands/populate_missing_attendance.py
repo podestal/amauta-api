@@ -2,9 +2,10 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db.models import Q
 from school.models import Atendance, Student
+import datetime
 
 class Command(BaseCommand):
-    help = 'Populate missing attendances for today with configurable kind and status'
+    help = 'Populate missing attendances for a specific date with configurable kind and status'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -14,34 +15,46 @@ class Command(BaseCommand):
             required=True,
             help='Specify the kind of attendance: "I" for Check-in, "O" for Check-out'
         )
+        parser.add_argument(
+            '--date',
+            type=str,
+            help='Specify the date in YYYY-MM-DD format. Defaults to the current date.'
+        )
 
     def handle(self, *args, **options):
-        today = timezone.localdate()
-        missing_attendance_count = 0
         kind = options['kind']
 
-        # Set status based on kind
+        # Parse the date argument or use today's date
+        if options['date']:
+            try:
+                attendance_date = datetime.datetime.strptime(options['date'], '%Y-%m-%d').date()
+            except ValueError:
+                self.stdout.write(self.style.ERROR('Invalid date format. Use YYYY-MM-DD.'))
+                return
+        else:
+            attendance_date = timezone.localdate()
+
+        missing_attendance_count = 0
         status = "N" if kind == "I" else "O"
 
-        # If kind is "O" (Check-out), filter out students who were absent in "I" (Check-in)
+        # Filtering students based on missing attendance
         if kind == "O":
             students_without_attendance = Student.objects.exclude(
-                atendances__created_at__date=today,
+                atendances__created_at__date=attendance_date,
                 atendances__kind="O"
             ).exclude(
-                Q(atendances__created_at__date=today, atendances__kind="I", atendances__status="N")
+                Q(atendances__created_at__date=attendance_date, atendances__kind="I", atendances__status="N")
             )
         else:
-            # For kind "I", simply exclude students who already have an attendance "I" today
             students_without_attendance = Student.objects.exclude(
-                atendances__created_at__date=today,
+                atendances__created_at__date=attendance_date,
                 atendances__kind="I"
             )
 
         for student in students_without_attendance:
             Atendance.objects.create(
-                created_at=today,
-                updated_at=today,
+                created_at=attendance_date,
+                updated_at=attendance_date,
                 status=status,
                 attendance_type="M",  # Morning
                 student=student,
@@ -52,5 +65,5 @@ class Command(BaseCommand):
             missing_attendance_count += 1
 
         self.stdout.write(self.style.SUCCESS(
-            f'{missing_attendance_count} missing attendances created successfully for today with kind "{kind}".'
+            f'{missing_attendance_count} missing attendances created for {attendance_date} with kind "{kind}".'
         ))

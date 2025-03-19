@@ -56,33 +56,54 @@ def mark_on_time_students_out():
 
             today = timezone.localdate()
 
-            if not models.Atendance.objects.filter(created_at__date=today, student__school=school).exists():
-                print(f"Skipping school {school.id} (No attendance found for today)")
-                continue
-            missing_attendance_count = 0
-            students_without_attendance = models.Student.objects.exclude(
-                    atendances__created_at__date=today,
-                    atendances__kind="O"
-                ).exclude(
-                    Q(atendances__created_at__date=today, atendances__kind="I", atendances__status="N")
+            entrance_attendances = models.Atendance.objects.filter(
+                created_at__date=today,
+                kind="I",
+                student__school=school,
             )
 
-            for student in students_without_attendance:
-                models.Atendance.objects.create(
-                    created_at=today,
-                    updated_at=today,
-                    status='O',
-                    attendance_type="A",
-                    student=student,
-                    created_by="System",
-                    kind='O',
-                )
-                missing_attendance_count += 1
-            
-            print(f'{missing_attendance_count} missing attendances created successfully for today with kind "O".')
-    else:
-        print("Today is not a valid day to run the task.")
+            created_count = 0 
 
+            for attendance in entrance_attendances:
+                student = attendance.student
+
+                if attendance.status == "E":
+
+                    if not models.Atendance.objects.filter(
+                        student=student,
+                        created_at__date=today,
+                        kind="O"
+                    ).exists():
+                        # Create exit attendance
+                        models.Atendance.objects.create(
+                            created_at=today,
+                            updated_at=today,
+                            status="E",  
+                            attendance_type="A",  
+                            student=student,
+                            created_by="System",
+                            observations="",
+                            kind="O"
+                        )
+                        created_count += 1
+
+                elif attendance.status != "N":
+                    if not models.Atendance.objects.filter(
+                        student=student,
+                        created_at__date=today,
+                        kind="O"
+                    ).exists():
+                        models.Atendance.objects.create(
+                            created_at=today,
+                            updated_at=today,
+                            status="O",
+                            attendance_type="A",  
+                            student=student,
+                            created_by="System",
+                            observations="",
+                            kind="O"
+                        )
+                        created_count += 1
 def should_run_today():
     """Check if the task should run today."""
     peru_timezone = pytz.timezone('America/Lima')

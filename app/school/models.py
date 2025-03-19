@@ -456,9 +456,17 @@ class QuarterGrade(models.Model):
         super().save(*args, **kwargs)
 
 class Announcement(models.Model):
+    
+    ANNOUNCEMENT_TYPES = [
+        ("I", "Informative"),
+        ("A", "Attention"),
+        ("E", "Emergency"),
+    ]
 
     title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateField(auto_now_add=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='announcements')
-    created_by = models.TextField(null=True, blank=True)
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='announcements')
+    announcement_type = models.CharField(max_length=1, choices=ANNOUNCEMENT_TYPES, default='I')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

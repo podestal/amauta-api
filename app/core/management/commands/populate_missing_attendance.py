@@ -25,6 +25,7 @@ class Command(BaseCommand):
         kind = options['kind']
 
         # Parse the date argument or use today's date
+
         if options['date']:
             try:
                 attendance_date = datetime.datetime.strptime(options['date'], '%Y-%m-%d').date()
@@ -33,6 +34,10 @@ class Command(BaseCommand):
                 return
         else:
             attendance_date = timezone.localdate()
+        
+        self.stdout.write(self.style.SUCCESS(
+            f'{attendance_date} Date'
+        ))
 
         missing_attendance_count = 0
         status = "N" if kind == "I" else "O"
@@ -50,6 +55,10 @@ class Command(BaseCommand):
                 atendances__created_at__date=attendance_date,
                 atendances__kind="I"
             )
+    
+        self.stdout.write(self.style.SUCCESS(
+            f'Students without attendance: {students_without_attendance.count()}'
+        ))
 
         for student in students_without_attendance:
             Atendance.objects.create(

@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.db.models import Q
 from school.models import Atendance, Student
+from django.db.models.functions import TruncDate
 import datetime
 
 class Command(BaseCommand):
@@ -33,7 +34,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR('Invalid date format. Use YYYY-MM-DD.'))
                 return
         else:
-            attendance_date = timezone.localdate()
+            attendance_date = timezone.localdate() 
         
         self.stdout.write(self.style.SUCCESS(
             f'{attendance_date} Date'
@@ -44,17 +45,22 @@ class Command(BaseCommand):
 
         # Filtering students based on missing attendance
         if kind == "O":
-            students_without_attendance = Student.objects.filter(
-                atendances__created_at__date=attendance_date,
-                atendances__kind="I"
-            ).exclude(
-                atendances__created_at__date=attendance_date,
-                atendances__kind="O"
-            ).exclude(
-                atendances__created_at__date=attendance_date,
+            students_without_attendance = Student.objects.annotate(
+                created_at_date=TruncDate('atendances__created_at')
+            ).filter(
+                created_at_date=attendance_date,
                 atendances__kind="I",
-                atendances__status="N"
-            ).distinct()
+                
+    )       .filter(  
+                ~Q(atendances__status="N")
+            ).exclude(
+                created_at_date=attendance_date,
+                atendances__kind="O"
+            )
+
+            self.stdout.write(self.style.SUCCESS(
+                f'Students without attendance filter : {students_without_attendance.count()}'
+            ))
 
         else:
             students_without_attendance = Student.objects.exclude(

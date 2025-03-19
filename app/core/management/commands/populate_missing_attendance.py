@@ -44,12 +44,18 @@ class Command(BaseCommand):
 
         # Filtering students based on missing attendance
         if kind == "O":
-            students_without_attendance = Student.objects.exclude(
+            students_without_attendance = Student.objects.filter(
+                atendances__created_at__date=attendance_date,
+                atendances__kind="I"
+            ).exclude(
                 atendances__created_at__date=attendance_date,
                 atendances__kind="O"
             ).exclude(
-                Q(atendances__created_at__date=attendance_date, atendances__kind="I", atendances__status="N")
-            )
+                atendances__created_at__date=attendance_date,
+                atendances__kind="I",
+                atendances__status="N"
+            ).distinct()
+
         else:
             students_without_attendance = Student.objects.exclude(
                 atendances__created_at__date=attendance_date,

@@ -1007,10 +1007,13 @@ class AnnouncementViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byTutor(self, request):
         user_id = request.user.id
+        print('user id',user_id)
         try:    
             tutor = models.Tutor.objects.get(user_id=user_id)
+            print('tutor', tutor)
             students = tutor.students.all()
-            announcements = models.Announcement.objects.filter(student__in=students).order_by('-created_at')
+            print('students', students)
+            announcements = models.Announcement.objects.filter(students__in=students).order_by('-created_at')
             if not announcements.exists():
                 return Response([], status=200)
             serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
@@ -1034,9 +1037,10 @@ class AnnouncementViewSet(ModelViewSet):
         """Retrieve announcements for the current day based on visibility level."""
         student_uid = request.query_params.get('student')
         date_param = request.query_params.get('date', now().date()) 
-        print('student_uid')
+        print('student_uid', student_uid)
         try:
             student = models.Student.objects.get(uid=student_uid)
+            print("student", student)
             # General announcements for the school
             general_announcements = self.queryset.filter(
                 visibility_level='G',

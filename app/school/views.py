@@ -1020,6 +1020,14 @@ class AnnouncementViewSet(ModelViewSet):
             return Response({"error": "Tutor not found"}, status=404)
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+        
+    @action(detail=False, methods=['get'])
+    def byAdmin(self, request):
+        school = request.query_params.get('school')
+        date_param = request.query_params.get('date', now().date()) 
+        announcements = self.queryset.filter(school=school, created_at=date_param).order_by('-created_at')
+        serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def byDate(self, request):

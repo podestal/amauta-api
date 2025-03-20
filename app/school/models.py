@@ -472,7 +472,8 @@ class Announcement(models.Model):
 
     title = models.CharField(max_length=255)
     description = models.TextField()
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     announcement_type = models.CharField(max_length=1, choices=ANNOUNCEMENT_TYPES, default='I')
     visibility_level = models.CharField(max_length=1, choices=VISIBILITY_LEVELS, default='G')
 

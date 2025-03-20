@@ -613,9 +613,15 @@ class QuarterGradeSerializer(serializers.ModelSerializer):
     # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
 class GetAnnouncementSerializer(serializers.ModelSerializer):
+
+    author = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Announcement
-        fields = ['id', 'title', 'description', 'created_at', 'students', 'clases', 'created_by', 'announcement_type', 'visibility_level']
+        fields = ['id', 'title', 'description', 'created_at', 'students', 'clases', 'author', 'announcement_type', 'visibility_level']
+
+    def get_author(self, obj):
+        return f'{obj.created_by.first_name} {obj.created_by.last_name}' if obj.created_by else 'Automático'
 
 class CreateAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:

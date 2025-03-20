@@ -988,7 +988,7 @@ class QuarterGradeViewSet(ModelViewSet):
 
 class AnnouncementViewSet(ModelViewSet):
 
-    queryset = models.Announcement.objects.select_related('created_by', 'school', 'assignature').prefetch_related('student', 'clases').order_by('created_at')
+    queryset = models.Announcement.objects.select_related('created_by', 'school', 'assignature').prefetch_related('students', 'clases').order_by('-created_at')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -1025,7 +1025,7 @@ class AnnouncementViewSet(ModelViewSet):
     def byAdmin(self, request):
         school = request.query_params.get('school')
         date_param = request.query_params.get('date', now().date()) 
-        announcements = self.queryset.filter(school=school, created_at=date_param).order_by('-created_at')
+        announcements = self.queryset.filter(school=school, created_at__date=date_param).order_by('-created_at')
         serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
         return Response(serializer.data)
 
@@ -1041,14 +1041,14 @@ class AnnouncementViewSet(ModelViewSet):
             general_announcements = self.queryset.filter(
                 visibility_level='G',
                 school=student.school,
-                created_at=date_param
+                created_at__date=date_param
             )
 
             # Class announcements (for the student’s class)
             class_announcements = self.queryset.filter(
                 visibility_level='C',
-                clase=student.clase.id,
-                created_at=date_param
+                clases=student.clase.id,
+                created_at__date=date_param
             )
 
             # Assignature announcements (for subjects the student is in)
@@ -1056,19 +1056,22 @@ class AnnouncementViewSet(ModelViewSet):
             assignature_announcements = self.queryset.filter(
                 visibility_level='A',
                 assignature__clase=student.clase,
-                created_at=date_param
+                created_at__date=date_param
             )
 
             # Personal announcements (specifically assigned to the student)
             personal_announcements = self.queryset.filter(
                 visibility_level='P',
-                student=student,
-                created_at=date_param
+                students=student,
+                created_at__date=date_param
             )
 
             # Combine querysets
-            announcements = general_announcements | class_announcements | assignature_announcements | personal_announcements
-            announcements = announcements.distinct().order_by('-created_at')
+            # announcements = general_announcements | class_announcements | assignature_announcements | personal_announcements
+            # announcements = announcements.distinct().order_by('-created_at')
+
+            announcements = (general_announcements | class_announcements | assignature_announcements | personal_announcements).distinct().order_by('-created_at')
+
 
             serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
             return Response(serializer.data)

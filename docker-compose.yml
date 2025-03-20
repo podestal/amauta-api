@@ -45,13 +45,28 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
 
+  # redis:
+  #   image: redis:6-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - ./redis-data:/data
+  #   command: redis-server --save 60 1 --loglevel warning
+
+
   redis:
     image: redis:6-alpine
+    restart: always
     ports:
       - "6379:6379"
     volumes:
       - ./redis-data:/data
     command: redis-server --save 60 1 --loglevel warning
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   celery:
     build: .

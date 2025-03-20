@@ -468,7 +468,7 @@ class Announcement(models.Model):
         ("C", "Clase"),    
         ("A", "Assignature"),     
         ("P", "Personal"),     
-    ]
+    ]   
 
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -478,9 +478,9 @@ class Announcement(models.Model):
 
     # Relationships
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="announcements")
-    clase = models.ForeignKey(Clase, on_delete=models.CASCADE, null=True, blank=True, related_name="announcements") 
+    clases = models.ManyToManyField(Clase, blank=True, related_name="announcements") 
     assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, null=True, blank=True, related_name="announcements")  
-    student = models.ManyToManyField(Student, null=True, blank=True, related_name="announcements") 
+    students = models.ManyToManyField(Student, blank=True, related_name="announcements") 
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):

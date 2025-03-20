@@ -988,7 +988,7 @@ class QuarterGradeViewSet(ModelViewSet):
 
 class AnnouncementViewSet(ModelViewSet):
 
-    queryset = models.Announcement.objects.select_related('created_by', 'school', 'clase', 'assignature').prefetch_related('student').order_by('created_at')
+    queryset = models.Announcement.objects.select_related('created_by', 'school', 'assignature').prefetch_related('student', 'clases').order_by('created_at')
     
     def get_serializer_class(self):
         if self.request.method == 'POST':

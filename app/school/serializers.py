@@ -615,9 +615,9 @@ class QuarterGradeSerializer(serializers.ModelSerializer):
 class GetAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Announcement
-        fields = ['id', 'title', 'description', 'created_at', 'student', 'clase', 'created_by', 'announcement_type', 'visibility_level']
+        fields = ['id', 'title', 'description', 'created_at', 'students', 'clases', 'created_by', 'announcement_type', 'visibility_level']
 
 class CreateAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Announcement
-        fields = ['id', 'title', 'description', 'student', 'created_by', 'school', 'clase', 'assignature', 'announcement_type', 'visibility_level']
+        fields = ['id', 'title', 'description', 'students', 'created_by', 'school', 'clases', 'assignature', 'announcement_type', 'visibility_level']

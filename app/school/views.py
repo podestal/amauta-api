@@ -935,9 +935,21 @@ class ActivityViewSet(ModelViewSet):
         classroom = request.query_params.get('classroom')
         students_uids = models.Student.objects.filter(clase=classroom).values_list('uid', flat=True)
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
-        print('users', users)
         activity = super().create(request, *args, **kwargs)
-        # print('activity', activity.data)
+        assignature = models.Assignature.objects.get(id=request.data['assignature'])
+        assignature_title = assignature.title
+        activity_title = request.data['title']
+        activity_due_date = request.data['due_date']
+        activity_announcement = models.Announcement.objects.create(
+            title='Nueva Actividad',
+            description=f'Nueva actividad {activity_title} del curso {assignature_title} para el día {activity_due_date}.',
+            announcement_type='I',
+            visibility_level='C',
+            school=assignature.clase.school
+        )
+
+        activity_announcement.clases.set([assignature.clase])
+
         tasks.send_activity_notification.delay(list(users), activity.data, 'Nueva Actividad', False)
         return activity
     

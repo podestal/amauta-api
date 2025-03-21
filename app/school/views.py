@@ -1055,14 +1055,10 @@ class AnnouncementViewSet(ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def byTutor(self, request):
-        user_id = request.user.id
-        print('user id',user_id)
+        studentUid = request.query_params.get('student')
+        date = request.query_params.get('date', now().date())
         try:    
-            tutor = models.Tutor.objects.get(user_id=user_id)
-            print('tutor', tutor)
-            students = tutor.students.all()
-            print('students', students)
-            announcements = models.Announcement.objects.filter(students__in=students).order_by('-created_at')
+            announcements = models.Announcement.objects.filter(students=studentUid, created_at__date=date).order_by('-created_at')
             if not announcements.exists():
                 return Response([], status=200)
             serializer = serializers.GetAnnouncementSerializer(announcements, many=True)

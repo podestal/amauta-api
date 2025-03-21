@@ -71,6 +71,7 @@ services:
   celery:
     build: .
     command: celery -A amauta worker --loglevel=info
+    restart: always
     environment:
       - REDIS_HOST=redis
       - DB_HOST=db
@@ -87,6 +88,7 @@ services:
   celery-beat:
     build: .
     command: celery -A amauta beat --loglevel=info -s /app/celerybeat-data/celerybeat-schedule
+    restart: always
     environment:
       - REDIS_HOST=redis
       - DB_HOST=db

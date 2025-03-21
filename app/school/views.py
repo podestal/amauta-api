@@ -277,17 +277,33 @@ class AtendanceViewSet(ModelViewSet):
             try:
                 users = models.Tutor.objects.filter(students__uid=student_id).values_list('user', flat=True)
             except:
-                # attendance_id = super().create(request, *args, **kwargs).data['id']
-                # cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
-                # return Response(cache, status=201)
-                print('could not find users')
                 return super().create(request, *args, **kwargs)
             
-            # self.send_notification(student, tutor, status)
             tasks.send_attendance_notification.delay(list(users), notification_message)
-            # attendance_id = super().create(request, *args, **kwargs).data['id']
 
-        # cache = self.save_to_cache(student, kind, status, request, attendance_id=attendance_id)
+
+        if status == 'N':
+            no_assist_announcement = models.Announcement.objects.create(
+                title='Falta',
+                description=f'{student.first_name} {student.last_name}  no asistió a clases',
+                announcement_type='E',
+                visibility_level='P',
+                school=student.school
+            )
+
+            no_assist_announcement.students.set([student])
+        
+        if status == 'L':
+            late_announcement = models.Announcement.objects.create(
+                title='Tardanza',
+                description=f'{student.first_name} {student.last_name} llegó tarde a clases',
+                announcement_type='A',
+                visibility_level='P',
+                school=student.school
+            )
+
+            late_announcement.students.set([student])
+ 
         return super().create(request, *args, **kwargs)
     
 class AssistantViewSet(ModelViewSet):

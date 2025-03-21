@@ -988,9 +988,30 @@ class GradeViewSet(ModelViewSet):
         student_id = self.request.query_params.get('student_uid')
         student = models.Student.objects.get(uid=student_id)
         users = models.Tutor.objects.filter(students__uid=student_id).values_list('user', flat=True)
+        updated_grade = super().update(request, *args, **kwargs)
         notification_message = f'{student.first_name} ha recibido una nueva calificación'
         tasks.send_grade_notification.delay(list(users), notification_message)
-        return super().update(request, *args, **kwargs)
+
+        grade = models.Grade.objects.get(id=updated_grade.data['id'])
+        if updated_grade.data['calification'] == 'C':
+            grade_announcement = models.Announcement.objects.create(
+                title='Nueva Calificación',
+                description=f'{student.first_name} {student.last_name} ha recibido una calificación muy baja en la actividad {grade.activity.title}.',
+                announcement_type='E',
+                visibility_level='P',
+                school=student.school
+            )
+            grade_announcement.students.set([student])
+        elif updated_grade.data['calification'] == 'B':
+            grade_announcement = models.Announcement.objects.create(
+                title='Nueva Calificación',
+                description=f'{student.first_name} {student.last_name} ha recibido una calificación baja en la actividad {grade.activity.title}.',
+                announcement_type='A',
+                visibility_level='P',
+                school=student.school
+            )
+            grade_announcement.students.set([student])
+        return updated_grade
 
 class QuarterGradeViewSet(ModelViewSet):
 

@@ -12,6 +12,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS, IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 from django.db.models import Subquery, OuterRef, Prefetch
 from django.core.cache import cache
 from datetime import datetime
@@ -29,6 +30,11 @@ from notification.models import FCMDevice
 
 from . import models
 from . import serializers
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10  
+    page_size_query_param = 'page_size' 
+    max_page_size = 100  
 
 class AreaViewSet(ModelViewSet):
     queryset = models.Area.objects.all()
@@ -1074,8 +1080,15 @@ class AnnouncementViewSet(ModelViewSet):
         school = request.query_params.get('school')
         date_param = request.query_params.get('date', now().date()) 
         announcements = self.queryset.filter(school=school, created_at__date=date_param).order_by('-created_at')
-        serializer = serializers.GetAnnouncementSerializer(announcements, many=True)
-        return Response(serializer.data)
+
+        paginator = CustomPagination()
+        try:    
+            paginated_announcements = paginator.paginate_queryset(announcements, request)
+        except:
+            return Response([])
+
+        serializer = serializers.GetAnnouncementSerializer(paginated_announcements, many=True)
+        return Response(serializer.data) 
 
     @action(detail=False, methods=['get'])
     def byDate(self, request):

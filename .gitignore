@@ -12,4 +12,5 @@ mediafiles
 firebase_service_account.json
 celerybeat-data/
 redis-data/
-backup.sql
+*.sql
+*.dump

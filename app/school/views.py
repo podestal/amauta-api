@@ -75,7 +75,8 @@ class CapacityViewSet(ModelViewSet):
 class ClaseViewSet(ModelViewSet):
 
     queryset = models.Clase.objects.select_related('school').prefetch_related('students')
-    
+    permission_classes = [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateClaseSerializer
@@ -110,6 +111,7 @@ class ClaseViewSet(ModelViewSet):
 class InstructorViewSet(ModelViewSet):
 
     queryset = models.Instructor.objects.select_related('user', 'school').prefetch_related('clases')
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -117,11 +119,6 @@ class InstructorViewSet(ModelViewSet):
         if self.request.method in ['PUT', 'PATCH']:
             return serializers.UpdateInstructorSerializer
         return serializers.GetInstructorSerializer
-    
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
     
     @action(detail=False, methods=['get'])
     def me(self, request):
@@ -136,16 +133,12 @@ class InstructorViewSet(ModelViewSet):
 class ManagerViewSet(ModelViewSet):
 
     queryset = models.Manager.objects.select_related('user', 'school')
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateManagerSerializer
         return serializers.GetManagerSerializer
-    
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS or self.request.method in ['PUT', 'PATCH']:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
     
     @action(detail=False, methods=['get'])
     def me(self, request):
@@ -160,6 +153,7 @@ class ManagerViewSet(ModelViewSet):
 class AtendanceViewSet(ModelViewSet):
 
     queryset = models.Atendance.objects.select_related('student')
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -315,6 +309,8 @@ class AtendanceViewSet(ModelViewSet):
 class AssistantViewSet(ModelViewSet):
 
     queryset = models.Assistant.objects.select_related('user', 'school').prefetch_related('clases')
+    permission_classes = [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateAssistantSerializer
@@ -338,6 +334,8 @@ class AssistantViewSet(ModelViewSet):
         return Response(serializer.data)
 
 class StudentViewSet(ModelViewSet):
+
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
 
@@ -876,11 +874,8 @@ class CategoryViewSet(ModelViewSet):
 class AssignatureViewSet(ModelViewSet):
     queryset = models.Assignature.objects.select_related('clase', 'instructor', 'area')
     serializer_class = serializers.AssignatureSerializer  
+    permission_classes = [IsAuthenticated]
 
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
 
     @action(detail=False, methods=['get'])
     def byInstructor(self, request):
@@ -974,7 +969,7 @@ class GradeViewSet(ModelViewSet):
 
     queryset = models.Grade.objects.select_related('student', 'activity', 'assignature')
     serializer_class = serializers.GradeSerializer  
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', 'PATCH']:
@@ -1023,6 +1018,7 @@ class QuarterGradeViewSet(ModelViewSet):
 
     queryset = models.QuarterGrade.objects.select_related('student', 'assignature', 'competence')
     serializer_class = serializers.QuarterGradeSerializer  
+    permission_classes = [IsAuthenticated]
 
     # @action(detail=False, methods=['get'])
     # def forInstructor(self, request):
@@ -1044,7 +1040,8 @@ class QuarterGradeViewSet(ModelViewSet):
 class AnnouncementViewSet(ModelViewSet):
 
     queryset = models.Announcement.objects.select_related('created_by', 'school', 'assignature').prefetch_related('students', 'clases').order_by('-created_at')
-    
+    permission_classes = [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateAnnouncementSerializer
@@ -1161,6 +1158,7 @@ class AnnouncementViewSet(ModelViewSet):
 
 class HealthInfoViewSet(ModelViewSet):
     queryset = models.Health_Information.objects.select_related('student')
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -1169,6 +1167,8 @@ class HealthInfoViewSet(ModelViewSet):
     
 class BirthInfoViewSet(ModelViewSet):
     queryset = models.Birth_Info.objects.select_related('student')
+    permission_classes = [IsAuthenticated]
+
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -1177,6 +1177,8 @@ class BirthInfoViewSet(ModelViewSet):
     
 class EmergencyContactViewSet(ModelViewSet):
     queryset = models.Emergency_Contact.objects.select_related('student')
+    permission_classes = [IsAuthenticated]
+
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

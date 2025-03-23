@@ -23,5 +23,6 @@ router.register('announcement', views.AnnouncementViewSet)
 router.register('birth-info', views.BirthInfoViewSet)   
 router.register('emergency-contact', views.EmergencyContactViewSet)
 router.register('health-info', views.HealthInfoViewSet)
+router.register('developer', views.DeveloperViewSet)
 
 urlpatterns = router.urls

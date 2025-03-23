@@ -627,3 +627,8 @@ class CreateAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Announcement
         fields = ['id', 'title', 'description', 'students', 'created_by', 'school', 'clases', 'assignature', 'announcement_type', 'visibility_level']
+
+class DeveloperSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Developer
+        fields = '__all__'

@@ -1184,3 +1184,18 @@ class EmergencyContactViewSet(ModelViewSet):
         if self.request.method == 'POST':
             return serializers.CreateEmergencyContactSerializer
         return serializers.GetEmergencyContactSerializer
+
+class DeveloperViewSet(ModelViewSet):
+    queryset = models.Developer.objects.select_related('user')
+    serializer_class = serializers.DeveloperSerializer
+    permission_classes = [IsAdminUser]
+
+    @action(detail=False, methods=['get'])
+    def me(self, request):
+        user = self.request.user
+        try:
+            developer = self.queryset.get(user=user)
+        except:
+            return Response({"error": "Tutor not found for the current user"}, status=404)
+        serializer = serializers.DeveloperSerializer(developer)
+        return Response(serializer.data)

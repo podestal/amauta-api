@@ -507,3 +507,8 @@ class TutorReadAgenda(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='read_agendas')
     agenda_date = models.DateField(blank=True, null=True)
     read_at = models.DateTimeField(auto_now_add=True)
+
+class TutorContact(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tutor_contact')
+    contact_date = models.DateField(auto_now_add=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)

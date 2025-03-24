@@ -370,7 +370,7 @@ class StudentViewSet(ModelViewSet):
             attendance_out = attendance_out.filter(created_at=now.today())
 
         return (
-                models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages', 'read_agendas')
+                models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages', 'read_agendas', 'tutor_contact')
                 .prefetch_related(
                     Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
                     Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out'),
@@ -457,6 +457,13 @@ class StudentViewSet(ModelViewSet):
                     agenda_date=timezone.now().date()
                 ),
                 to_attr='filtered_read_agendas'
+            ),
+            Prefetch(
+                'tutor_contact',
+                queryset=models.TutorContact.objects.filter(
+                    contact_date=timezone.now().date()
+                ),
+                to_attr='filtered_tutor_contact'
             )
         )
         serializer = serializers.GetStudentByAgendaSerializer(students, many=True)
@@ -960,7 +967,7 @@ class ActivityViewSet(ModelViewSet):
         activity_due_date = request.data['due_date']
         activity_announcement = models.Announcement.objects.create(
             title='Nueva Actividad',
-            description=f'Nueva actividad {activity_title} del curso {assignature_title} para el día {activity_due_date}.',
+            description=f'{activity_title} del curso {assignature_title} para el día {activity_due_date}.',
             announcement_type='I',
             visibility_level='C',
             school=assignature.clase.school
@@ -1250,4 +1257,28 @@ class TutorReadAgendaViewSet(ModelViewSet):
 
         serializer = serializers.TutorReadAgendaSerializer(read_agenda)
         return Response(serializer.data)
+    
+class TutorContactViewSet(ModelViewSet):
+
+    queryset = models.TutorContact.objects.select_related('created_by', 'student')
+    serializer_class = serializers.TutorContactSerializer
+    permission_classes = [IsAuthenticated]
+
+    # @action(detail=False, methods=['get'])
+    # def getContactTutor(self, request):
+    #     user = self.request.user
+    #     student_uid = request.query_params.get('student')
+
+    #     try:
+    #         student = models.Student.objects.get(uid=student_uid)
+    #     except models.Student.DoesNotExist:
+    #         return Response({"error": "Student not found"}, status=404)
+        
+    #     (contact_user, created) = models.TutorContact.objects.get_or_create(
+    #         student=student, contact_date=timezone.now().date(), created_by=user
+    #     )
+
+    #     serializer = serializers.TutorContactSerializer(contact_user)
+    #     return Response(serializer.data)
+
 

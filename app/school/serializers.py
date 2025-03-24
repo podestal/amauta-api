@@ -198,6 +198,20 @@ class GetStudentsSerializer(serializers.ModelSerializer):
         model = models.Student
         fields = ['first_name', 'last_name', 'uid', 'dni', 'clase', 'tutor_phone', 'health_info', 'birth_info', 'emergency_contact', 'school', 'is_active']
 
+class GetStudentByAgendaSerializer(serializers.ModelSerializer):
+
+    filtered_read_agendas = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Student
+        fields = ['uid', 'first_name', 'last_name', 'tutor_phone', 'filtered_read_agendas']
+
+    def get_filtered_read_agendas(self, obj):
+
+        if not (hasattr(obj, 'filtered_read_agendas')):
+             return False
+        return len(obj.filtered_read_agendas) > 0
+
     
 class GetStudentSerializer(serializers.ModelSerializer):
 

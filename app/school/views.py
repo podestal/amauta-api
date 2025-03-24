@@ -370,7 +370,7 @@ class StudentViewSet(ModelViewSet):
             attendance_out = attendance_out.filter(created_at=now.today())
 
         return (
-                models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages')
+                models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages', 'read_agendas')
                 .prefetch_related(
                     Prefetch('atendances', queryset=attendance_in, to_attr='attendance_in'),
                     Prefetch('atendances', queryset=attendance_out, to_attr='attendance_out'),
@@ -443,6 +443,23 @@ class StudentViewSet(ModelViewSet):
 
         students = self.get_queryset().filter(query)
         serializer = serializers.GetStudentSerializer(students, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byAgendas(self, request):
+        school = request.query_params.get('school')
+        classroom = request.query_params.get('classroom')
+        students = self.get_queryset().filter(school=school, clase=classroom)
+        students = students.prefetch_related(
+            Prefetch(
+                'read_agendas',
+                queryset=models.TutorReadAgenda.objects.filter(
+                    agenda_date=timezone.now().date()
+                ),
+                to_attr='filtered_read_agendas'
+            )
+        )
+        serializer = serializers.GetStudentByAgendaSerializer(students, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
@@ -826,7 +843,7 @@ class StudentViewSet(ModelViewSet):
 
 class TutorViewSet(ModelViewSet):
 
-    queryset = models.Tutor.objects.select_related('user', 'school').prefetch_related('students')
+    queryset = models.Tutor.objects.select_related('user', 'school').prefetch_related('students', 'read_agendas')
     permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):

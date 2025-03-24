@@ -24,5 +24,6 @@ router.register('birth-info', views.BirthInfoViewSet)
 router.register('emergency-contact', views.EmergencyContactViewSet)
 router.register('health-info', views.HealthInfoViewSet)
 router.register('developer', views.DeveloperViewSet)
+router.register('tutor-read-agenda', views.TutorReadAgendaViewSet)
 
 urlpatterns = router.urls

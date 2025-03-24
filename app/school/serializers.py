@@ -632,3 +632,8 @@ class DeveloperSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Developer
         fields = '__all__'
+
+class TutorReadAgendaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TutorReadAgenda
+        fields = '__all__'

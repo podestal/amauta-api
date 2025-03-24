@@ -500,3 +500,8 @@ class Announcement(models.Model):
 
     def __str__(self):
         return f"{self.get_visibility_level_display()} - {self.title}"
+    
+class TutorReadAgenda(models.Model):
+    tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name='read_agendas')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='read_agendas')
+    read_at = models.DateTimeField(auto_now_add=True)

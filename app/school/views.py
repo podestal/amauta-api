@@ -1199,3 +1199,22 @@ class DeveloperViewSet(ModelViewSet):
             return Response({"error": "Tutor not found for the current user"}, status=404)
         serializer = serializers.DeveloperSerializer(developer)
         return Response(serializer.data)
+    
+class TutorReadAgendaViewSet(ModelViewSet):
+
+    queryset = models.TutorReadAgenda.objects.select_related('tutor', 'student')
+    serializer_class = serializers.TutorReadAgendaSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def getReadAgenda(self, request):
+        user_id = request.user.id
+        student = request.query_params.get('student')
+        try:
+            tutor = models.Tutor.objects.get(user_id=user_id)
+        except:
+            return Response({"error": "Tutor not found for the current user"}, status=404)
+        (read_agenda, created) = self.queryset.get_or_create(tutor=tutor, student=student)
+        serializer = serializers.TutorReadAgendaSerializer(read_agenda)
+        return Response(serializer.data)
+

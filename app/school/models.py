@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.db import transaction
+import datetime
 
 import random
 
@@ -504,4 +505,5 @@ class Announcement(models.Model):
 class TutorReadAgenda(models.Model):
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name='read_agendas')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='read_agendas')
+    agenda_date = models.DateField(blank=True, null=True)
     read_at = models.DateTimeField(auto_now_add=True)

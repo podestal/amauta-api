@@ -1092,7 +1092,6 @@ class AnnouncementViewSet(ModelViewSet):
         """Retrieve announcements for the current day based on visibility level."""
         student_uid = request.query_params.get('student')
         date_param = request.query_params.get('date', now().date()) 
-        print('student_uid', student_uid)
         try:
             student = models.Student.objects.get(uid=student_uid)
             print("student", student)
@@ -1209,12 +1208,29 @@ class TutorReadAgendaViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def getReadAgenda(self, request):
         user_id = request.user.id
-        student = request.query_params.get('student')
+        student_id = request.query_params.get('student')
+        date_param = request.query_params.get('date')
+
+        if not student_id:
+            return Response({"error": "Student ID is required"}, status=400)
+
         try:
             tutor = models.Tutor.objects.get(user_id=user_id)
-        except:
+        except models.Tutor.DoesNotExist:
             return Response({"error": "Tutor not found for the current user"}, status=404)
-        (read_agenda, created) = self.queryset.get_or_create(tutor=tutor, student=student)
+
+        try:
+            student = models.Student.objects.get(uid=student_id)
+        except models.Student.DoesNotExist:
+            return Response({"error": "Student not found"}, status=404)
+
+        if date_param is None:
+            date_param = timezone.now().date()
+
+        (read_agenda, created) = models.TutorReadAgenda.objects.get_or_create(
+            tutor=tutor, student=student, agenda_date=date_param
+        )
+
         serializer = serializers.TutorReadAgendaSerializer(read_agenda)
         return Response(serializer.data)
 

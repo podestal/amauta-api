@@ -7,7 +7,6 @@ db.sqlite3
 schema.yml
 .vscode
 htmlcov
-staticfiles
 mediafiles
 firebase_service_account.json
 celerybeat-data/

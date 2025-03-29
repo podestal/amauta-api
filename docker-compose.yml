@@ -101,7 +101,9 @@ services:
       - redis
 
   nginx:
-    build: ./nginx
+    build:
+      context: .
+      dockerfile: ./nginx/Dockerfile
     ports:
       - 80:80
       - 443:443

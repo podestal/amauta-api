@@ -7,7 +7,7 @@ set -e
 python manage.py wait_for_db
 
 # Collect static files (CSS, JS, etc.) without prompting for input.
-python manage.py collectstatic --noinput
+# python manage.py collectstatic --noinput
 
 # Apply any pending database migrations.
 python manage.py migrate

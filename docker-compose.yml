@@ -6,8 +6,8 @@ services:
     volumes:
       - ./app:/app
       - ./mediafiles:/vol/media
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -121,11 +121,11 @@ services:
       - ENVIRONMENT=${ENVIRONMENT}
     entrypoint: >+
       sh -c 'if [ "$ENVIRONMENT" = "production" ]; then
-              cp /etc/nginx/conf.d/nginx-prod.conf /etc/nginx/nginx.conf;
+              cp /etc/nginx/conf.d/nginx.prod.conf /etc/nginx/nginx.conf;
              elif [ "$ENVIRONMENT" = "testing" ]; then
-              cp /etc/nginx/conf.d/nginx-test.conf /etc/nginx/nginx.conf;
+              cp /etc/nginx/conf.d/nginx.test.conf /etc/nginx/nginx.conf;
              else
-              cp /etc/nginx/conf.d/nginx-dev.conf /etc/nginx/nginx.conf;
+              cp /etc/nginx/conf.d/nginx.dev.conf /etc/nginx/nginx.conf;
              fi &&
              nginx -g "daemon off;"'
 

@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import IsAdminUser, SAFE_METHODS, IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import status
 from django.db.models import Subquery, OuterRef, Prefetch
 from django.core.cache import cache
 from datetime import datetime
@@ -27,6 +28,10 @@ from openpyxl.utils import get_column_letter
 from notification.push_notifications import send_push_notification
 from . import tasks
 from notification.models import FCMDevice
+
+from django.http import JsonResponse
+from twilio.rest import Client
+from django.conf import settings
 
 from . import models
 from . import serializers
@@ -1281,4 +1286,56 @@ class TutorContactViewSet(ModelViewSet):
     #     serializer = serializers.TutorContactSerializer(contact_user)
     #     return Response(serializer.data)
 
+class WhatsappMessageViewSet(ModelViewSet):
+    queryset = models.WhatsappMessage.objects.select_related('created_by', 'student', 'school')
+    serializer_class = serializers.WhatsappMessageSerialzer
+    # permission_classes = [IsAuthenticated]
 
+    # def create(self, request, *args, **kwargs):
+    #     print('args', *args)
+    #     print('kwargs', **kwargs)
+    #     data = request.data
+    #     print('data', data)
+    #     student_uid = data.get('student')
+    #     student = models.Student.objects.get(uid=student_uid)
+    #     print('student', student)
+    #     print('student phone', student.tutor_phone)
+
+    #     twilio_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+    #     message = twilio_client.messages.create(
+    #         body="Hello from Django via Twilio!",
+    #         from_=settings.TWILIO_PHONE_NUMBER,
+    #         to="+19085255111" 
+    #     )
+    #     return JsonResponse({"message_sid": message.sid, "status": message.status})
+    #     return super().create(request, *args, **kwargs)
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        student_uid = data.get('student')
+
+        try:
+            student = models.Student.objects.get(uid=student_uid)
+            student_phone = student.tutor_phone  # Ensure this is in E.164 format (+1234567890)
+
+            twilio_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+
+            message = twilio_client.messages.create(
+                body=f"Hello {student.first_name}, this is a WhatsApp message from Django via Twilio!",
+                from_="whatsapp:" + settings.TWILIO_PHONE_NUMBER,  # Ensure this is a WhatsApp-enabled number
+                to="whatsapp:" + "+19085255111"  # Format properly for WhatsApp
+            )
+
+            response = super().create(request, *args, **kwargs)
+
+            return Response({
+                "message_sid": message.sid,
+                "status": message.status,
+                "twilio_response": response.data
+            }, status=status.HTTP_201_CREATED)
+
+        except models.Student.DoesNotExist:
+            return Response({"error": "Student not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

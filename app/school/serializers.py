@@ -663,3 +663,8 @@ class TutorContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TutorContact
         fields = '__all__'
+
+class WhatsappMessageSerialzer(serializers.ModelSerializer):
+    class Meta:
+        model = models.WhatsappMessage
+        fields = '__all__'

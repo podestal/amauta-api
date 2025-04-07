@@ -26,25 +26,39 @@ def mark_absent_students_in():
             print(f"Skipping school {school.id} (No attendance found for today)")
             continue
 
-        students = models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages').filter(school=school)
-        for student in students:
-            try:
-                models.Atendance.objects.get(
-                    student=student,
-                    kind='I',
-                    created_at__date=date.today()
-                )
+        classrooms = models.Clase.objects.filter(school=school)
 
-                print(f"Student {student.uid} already have an attendance In for today")
-            except:
-                models.Atendance.objects.create(
-                    student=student,
-                    status='N',
-                    attendance_type='A',
-                    kind='I',
-                    created_by='System'
-                )
-                print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
+        for classroom in classrooms:
+
+            if not models.Atendance.objects.filter(
+                created_at__date=today,
+                student__clase=classroom,
+            ).exists():
+                print(f"Skipping classroom {classroom.id} (No entrance attendance found for today)")
+                continue
+
+            print(f'Marking absent students in classroom {classroom.id} for today')
+
+            students = models.Student.objects.select_related('clase', 'school').prefetch_related('health_info', 'birth_info', 'emergency_contact', 'tutors', 'averages').filter(clase=classroom)
+            print('students', students)
+            for student in students:
+                try:
+                    models.Atendance.objects.get(
+                        student=student,
+                        kind='I',
+                        created_at__date=date.today()
+                    )
+
+                    print(f"Student {student.uid} already have an attendance In for today")
+                except:
+                    models.Atendance.objects.create(
+                        student=student,
+                        status='N',
+                        attendance_type='A',
+                        kind='I',
+                        created_by='System'
+                    )
+                    print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
 
 @shared_task
 def mark_on_time_students_out():

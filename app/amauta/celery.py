@@ -14,8 +14,8 @@ app.autodiscover_tasks(['school'])
 app.conf.beat_schedule = {
     'run_task_everyday_at_9am': {
         'task': 'school.tasks.run_if_valid_day',
-        # 'schedule': crontab(hour=10, minute=00),
-        'schedule': crontab(hour=7, minute=59),
+        'schedule': crontab(hour=10, minute=00),
+
     },
     'run_task_everyday_at_midnigth': {
         'task': 'school.tasks.mark_on_time_students_out',

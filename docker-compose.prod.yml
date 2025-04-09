@@ -341,3 +341,5 @@ services:
 
 volumes:
   dev-db-data:
+
+    # docker compose -f docker-compose.prod.yml up --build

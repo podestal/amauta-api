@@ -596,6 +596,166 @@ class StudentViewSet(ModelViewSet):
     #         sheet.column_dimensions[col[0].column_letter].width = max_length + 2
 
     @action(detail=False, methods=["get"])
+    def export_info_to_excel(self, request):
+        school = request.query_params.get('school')
+        students = self.get_queryset().filter(school=school)
+
+    #         RELIGION_CHOICES = [
+    #     (CATHOLIC_RELIGION, 'Catholic'),
+    #     (EVANGELIC_RELIGION, 'Evangelic'),
+    #     (JEWISH_RELIGION, 'Jewish'),
+    #     (MUSLIM_RELIGION, 'Muslim'),
+    #     (BUDDHIST_RELIGION, 'Buddhist'),
+    #     (MORMON_RELIGION, 'Mormon'),
+    #     (JEHOVAH_RELIGION, 'Jehovah'),
+    #     (CHRISTIAN_RELIGION, 'Christian'),
+    #     (OTHER_RELIGION, 'Other'),
+    # ]
+        
+    #         LANGUAGE_CHOICES = [
+    #     (SPANISH_LANGUAGE, 'Spanish'),
+    #     (ENGLISH_LANGUAGE, 'English'),
+    #     (QUECHUA_LANGUAGE, 'Quechua'),
+    #     (AYMARA_LANGUAGE, 'Aymara'),
+    # ]
+        
+        religion_choices = {
+            'C': 'Católica',
+            'E': 'Evangélica',
+            'J': 'Judía',
+            'M': 'Musulmana',
+            'B': 'Budista',
+            'O': 'Otra',
+        }
+
+        language_choices = {
+            'S': 'Español',
+            'E': 'Inglés',
+            'Q': 'Quechua',
+            'A': 'Aymara',
+        }
+
+        def get_grade_description(grade):
+            grades_choices = {
+                '1': '1ro',
+                '2': '2do',
+                '3': '3ro',
+                '4': '4to',
+                '5': '5to',
+                '6': '6to',
+            }
+            return grades_choices.get(grade, grade)
+        
+        def get_section_description(section):
+            if section == 'U':
+                section = 'Unica'
+            return f'{section}'
+        
+        def get_level_description(level):
+            levels_choices = {
+                'I': 'Inicial',
+                'P': 'Primaria',
+                'S': 'Secundaria',
+            }
+            return levels_choices.get(level, level)
+
+
+        # def get_classroom_description(grade, section, level):
+        #     grades_choices = {
+        #         '1': '1ro',
+        #         '2': '2do',
+        #         '3': '3ro',
+        #         '4': '4to',
+        #         '5': '5to',
+        #         '6': '6to',
+        #     }
+
+        #     levels_choices = {
+        #         'I': 'Inicial',
+        #         'P': 'Primaria',
+        #         'S': 'Secundaria',
+        #     }
+
+        #     if section == 'U':
+        #         section = 'Unica'
+            
+        #     return f'{grades_choices.get(grade, grade)}-{section} {levels_choices.get(level, level)}'
+
+        print('students', students)
+        # Header
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Estudiantes"
+
+        # Define border style
+        thin_border = Border(left=Side(style="thin"), right=Side(style="thin"), 
+                            top=Side(style="thin"), bottom=Side(style="thin"))
+        header_fill = PatternFill(start_color="000066", end_color="000066", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        # Define headers
+        headers = [
+            "DNI",
+            "Nombres",
+            "Apellidos",
+            "Grado",
+            "Sección",
+            "Nivel",
+            "Religión",
+            "Lengua materna",
+            "Segunda lengua",
+            "Teléfono del Apoderado",
+        ]
+        # Write headers to the first row
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num, value=header)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal="center")
+            cell.border = thin_border
+
+        # Write data to the sheet
+        for student in students:
+            row = [
+                student.dni,
+                student.first_name,
+                student.last_name,
+                get_grade_description(student.clase.grade),
+                get_section_description(student.clase.section),
+                get_level_description(student.clase.level),
+                religion_choices.get(student.religion, '-'),
+                language_choices.get(student.main_language, '-'),
+                language_choices.get(student.second_language, '-'),
+                student.tutor_phone
+            ]
+            ws.append(row)
+
+        for col in ws.columns:
+            max_length = 0
+            column = col[0].column  
+            column_letter = get_column_letter(column)  
+
+            for cell in col:
+                try:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                except:
+                    pass
+
+            adjusted_width = max_length + 2  # Add a little padding
+            ws.column_dimensions[column_letter].width = adjusted_width
+
+        # Prepare response
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = 'attachment; filename="data.xlsx"'
+        
+        # Save the workbook to the response
+        wb.save(response)
+        
+        return response
+        
+
+
+    @action(detail=False, methods=["get"])
     def export_to_excel(self, request):
 
         quarter_description = {

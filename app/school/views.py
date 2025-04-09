@@ -595,29 +595,10 @@ class StudentViewSet(ModelViewSet):
     #         max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
     #         sheet.column_dimensions[col[0].column_letter].width = max_length + 2
 
-    @action(detail=False, methods=["get"])
+    @action(detail=False, methods=["get"], url_path='export_info_to_excel', url_name='export_info_to_excel')
     def export_info_to_excel(self, request):
         school = request.query_params.get('school')
         students = self.get_queryset().filter(school=school)
-
-    #         RELIGION_CHOICES = [
-    #     (CATHOLIC_RELIGION, 'Catholic'),
-    #     (EVANGELIC_RELIGION, 'Evangelic'),
-    #     (JEWISH_RELIGION, 'Jewish'),
-    #     (MUSLIM_RELIGION, 'Muslim'),
-    #     (BUDDHIST_RELIGION, 'Buddhist'),
-    #     (MORMON_RELIGION, 'Mormon'),
-    #     (JEHOVAH_RELIGION, 'Jehovah'),
-    #     (CHRISTIAN_RELIGION, 'Christian'),
-    #     (OTHER_RELIGION, 'Other'),
-    # ]
-        
-    #         LANGUAGE_CHOICES = [
-    #     (SPANISH_LANGUAGE, 'Spanish'),
-    #     (ENGLISH_LANGUAGE, 'English'),
-    #     (QUECHUA_LANGUAGE, 'Quechua'),
-    #     (AYMARA_LANGUAGE, 'Aymara'),
-    # ]
         
         religion_choices = {
             'C': 'Católica',
@@ -659,29 +640,6 @@ class StudentViewSet(ModelViewSet):
             }
             return levels_choices.get(level, level)
 
-
-        # def get_classroom_description(grade, section, level):
-        #     grades_choices = {
-        #         '1': '1ro',
-        #         '2': '2do',
-        #         '3': '3ro',
-        #         '4': '4to',
-        #         '5': '5to',
-        #         '6': '6to',
-        #     }
-
-        #     levels_choices = {
-        #         'I': 'Inicial',
-        #         'P': 'Primaria',
-        #         'S': 'Secundaria',
-        #     }
-
-        #     if section == 'U':
-        #         section = 'Unica'
-            
-        #     return f'{grades_choices.get(grade, grade)}-{section} {levels_choices.get(level, level)}'
-
-        print('students', students)
         # Header
         wb = openpyxl.Workbook()
         ws = wb.active

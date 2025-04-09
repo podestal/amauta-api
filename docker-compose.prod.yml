@@ -1,13 +1,228 @@
+# version: "3.8"
+# services:
+#   app:
+#     build: .
+#     restart: always
+#     volumes:
+#       - ./app:/app
+#       - ./mediafiles:/vol/media
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - DB_HOST=db
+#       - DB_NAME=${DB_NAME}
+#       - DB_USER=${DB_USER}
+#       - DB_PASS=${DB_PASS}
+#       - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+#       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+#       - DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS}
+#       - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS}
+#       - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+#       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+#       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+#       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+#       - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+#       - ENVIRONMENT=${ENVIRONMENT}
+#       - REDIS_HOST=redis
+#       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+#       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+#       - CACHE_URL=${CACHE_URL}
+#       - FRONTEND_URL=${FRONTEND_URL}
+#       - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+#       - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+#       - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+#     depends_on:
+#       - db
+#       - redis
+
+#   db:
+#     image: postgres:13-alpine
+#     volumes:
+#       - dev-db-data:/var/lib/postgresql/data
+#     environment:
+#       - POSTGRES_DB=${DB_NAME}
+#       - POSTGRES_USER=${DB_USER}
+#       - POSTGRES_PASSWORD=${DB_PASS}
+#   # redis:
+#   #   image: redis:6-alpine
+#   #   ports:
+#   #     - "6379:6379"
+#   #   volumes:
+#   #     - ./redis-data:/data
+#   #   command: redis-server --save 60 1 --loglevel warning
+
+#   # redis:
+#   #   image: redis:6-alpine
+#   #   restart: always
+#   #   ports:
+#   #     - "6379:6379"
+#   #   volumes:
+#   #     - ./redis-data:/data
+#   #   command: redis-server --save 60 1 --loglevel warning
+#   #   healthcheck:
+#   #     test: [ "CMD", "redis-cli", "ping" ]
+#   #     interval: 30s
+#   #     timeout: 10s
+#   #     retries: 3
+#   redis:
+#     image: redis:6-alpine
+#     restart: always
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - ./redis-data:/data
+#     command: redis-server --save 60 1 --loglevel warning --dir /data --dbfilename dump.rdb
+#     healthcheck:
+#       test: [ "CMD", "redis-cli", "ping" ]
+#       interval: 30s
+#       timeout: 10s
+#       retries: 3
+
+#   celery:
+#     build: .
+#     command: celery -A amauta worker --loglevel=info
+#     restart: always
+#     environment:
+#       - REDIS_HOST=redis
+#       - DB_HOST=db
+#       - DB_NAME=${DB_NAME}
+#       - DB_USER=${DB_USER}
+#       - DB_PASS=${DB_PASS}
+#       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+#       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+#       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+#     depends_on:
+#       - app
+#       - redis
+
+#   celery-beat:
+#     build: .
+#     command: celery -A amauta beat --loglevel=info -s /app/celerybeat-data/celerybeat-schedule
+#     restart: always
+#     environment:
+#       - REDIS_HOST=redis
+#       - DB_HOST=db
+#       - DB_NAME=${DB_NAME}
+#       - DB_USER=${DB_USER}
+#       - DB_PASS=${DB_PASS}
+#       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+#       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+#       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+#     volumes:
+#       - ./celerybeat-data:/app/celerybeat-data
+#     depends_on:
+#       - app
+#       - redis
+
+#   nginx:
+#     build:
+#       context: .
+#       dockerfile: ./nginx/Dockerfile
+#     ports:
+#       - 80:80
+#       - 443:443
+#     volumes:
+#       - ./nginx:/etc/nginx/conf.d
+#       - /etc/letsencrypt:/etc/letsencrypt
+#       - /var/www/certbot:/var/www/certbot
+#     image: nginx:latest
+#     links:
+#       - app
+#     environment:
+#       - ENVIRONMENT=${ENVIRONMENT}
+#     entrypoint: >+
+#       sh -c 'if [ "$ENVIRONMENT" = "production" ]; then
+#               cp /etc/nginx/conf.d/nginx.prod.conf /etc/nginx/nginx.conf;
+#              elif [ "$ENVIRONMENT" = "testing" ]; then
+#               cp /etc/nginx/conf.d/nginx.test.conf /etc/nginx/nginx.conf;
+#              else
+#               cp /etc/nginx/conf.d/nginx.dev.conf /etc/nginx/nginx.conf;
+#              fi &&
+#              nginx -g "daemon off;"'
+
+# volumes:
+#   dev-db-data:
+
 version: "3.8"
 services:
-  app:
+  app1:
     build: .
     restart: always
     volumes:
       - ./app:/app
       - ./mediafiles:/vol/media
     ports:
-      - "8000:8000"
+      - "8001:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS}
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - REDIS_HOST=redis
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - CACHE_URL=${CACHE_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+    depends_on:
+      - db
+      - redis
+
+  app2:
+    build: .
+    restart: always
+    volumes:
+      - ./app:/app
+      - ./mediafiles:/vol/media
+    ports:
+      - "8002:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DJANGO_CORS_ALLOWED_ORIGINS=${DJANGO_CORS_ALLOWED_ORIGINS}
+      - DJANGO_CSRF_TRUSTED_ORIGINS=${DJANGO_CSRF_TRUSTED_ORIGINS}
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - REDIS_HOST=redis
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - CACHE_URL=${CACHE_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - TWILIO_ACCOUNT_SID=${TWILIO_ACCOUNT_SID}
+      - TWILIO_AUTH_TOKEN=${TWILIO_AUTH_TOKEN}
+      - TWILIO_PHONE_NUMBER=${TWILIO_PHONE_NUMBER}
+    depends_on:
+      - db
+      - redis
+
+  app3:
+    build: .
+    restart: always
+    volumes:
+      - ./app:/app
+      - ./mediafiles:/vol/media
+    ports:
+      - "8003:8000"
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -43,36 +258,13 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
-  # redis:
-  #   image: redis:6-alpine
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - ./redis-data:/data
-  #   command: redis-server --save 60 1 --loglevel warning
 
-
-  # redis:
-  #   image: redis:6-alpine
-  #   restart: always
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - ./redis-data:/data
-  #   command: redis-server --save 60 1 --loglevel warning
-  #   healthcheck:
-  #     test: [ "CMD", "redis-cli", "ping" ]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
   redis:
     image: redis:6-alpine
     restart: always
     ports:
       - "6379:6379"
-    volumes:
-      - ./redis-data:/data
-    command: redis-server --save 60 1 --loglevel warning --dir /data --dbfilename dump.rdb
+    command: redis-server --save "" --appendonly no --loglevel warning
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 30s
@@ -93,7 +285,9 @@ services:
       - CELERY_BROKER_URL=${CELERY_BROKER_URL}
       - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
     depends_on:
-      - app
+      - app1
+      - app2
+      - app3
       - redis
 
   celery-beat:
@@ -112,7 +306,9 @@ services:
     volumes:
       - ./celerybeat-data:/app/celerybeat-data
     depends_on:
-      - app
+      - app1
+      - app2
+      - app3
       - redis
 
   nginx:
@@ -128,7 +324,9 @@ services:
       - /var/www/certbot:/var/www/certbot
     image: nginx:latest
     links:
-      - app
+      - app1
+      - app2
+      - app3
     environment:
       - ENVIRONMENT=${ENVIRONMENT}
     entrypoint: >+

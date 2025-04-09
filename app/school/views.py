@@ -595,7 +595,7 @@ class StudentViewSet(ModelViewSet):
     #         max_length = max(len(str(cell.value)) if cell.value else 0 for cell in col)
     #         sheet.column_dimensions[col[0].column_letter].width = max_length + 2
 
-    @action(detail=False, methods=["get"], url_path='export_info_to_excel/')
+    @action(detail=False, methods=["get"], url_path='export_info_to_excel', url_name='export_info_to_excel')
     def export_info_to_excel(self, request):
         school = request.query_params.get('school')
         students = self.get_queryset().filter(school=school)

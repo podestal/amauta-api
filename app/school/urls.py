@@ -1,7 +1,7 @@
 from rest_framework_nested import routers
 from . import views
 
-router = routers.DefaultRouter(trailing_slash=False)
+router = routers.DefaultRouter()
 
 router.register('area', views.AreaViewSet)
 router.register('school', views.SchoolViewSet)

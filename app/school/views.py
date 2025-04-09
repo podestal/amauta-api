@@ -340,7 +340,7 @@ class AssistantViewSet(ModelViewSet):
 
 class StudentViewSet(ModelViewSet):
 
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
 

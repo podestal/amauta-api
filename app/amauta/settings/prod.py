@@ -29,4 +29,3 @@ CSRF_TRUSTED_ORIGINS.extend(
 
 STATIC_ROOT = "/app/amauta/staticfiles"
 
-APPEND_SLASH = False

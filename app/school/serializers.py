@@ -668,3 +668,8 @@ class WhatsappMessageSerialzer(serializers.ModelSerializer):
     class Meta:
         model = models.WhatsappMessage
         fields = '__all__'
+
+class TutorsAuthInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.TutorAuthInfo
+        fields = '__all__'

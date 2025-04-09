@@ -1499,3 +1499,8 @@ class WhatsappMessageViewSet(ModelViewSet):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class TutorsAuthInfoViewSet(ModelViewSet):
+    queryset = models.TutorAuthInfo.objects.all()
+    serializer_class = serializers.TutorsAuthInfoSerializer
+    # permission_classes = [IsAdminUser]

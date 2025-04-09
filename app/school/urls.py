@@ -27,5 +27,6 @@ router.register('developer', views.DeveloperViewSet)
 router.register('tutor-read-agenda', views.TutorReadAgendaViewSet)
 router.register('tutor-contact', views.TutorContactViewSet)
 router.register('whatsapp-message', views.WhatsappMessageViewSet)
+router.register('tutor-auth-info', views.TutorsAuthInfoViewSet)
 
 urlpatterns = router.urls

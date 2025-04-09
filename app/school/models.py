@@ -519,3 +519,11 @@ class WhatsappMessage(models.Model):
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='whatsapp_messages')
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='whatsapp_messages')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+
+class TutorAuthInfo(models.Model):
+    username = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)
+    mobile = models.CharField(max_length=255)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tutors_auth_info')
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='tutors_auth_info')
+    created_at = models.DateTimeField(auto_now_add=True)

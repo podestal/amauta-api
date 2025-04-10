@@ -49,10 +49,13 @@ class Command(BaseCommand):
                 slicer += 1
                 username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower().split(' ')[0]}"
                 duplicatedUser = User.objects.filter(username=username).exists()
+
+            trimmed_username = username.replace(" ", "")
+            trimmed_password = password.replace(" ", "")
             # Create a new user
             user = User.objects.create_user(
-                username=username.replace(" ", ""),
-                password=password.replace(" ", ""),
+                username=trimmed_username,
+                password=trimmed_password,
                 profile="tutor",
                 first_name='',
                 last_name='',

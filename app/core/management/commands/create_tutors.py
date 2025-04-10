@@ -31,8 +31,8 @@ class Command(BaseCommand):
                 continue
             slicer = 1
             # Generate a random username and password
-            username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower()}."
-            password = f"{student.last_name.lower()}{student.dni[:4]}"
+            username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower().split(' ')[0]}."
+            password = f"{student.last_name.lower().split(' ')[0]}{student.dni[:4]}"
 
             self.stdout.write(self.style.SUCCESS(
                 f'Creating tutor for {student.first_name} {student.last_name} with username: {username} and password: {password}'
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 profile="tutor",
                 first_name='',
                 last_name='',
-                email=f'{student.first_name.lower}{random.randint(1000000000, 9999999999)}@{school.name}.com',
+                email=f'{student.first_name.lower().split(' ')[0]}{random.randint(1000000000, 9999999999)}@{school.name}.com',
             )
 
             # Create a new auth info for the user

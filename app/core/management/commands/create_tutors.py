@@ -31,7 +31,7 @@ class Command(BaseCommand):
                 continue
             slicer = 1
             # Generate a random username and password
-            username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower().split(' ')[0]}."
+            username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower().split(' ')[0]}"
             password = f"{student.last_name.lower().split(' ')[0]}{student.dni[:4]}"
 
             self.stdout.write(self.style.SUCCESS(
@@ -47,16 +47,16 @@ class Command(BaseCommand):
                     f'Username {username} already exists, generating a new one'
                 ))
                 slicer += 1
-                username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower()}."
+                username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower().split(' ')[0]}"
                 duplicatedUser = User.objects.filter(username=username).exists()
             # Create a new user
             user = User.objects.create_user(
-                username=username,
-                password=password,
+                username=username.replace(" ", ""),
+                password=password.replace(" ", ""),
                 profile="tutor",
                 first_name='',
                 last_name='',
-                email=f"{student.first_name.lower().split(' ')[0]}{random.randint(1000000000, 9999999999)}@{school.name}.com",
+                email=f"{student.first_name.lower().split(' ')[0]}{random.randint(1000000000, 9999999999)}@{(school.name).replace(" ", "")}.com",
 
             )
 

@@ -340,7 +340,7 @@ class AssistantViewSet(ModelViewSet):
 
 class StudentViewSet(ModelViewSet):
 
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
 
@@ -1459,6 +1459,113 @@ class WhatsappMessageViewSet(ModelViewSet):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 class TutorsAuthInfoViewSet(ModelViewSet):
-    queryset = models.TutorAuthInfo.objects.all()
+    queryset = models.TutorAuthInfo.objects.select_related('student', 'school')
     serializer_class = serializers.TutorsAuthInfoSerializer
-    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser]
+
+    @action(detail=False, methods=['get'])
+    def get_tutors_auth_info(self, request):
+
+        # school= request.query_params.get('school')
+
+        # if not school:
+        #     return Response({"error": "School parameter is required"}, status=400)
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Estudiantes"
+
+        def get_grade_description(grade):
+            grades_choices = {
+                '1': '1ro',
+                '2': '2do',
+                '3': '3ro',
+                '4': '4to',
+                '5': '5to',
+                '6': '6to',
+            }
+            return grades_choices.get(grade, grade)
+        
+        def get_section_description(section):
+            if section == 'U':
+                section = 'Unica'
+            return f'{section}'
+        
+        def get_level_description(level):
+            levels_choices = {
+                'I': 'Inicial',
+                'P': 'Primaria',
+                'S': 'Secundaria',
+            }
+            return levels_choices.get(level, level)
+
+        # Define border style
+        thin_border = Border(left=Side(style="thin"), right=Side(style="thin"), 
+                            top=Side(style="thin"), bottom=Side(style="thin"))
+        header_fill = PatternFill(start_color="000066", end_color="000066", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        # Define headers
+
+        headers = [
+            "Usario",
+            "Contraseña",
+            "Grado",
+            "Sección",
+            "Nivel",
+            "Nombres del Alunmno",
+            "Apellidos del Alunmno",
+            "Contacto",
+        ]
+
+        # Write headers to the first row
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num, value=header)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal="center")
+            cell.border = thin_border
+
+        tutors = self.queryset.filter(school_id=1)
+
+        for tutor in tutors:
+            # Write data to the worksheet
+            ws.append([
+                tutor.username,
+                tutor.password,
+                get_grade_description(tutor.student.clase.grade),
+                get_section_description(tutor.student.clase.section),
+                get_level_description(tutor.student.clase.level),
+                f'{tutor.student.first_name}' if tutor.student.first_name else '',
+                f'{tutor.student.last_name}' if tutor.student.last_name else '',
+                f'{tutor.student.tutor_phone}' if tutor.student.tutor_phone else 'Sin Contacto',
+            ])
+            # Apply border to the row
+            # for cell in ws[-1]:
+            #     cell.border = thin_border
+        # Auto-adjust column width
+        for col in ws.columns:
+            max_length = 0
+            col_letter = get_column_letter(col[0].column)
+            for cell in col:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            ws.column_dimensions[col_letter].width = max_length + 2
+
+
+                # Prepare response
+        response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        response["Content-Disposition"] = 'attachment; filename="data.xlsx"'
+        
+        # Save the workbook to the response
+        wb.save(response)
+        
+        return response
+
+        
+
+
+
+
+
+
+    

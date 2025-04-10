@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from core.models import User
 from school.models import Student, Tutor, TutorAuthInfo, School
+import re
 
 class Command(BaseCommand):
     help = 'Create tutors for every student'
@@ -50,8 +51,8 @@ class Command(BaseCommand):
                 username = f"{student.first_name.lower()[:slicer]}{student.last_name.lower().split(' ')[0]}"
                 duplicatedUser = User.objects.filter(username=username).exists()
 
-            trimmed_username = "".join(username.split())
-            trimmed_password = "".join(password.split())
+            trimmed_username = re.sub(r"\s+", "", username)
+            trimmed_password = re.sub(r"\s+", "", password)
             # Create a new user
             user = User.objects.create_user(
                 username=trimmed_username,

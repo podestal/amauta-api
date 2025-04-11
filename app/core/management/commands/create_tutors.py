@@ -31,11 +31,11 @@ class Command(BaseCommand):
             if Tutor.objects.filter(students=student, school=school).exists():
                 continue
             first_name = re.sub(r"\s+", "", student.first_name)
-            last_name = re.sub(r"\s+", "", student.last_name)
+            last_name = re.sub(r"\s+", "", student.last_name.lower().split(' ')[0])
             slicer = 1
             # Generate a random username and password
             username = f"{first_name.lower()[:slicer]}{last_name.lower().split(' ')[0]}"
-            password = f"{last_name.lower().split(' ')[0]}{student.dni[:4]}"
+            password = f"{last_name}{student.dni[:4]}"
 
             self.stdout.write(self.style.SUCCESS(
                 f'Creating tutor for {first_name} {last_name} with username: {username} and password: {password}'
@@ -50,7 +50,7 @@ class Command(BaseCommand):
                     f'Username {username} already exists, generating a new one'
                 ))
                 slicer += 1
-                username = f"{first_name.lower()[:slicer]}{last_name.lower().split(' ')[0]}"
+                username = f"{first_name.lower()[:slicer]}{last_name}"
                 duplicatedUser = User.objects.filter(username=username).exists()
 
             username = re.sub(r"\s+", "", username)
@@ -88,5 +88,3 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(   
             'Tutors created successfully'
         ))
-
-        pass

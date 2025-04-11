@@ -58,6 +58,15 @@ def mark_absent_students_in():
                         kind='I',
                         created_by='System'
                     )
+                    no_assist_announcement = models.Announcement.objects.create(
+                        title='Falta',
+                        description=f'{student.first_name} {student.last_name}  no asistió a clases',
+                        announcement_type='E',
+                        visibility_level='P',
+                        school=student.school
+                    )
+
+                    no_assist_announcement.students.set([student])
                     print(f"Student {student.uid} marked as absent at {datetime.now().isoformat()}")
 
 @shared_task

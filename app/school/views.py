@@ -1407,30 +1407,19 @@ class TutorContactViewSet(ModelViewSet):
 class WhatsappMessageViewSet(ModelViewSet):
     queryset = models.WhatsappMessage.objects.select_related('created_by', 'student', 'school')
     serializer_class = serializers.WhatsappMessageSerialzer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
-    # def create(self, request, *args, **kwargs):
-    #     print('args', *args)
-    #     print('kwargs', **kwargs)
-    #     data = request.data
-    #     print('data', data)
-    #     student_uid = data.get('student')
-    #     student = models.Student.objects.get(uid=student_uid)
-    #     print('student', student)
-    #     print('student phone', student.tutor_phone)
-
-    #     twilio_client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-
-    #     message = twilio_client.messages.create(
-    #         body="Hello from Django via Twilio!",
-    #         from_=settings.TWILIO_PHONE_NUMBER,
-    #         to="+19085255111" 
-    #     )
-    #     return JsonResponse({"message_sid": message.sid, "status": message.status})
-    #     return super().create(request, *args, **kwargs)
     def create(self, request, *args, **kwargs):
         data = request.data
         student_uid = data.get('student')
+        school_id = data.get('school')
+
+        balance = models.Balance.objects.get(school_id=school_id)
+
+        if not balance:
+            return Response({"error": "Balance not found"}, status=400)
+        if balance.balance <= 0.1:
+            return Response({"error": "Saldo Insuficiente"}, status=400)
 
         try:
             student = models.Student.objects.get(uid=student_uid)
@@ -1445,6 +1434,8 @@ class WhatsappMessageViewSet(ModelViewSet):
             )
 
             response = super().create(request, *args, **kwargs)
+
+            
 
             return Response({
                 "message_sid": message.sid,

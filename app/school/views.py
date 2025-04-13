@@ -1564,6 +1564,16 @@ class TutorsAuthInfoViewSet(ModelViewSet):
 class BalanceViewSet(ModelViewSet):
     queryset = models.Balance.objects.select_related('school')
     serializer_class = serializers.BalanceSerializer
+    permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'], url_path='get_balance')
+    def get_balance(self, request):
+        school = request.query_params.get('school')
+        if not school:
+            return Response({"error": "School parameter is required"}, status=400)
+        balance, created = self.queryset.get_or_create(school_id=school)
+        serializer = serializers.BalanceSerializer(balance)
+        return Response(serializer.data)
         
 
 

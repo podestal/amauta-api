@@ -28,6 +28,6 @@ router.register('tutor-read-agenda', views.TutorReadAgendaViewSet)
 router.register('tutor-contact', views.TutorContactViewSet)
 router.register('whatsapp-message', views.WhatsappMessageViewSet)
 router.register('tutor-auth-info', views.TutorsAuthInfoViewSet)
-router.register('balances', views.BalanceViewSet)
+router.register('balance', views.BalanceViewSet)
 
 urlpatterns = router.urls

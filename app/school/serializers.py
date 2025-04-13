@@ -673,3 +673,8 @@ class TutorsAuthInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TutorAuthInfo
         fields = '__all__'
+
+class BalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Balance
+        fields = '__all__'

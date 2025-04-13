@@ -527,3 +527,12 @@ class TutorAuthInfo(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='tutors_auth_info')
     school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='tutors_auth_info')
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Balance(models.Model):
+    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name='balance')
+    amaount = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.school} - {self.amaount}'

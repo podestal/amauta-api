@@ -1561,6 +1561,9 @@ class TutorsAuthInfoViewSet(ModelViewSet):
         
         return response
 
+class BalanceViewSet(ModelViewSet):
+    queryset = models.Balance.objects.select_related('school')
+    serializer_class = serializers.BalanceSerializer
         
 
 

@@ -289,7 +289,7 @@ class GetStudentForTutorSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'uid', 'clase', 'attendances', 'created_at', 'is_active']
 
     def get_attendances(self, obj):
-        return models.Atendance.objects.filter(student=obj.uid).values('status', 'created_at', 'observations')
+        return models.Atendance.objects.filter(student=obj.uid).values('status', 'created_at', 'observations', 'kind')
 
 class CreateStudentSerializer(serializers.ModelSerializer):
     class Meta:

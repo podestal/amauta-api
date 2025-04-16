@@ -1418,7 +1418,7 @@ class WhatsappMessageViewSet(ModelViewSet):
 
         if not balance:
             return Response({"error": "Balance not found"}, status=400)
-        if balance.balance <= 0.1:
+        if balance.amaount <= 0.1:
             return Response({"error": "Saldo Insuficiente"}, status=400)
 
         try:
@@ -1435,7 +1435,18 @@ class WhatsappMessageViewSet(ModelViewSet):
 
             response = super().create(request, *args, **kwargs)
 
-            
+            conversation_started = self.queryset.filter(
+                student=student,
+                created_at__date=timezone.now().date()
+            ).exists()
+
+            if conversation_started:
+                balance.amaount -= 0.005
+                balance.save()
+            else:
+                balance.amaount -= 0.025
+                balance.save()
+
 
             return Response({
                 "message_sid": message.sid,

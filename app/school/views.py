@@ -1579,7 +1579,6 @@ class BalanceViewSet(ModelViewSet):
         
 class LessonViewSet(ModelViewSet):
     queryset = models.Lesson.objects.select_related('assignature', 'instructor', 'classroom')
-    serializer_class = serializers.LessonSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -1591,6 +1590,11 @@ class LessonViewSet(ModelViewSet):
         if self.request.user.is_superuser:
             return super().get_queryset()
         return self.queryset.filter(instructor=instructor)
+    
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return serializers.GetLessonSerializer
+        return serializers.CreateLessonSerializer
 
         
         

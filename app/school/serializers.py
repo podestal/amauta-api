@@ -679,7 +679,20 @@ class BalanceSerializer(serializers.ModelSerializer):
         model = models.Balance
         fields = '__all__'
 
-class LessonSerializer(serializers.ModelSerializer):
+class GetLessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Lesson
         fields = '__all__'
+
+    # instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name='lessons')
+    # assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, related_name='lessons')
+    # classroom = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='lessons')
+    # subject = models.CharField(max_length=100)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # updated_at = models.DateTimeField(auto_now=True)
+    # content = models.TextField()
+
+class CreateLessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Lesson
+        fields = ['id', 'instructor', 'assignature', 'classroom', 'subject', 'content']

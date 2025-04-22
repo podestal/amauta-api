@@ -29,6 +29,6 @@ router.register('tutor-contact', views.TutorContactViewSet)
 router.register('whatsapp-message', views.WhatsappMessageViewSet)
 router.register('tutor-auth-info', views.TutorsAuthInfoViewSet)
 router.register('balance', views.BalanceViewSet)
-router.register('lessons', views.LessonViewSet)
+router.register('lessons', views.LessonViewSet, basename='lessons')
 
 urlpatterns = router.urls

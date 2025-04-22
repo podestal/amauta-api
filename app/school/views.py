@@ -1578,8 +1578,24 @@ class BalanceViewSet(ModelViewSet):
         return Response(serializer.data)
         
 class LessonViewSet(ModelViewSet):
-    queryset = models.Lesson.objects.select_related('assignature', 'instructor')
+    queryset = models.Lesson.objects.select_related('assignature', 'instructor', 'classroom')
     serializer_class = serializers.LessonSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.request.user.id
+        try:
+            instructor = models.Instructor.objects.get(user_id=user_id)
+        except models.Instructor.DoesNotExist:  
+            return Response({"error": "Instructor not found for the current user"}, status=404)
+        if self.request.user.is_superuser:
+            return super().get_queryset()
+        return self.queryset.filter(instructor=instructor)
+
+        
+        
+
+
 
 
 

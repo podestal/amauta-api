@@ -536,3 +536,12 @@ class Balance(models.Model):
 
     def __str__(self):
         return f'{self.school} - {self.amaount}'
+    
+class Lesson(models.Model):
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name='lessons')
+    assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, related_name='lessons')
+    subject = models.CharField(max_length=100)
+    grade_level = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    content = models.TextField()

@@ -678,3 +678,8 @@ class BalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Balance
         fields = '__all__'
+
+class LessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Lesson
+        fields = '__all__'

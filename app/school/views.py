@@ -1577,7 +1577,9 @@ class BalanceViewSet(ModelViewSet):
         serializer = serializers.BalanceSerializer(balance)
         return Response(serializer.data)
         
-
+class LessonViewSet(ModelViewSet):
+    queryset = models.Lesson.objects.select_related('assignature', 'instructor')
+    serializer_class = serializers.LessonSerializer
 
 
 

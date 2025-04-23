@@ -293,7 +293,8 @@ class AtendanceViewSet(ModelViewSet):
                 description=f'{student.first_name} {student.last_name}  no asistió a clases',
                 announcement_type='E',
                 visibility_level='P',
-                school=student.school
+                school=student.school,
+                created_by=request.user if request.user.is_authenticated else None
             )
 
             no_assist_announcement.students.set([student])
@@ -304,7 +305,8 @@ class AtendanceViewSet(ModelViewSet):
                 description=f'{student.first_name} {student.last_name} llegó tarde a clases',
                 announcement_type='A',
                 visibility_level='P',
-                school=student.school
+                school=student.school,
+                created_by=request.user if request.user.is_authenticated else None
             )
 
             late_announcement.students.set([student])

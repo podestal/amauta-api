@@ -1080,6 +1080,15 @@ class ActivityViewSet(ModelViewSet):
         serializer = serializers.GetActivityForTutorSerializer(activities, many=True, context={'studentUid': studentUid, 'quarter': quarter})
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'])
+    def byLesson(self, request):
+        lesson = request.query_params.get('lesson')
+        if not lesson:
+            return Response({"error": "Lesson parameter is required"}, status=400)
+        activities = self.queryset.filter(lesson=lesson)
+        serializer = serializers.ActivitySerializer(activities, many=True)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
 
         classroom = request.query_params.get('classroom')

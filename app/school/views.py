@@ -1090,12 +1090,13 @@ class ActivityViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-
-        classroom = request.query_params.get('classroom')
-        students_uids = models.Student.objects.filter(clase=classroom).values_list('uid', flat=True)
+        
+        assignatureId = request.data['assignature']
+        assignature = models.Assignature.objects.get(id=assignatureId)
+        students_uids = models.Student.objects.filter(clase=assignature.clase.id).values_list('uid', flat=True)
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
         activity = super().create(request, *args, **kwargs)
-        assignature = models.Assignature.objects.get(id=request.data['assignature'])
+        
         assignature_title = assignature.title
         activity_title = request.data['title']
         activity_due_date = request.data['due_date']

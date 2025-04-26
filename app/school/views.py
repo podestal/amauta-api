@@ -1607,6 +1607,15 @@ class LessonViewSet(ModelViewSet):
             return serializers.GetLessonSerializer
         return serializers.CreateLessonSerializer
 
+    @action(detail=False, methods=['get'])
+    def byAssignature(self, request):
+        assignature = request.query_params.get('assignature')
+        if not assignature:
+            return Response({"error": "Assignature parameter is required"}, status=400)
+        lessons = self.queryset.filter(assignature_id=assignature)
+        serializer = serializers.GetLessonSerializer(lessons, many=True)
+        return Response(serializer.data)
+
         
         
 

@@ -539,6 +539,14 @@ class Balance(models.Model):
         return f'{self.school} - {self.amaount}'
     
 class Lesson(models.Model):
+
+    QUARTER_CHOICES = [
+        ('Q1', 'First Quarter'),
+        ('Q2', 'Second Quarter'),
+        ('Q3', 'Third Quarter'),
+        ('Q4', 'Fourth Quarter'),
+    ]
+
     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name='lessons')
     assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, related_name='lessons')
     classroom = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='lessons')
@@ -546,6 +554,7 @@ class Lesson(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     content = models.TextField()
+    quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES, default='Q1')
 
     def __str__(self):
         return f'{self.subject}'

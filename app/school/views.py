@@ -1082,25 +1082,25 @@ class ActivityViewSet(ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def byLesson(self, request):
-        lesson = request.query_params.get('lesson')
-        if not lesson:
+
+        lessons = request.query_params.get('lessons').split(',')
+        lessons = [l for l in lessons if l]
+        if not lessons:
             return Response({"error": "Lesson parameter is required"}, status=400)
-        activities = self.queryset.filter(lesson=lesson)
+        activities = self.queryset.filter(lessons__in=lessons).distinct()
+        if not activities.exists():
+            return Response([], status=200)
         serializer = serializers.ActivitySerializer(activities, many=True)
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
 
         assignatureId = request.data['assignature']
-        # lessons = request.data['lessons']
         assignature = models.Assignature.objects.get(id=assignatureId)
         students_uids = models.Student.objects.filter(clase=assignature.clase.id).values_list('uid', flat=True)
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
         activity = super().create(request, *args, **kwargs)
 
-        # if lessons:
-        #     activity.lessons.set(lessons)
-        
         assignature_title = assignature.title
         activity_title = request.data['title']
         activity_due_date = request.data['due_date']

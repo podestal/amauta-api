@@ -392,7 +392,8 @@ class Activity(models.Model):
     quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
     competences =  models.ManyToManyField(Competence, related_name='activities')
     capacities = models.ManyToManyField(Capacity, related_name='activities')
-    lesson = models.ForeignKey('Lesson', on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
+    # lesson = models.ForeignKey('Lesson', on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
+    lessons = models.ManyToManyField('Lesson', blank=True, related_name='activities')
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None  # Check if this is a new activity being created

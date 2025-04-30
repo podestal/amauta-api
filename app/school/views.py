@@ -1052,9 +1052,9 @@ class AssignatureViewSet(ModelViewSet):
 
 class ActivityViewSet(ModelViewSet):
 
-    queryset = models.Activity.objects.select_related('assignature', 'category').prefetch_related('competences', 'capacities')
+    queryset = models.Activity.objects.select_related('assignature', 'category').prefetch_related('competences', 'capacities', 'lessons')
     serializer_class = serializers.ActivitySerializer  
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['get'])
     def byAssignature(self, request):
@@ -1090,12 +1090,16 @@ class ActivityViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
-        
+
         assignatureId = request.data['assignature']
+        # lessons = request.data['lessons']
         assignature = models.Assignature.objects.get(id=assignatureId)
         students_uids = models.Student.objects.filter(clase=assignature.clase.id).values_list('uid', flat=True)
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
         activity = super().create(request, *args, **kwargs)
+
+        # if lessons:
+        #     activity.lessons.set(lessons)
         
         assignature_title = assignature.title
         activity_title = request.data['title']

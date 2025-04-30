@@ -534,7 +534,7 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Activity
-        fields = ['id', 'title', 'description', 'due_date', 'category', 'category_name', 'assignature', 'quarter', 'competences', 'capacities', 'lesson']
+        fields = ['id', 'title', 'description', 'due_date', 'category', 'category_name', 'assignature', 'quarter', 'competences', 'capacities', 'lessons']
 
     def get_category_name(self, obj):
         return obj.category.title
@@ -546,7 +546,7 @@ class GetActivityForTutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Activity
-        fields = ['id', 'title', 'description', 'due_date', 'category', 'grade', 'observations', 'lesson']
+        fields = ['id', 'title', 'description', 'due_date', 'category', 'grade', 'observations', 'lessons']
 
     def get_grade(self, obj):
         studentUid =  self.context['studentUid']
@@ -684,13 +684,6 @@ class GetLessonSerializer(serializers.ModelSerializer):
         model = models.Lesson
         fields = '__all__'
 
-    # instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name='lessons')
-    # assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, related_name='lessons')
-    # classroom = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='lessons')
-    # subject = models.CharField(max_length=100)
-    # created_at = models.DateTimeField(auto_now_add=True)
-    # updated_at = models.DateTimeField(auto_now=True)
-    # content = models.TextField()
 
 class CreateLessonSerializer(serializers.ModelSerializer):
     class Meta:

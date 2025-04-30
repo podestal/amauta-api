@@ -1599,13 +1599,14 @@ class LessonViewSet(ModelViewSet):
 
     def get_queryset(self):
         user_id = self.request.user.id
+        quarter = self.request.query_params.get('quarter')
         try:
             instructor = models.Instructor.objects.get(user_id=user_id)
         except models.Instructor.DoesNotExist:  
             return Response({"error": "Instructor not found for the current user"}, status=404)
         if self.request.user.is_superuser:
             return super().get_queryset()
-        return self.queryset.filter(instructor=instructor)
+        return self.queryset.filter(instructor=instructor, quarter=quarter).order_by('-created_at')
     
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:

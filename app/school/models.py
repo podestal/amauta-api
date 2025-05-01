@@ -15,12 +15,19 @@ class Area(models.Model):
 
 class School(models.Model):
 
+    PAYMENT_STATUS_CHOICES = [
+        ('P', 'Paid'),
+        ('N', 'Not Paid'),
+    ]
+
     name = models.CharField(max_length=255)
     type_of_institution = models.CharField(max_length=255, null=True, blank=True)
     picture_name = models.CharField(max_length=255, null=True, blank=True)
     address = models.TextField(blank=True, null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
+    payment_status= models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default='P')
+    
     
     def __str__(self):
         return self.name

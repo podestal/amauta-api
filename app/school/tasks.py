@@ -163,14 +163,14 @@ def remove_on_time_records():
         print("Today is not a valid day to run the task.")
 
 @shared_task
-def send_activity_notification(users, activity_data, notification_title, update):
+def send_activity_notification(users, title, due_date, notification_title, update):
     print('sending activity notification')
     tokens = FCMDevice.objects.filter(user_id__in=users)
     print('tokens', tokens)
-    message = f" {activity_data['title']} ha sido programada para el {activity_data['due_date']}"
+    message = f" {title} ha sido programada para el {due_date}"
 
     if update:
-        message = f" {activity_data['title']} ha sido actualizada"
+        message = f" {title} ha sido actualizada"
     for token in tokens:
         send_push_notification(token.device_token, notification_title, message)
 

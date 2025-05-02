@@ -1096,10 +1096,20 @@ class ActivityViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
 
         assignatureId = request.data['assignature']
+        lessonsId = request.data['lessons']
         assignature = models.Assignature.objects.get(id=assignatureId)
         students_uids = models.Student.objects.filter(clase=assignature.clase.id).values_list('uid', flat=True)
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
+        
         activity = super().create(request, *args, **kwargs)
+
+        # creating the activity
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        activity = serializer.save()
+        # setting up lessons to activity
+        if lessonsId:
+            activity.lessons.set(lessonsId)
 
         assignature_title = assignature.title
         activity_title = request.data['title']
@@ -1114,8 +1124,8 @@ class ActivityViewSet(ModelViewSet):
 
         activity_announcement.clases.set([assignature.clase])
 
-        tasks.send_activity_notification.delay(list(users), activity.data, 'Nueva Actividad', False)
-        return activity
+        tasks.send_activity_notification.delay(list(users), activity_title, activity_due_date, 'Nueva Actividad', False)
+        return Response(self.get_serializer(activity).data, status=status.HTTP_201_CREATED)
     
     def update(self, request, *args, **kwargs):
         classroom = request.query_params.get('classroom')

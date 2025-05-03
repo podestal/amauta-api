@@ -53,11 +53,12 @@ class AreaViewSet(ModelViewSet):
 class SchoolViewSet(ModelViewSet):
     queryset = models.School.objects.all()
     serializer_class = serializers.SchoolSerializer
+    permission_classes = [IsAuthenticated]
     
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
+    # def get_permissions(self):
+    #     if self.request.method in SAFE_METHODS:
+    #         return [IsAuthenticated()]
+    #     return [IsAdminUser()]
 
 class CompetenceViewSet(ModelViewSet):
     queryset = models.Competence.objects.select_related('area')

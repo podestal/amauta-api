@@ -260,6 +260,7 @@ class AtendanceViewSet(ModelViewSet):
         status = request.data['status']
         kind = request.data['kind']
         student_id = request.data['student']
+        attendance_type = request.data['attendance_type']
 
         try:
             student = models.Student.objects.get(uid=student_id)
@@ -276,6 +277,18 @@ class AtendanceViewSet(ModelViewSet):
         
         if existing_attendance.count() == 1 and kind == 'I':
             return Response({"error": "Alumno ya fué escaneado"}, status=400)
+
+        now = datetime.now().time()
+        print('time now', now)
+
+        print('autmatic late',student.school.automatic_late)
+
+        print('attendance_type', attendance_type)
+
+        if attendance_type == 'A' and kind == 'I' and status != 'E' and status != 'T':
+            status = 'O' if now < student.school.automatic_late else 'L'
+        
+        request.data['status'] = status
 
         if status != 'O':
             notification_message = self.get_notification_message(student, status)

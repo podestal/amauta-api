@@ -27,7 +27,7 @@ class School(models.Model):
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     payment_status= models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default='P')
-    
+    automatic_late = models.TimeField(null=True, blank=True)
     
     def __str__(self):
         return self.name
@@ -399,7 +399,6 @@ class Activity(models.Model):
     quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
     competences =  models.ManyToManyField(Competence, related_name='activities')
     capacities = models.ManyToManyField(Capacity, related_name='activities')
-    # lesson = models.ForeignKey('Lesson', on_delete=models.SET_NULL, null=True, blank=True, related_name='activities')
     lessons = models.ManyToManyField('Lesson', blank=True, related_name='activities')
 
     def save(self, *args, **kwargs):

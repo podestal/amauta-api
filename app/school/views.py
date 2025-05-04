@@ -278,13 +278,11 @@ class AtendanceViewSet(ModelViewSet):
         
         if existing_attendance.count() == 1 and kind == 'I':
             return Response({"error": "Alumno ya fué escaneado"}, status=400)
+        
+        if existing_attendance.count() == 0 and kind == 'O':
+            return Response({"error": "Alumno no asistió"}, status=400)
 
         now = datetime.now().time()
-        print('time now', now)
-
-        print('autmatic late',student.school.automatic_late)
-
-        print('attendance_type', attendance_type)
 
         if attendance_type == 'A' and kind == 'I' and status != 'E' and status != 'T':
             status = 'O' if now < student.school.automatic_late else 'L'

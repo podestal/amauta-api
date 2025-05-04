@@ -28,6 +28,8 @@ class School(models.Model):
     email = models.EmailField(blank=True, null=True)
     payment_status= models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default='P')
     automatic_late = models.TimeField(null=True, blank=True)
+    automatic_not_show = models.TimeField(default=datetime.time(10, 0))
+    automatic_on_time_out = models.TimeField(default=datetime.time(16, 0))
     
     def __str__(self):
         return self.name

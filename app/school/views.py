@@ -1108,7 +1108,7 @@ class ActivityViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
 
         assignatureId = request.data['assignature']
-        lessonsId = request.data['lessons']
+        lessonsId = request.data['lessons'] if 'lessons' in request.data else ''
         assignature = models.Assignature.objects.get(id=assignatureId)
         students_uids = models.Student.objects.filter(clase=assignature.clase.id).values_list('uid', flat=True)
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)

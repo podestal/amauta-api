@@ -1112,8 +1112,6 @@ class ActivityViewSet(ModelViewSet):
         assignature = models.Assignature.objects.get(id=assignatureId)
         students_uids = models.Student.objects.filter(clase=assignature.clase.id).values_list('uid', flat=True)
         users = models.Tutor.objects.filter(students__in=students_uids).values_list('user', flat=True)
-        
-        activity = super().create(request, *args, **kwargs)
 
         # creating the activity
         serializer = self.get_serializer(data=request.data)
@@ -1140,7 +1138,6 @@ class ActivityViewSet(ModelViewSet):
         return Response(self.get_serializer(activity).data, status=status.HTTP_201_CREATED)
     
     def update(self, request, *args, **kwargs):
-        print('request.data', request.data)
         activity_title = request.data['title']
         activity_due_date = request.data['due_date']
         assignatureId = request.data['assignature']

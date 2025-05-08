@@ -159,7 +159,8 @@ class ManagerViewSet(ModelViewSet):
 class AtendanceViewSet(ModelViewSet):
 
     queryset = models.Atendance.objects.select_related('student')
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -354,7 +355,8 @@ class AssistantViewSet(ModelViewSet):
 
 class StudentViewSet(ModelViewSet):
 
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminUser]
 
     def get_queryset(self):
 

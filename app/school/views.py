@@ -160,7 +160,36 @@ class AtendanceViewSet(ModelViewSet):
 
     queryset = models.Atendance.objects.select_related('student')
     # permission_classes = [IsAuthenticated]
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
+
+        
+    def get_permissions(self):
+        # print('user', self.request.user.groups.all()[0].name)
+        if self.request.user.groups.all()[0].name == 'instructor':
+            instructor = models.Instructor.objects.get(user=self.request.user)
+            school = models.School.objects.get(id=instructor.school.id)
+            if school.payment_status == 'P':
+                return [IsAuthenticated()]
+            else:
+                return [IsAdminUser()]
+        
+        if self.request.user.groups.all()[0].name == 'manager':
+            manager = models.Manager.objects.get(user=self.request.user)
+            school = models.School.objects.get(id=manager.school.id)
+            if school.payment_status == 'P':
+                return [IsAuthenticated()]
+            else:
+                return [IsAdminUser()]
+        
+        if self.request.user.groups.all()[0].name == 'assistant':
+            assistant = models.Assistant.objects.get(user=self.request.user)
+            school = models.School.objects.get(id=assistant.school.id)
+            if school.payment_status == 'P':
+                return [IsAuthenticated()]
+            else:
+                return [IsAdminUser()]
+
+        return [IsAuthenticated()]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -356,7 +385,35 @@ class AssistantViewSet(ModelViewSet):
 class StudentViewSet(ModelViewSet):
 
     # permission_classes = [IsAuthenticated]
-    permission_classes = [IsAdminUser]
+    # permission_classes = [IsAdminUser]
+
+    def get_permissions(self):
+        # print('user', self.request.user.groups.all()[0].name)
+        if self.request.user.groups.all()[0].name == 'instructor':
+            instructor = models.Instructor.objects.get(user=self.request.user)
+            school = models.School.objects.get(id=instructor.school.id)
+            if school.payment_status == 'P':
+                return [IsAuthenticated()]
+            else:
+                return [IsAdminUser()]
+        
+        if self.request.user.groups.all()[0].name == 'manager':
+            manager = models.Manager.objects.get(user=self.request.user)
+            school = models.School.objects.get(id=manager.school.id)
+            if school.payment_status == 'P':
+                return [IsAuthenticated()]
+            else:
+                return [IsAdminUser()]
+        
+        if self.request.user.groups.all()[0].name == 'assistant':
+            assistant = models.Assistant.objects.get(user=self.request.user)
+            school = models.School.objects.get(id=assistant.school.id)
+            if school.payment_status == 'P':
+                return [IsAuthenticated()]
+            else:
+                return [IsAdminUser()]
+
+        return [IsAuthenticated()]
 
     def get_queryset(self):
 

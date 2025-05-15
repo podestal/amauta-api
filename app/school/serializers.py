@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.core.cache import cache
 from . import models
 from django.db.models import Q
+from utils import get_from_alphabetical_to_numeric, get_from_numeric_to_alphabetical
 
 
 class AreaSerializer(serializers.ModelSerializer):
@@ -392,80 +393,37 @@ class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
     def get_averages(self, obj):
         return QuarterGradeForStudentSerializer(obj.filtered_averages, many=True).data if hasattr(obj, 'filtered_averages') else []
 
-    # def get_quarter_grades(self, obj):
-    #     competencies = self.context['competencies'].split(',')
-    #     competencies = [c.strip() for c in competencies if c.strip().isdigit()]
-    #     quarter_grades_qs = models.QuarterGrade.objects.select_related('assignature', 'student', 'competence').filter(
-    #         student=obj,
-    #         competence__id__in=competencies  # Filter all at once
-    #     ).values('id', 'calification', 'conclusion', 'competence_id')
+class GetStudentForTotalScoreSerializer(serializers.ModelSerializer):
+    total_score = serializers.SerializerMethodField()
 
-    #     # Convert to a dictionary for faster lookup
-    #     quarter_grades_dict = {qg['competence_id']: qg for qg in quarter_grades_qs}
+    class Meta:
+        model = models.Student
+        fields = ['uid', 'first_name', 'last_name', 'total_score', 'average_numeric', 'average_alphabetical']
 
-    #     # Build the response using the dictionary
-    #     quarter_grades = [
-    #         quarter_grades_dict.get(int(competency), {
-    #             'id': None,
-    #             'calification': 'NA',
-    #             'conclusion': '',
-    #             'competence_id': competency
-    #         })
-    #         for competency in competencies
-    #     ]
+    def get_total_score(self, obj):
+        if not hasattr(obj, 'filtered_averages') or len(obj.filtered_averages) == 0:
+            return 0
 
-    #     return quarter_grades
+        total = sum(
+            get_from_alphabetical_to_numeric(avg.calification) 
+            for avg in obj.filtered_averages 
+            if avg.calification is not None
+        )
 
-    # def get_quarter_grades(self, obj):
-    #     competencies = self.context['competencies'].split(',')
-    #     competencies = [int(c.strip()) for c in competencies if c.strip().isdigit()]
+        return total
+    
+    def get_average_numeric(self, obj):
+        if not hasattr(obj, 'filtered_averages') or len(obj.filtered_averages) == 0:
+            return 0
 
-    #     # Fetch all QuarterGrades for all students at once
-    #     quarter_grades_qs = models.QuarterGrade.objects.filter(
-    #         student=obj,
-    #         competence_id__in=competencies  # Get all at once
-    #     ).values('id', 'calification', 'conclusion', 'competence_id')
-
-    #     # Convert to dictionary for fast lookup
-    #     quarter_grades_dict = {qg['competence_id']: qg for qg in quarter_grades_qs}
-
-    #     # Build response: If missing, return NA
-    #     return [
-    #         quarter_grades_dict.get(competence, {
-    #             'id': None, 'calification': 'NA', 'conclusion': '', 'competence_id': competence
-    #         })
-    #         for competence in competencies
-    #     ]
-
-    # def get_quarter_grades(self, obj):
-
-    #     competencies = self.context['competencies'].split(',')
-    #     quarter_grades = []
-
-    #     for competency in competencies:
-
-    #         competency = competency.strip()
-    #         if not competency.isdigit(): 
-    #             continue  
-
-    #         quarter_grade = models.QuarterGrade.objects.select_related('competence', 'student', 'assignature').filter(
-    #             student=obj.uid,
-    #             # competence__id=competency
-    #         ).values('id', 'calification', 'conclusion').first() 
-
-    #         if quarter_grade:
-    #             quarter_grades.append(quarter_grade)
-    #         else:
-    #             # grades = models.Grade.objects.filter(
-    #             #     student=obj.uid,
-    #             # ).filter(
-    #             #     Q(activity__competences__id__in=competencies)
-    #             # ).values('calification', 'student')
-
-    #             # print(f'grades {grades}')
-    #             quarter_grades.append({'id': None, 'calification': 'NA', 'conclusion': '', 'competency': competency})  # Default if no grade
-
-    #     return quarter_grades
+        total = self.get_total_score(obj)
+        average = total / len(obj.filtered_averages)
+        return round(average, 0) if average else 0
+    
+    def get_average_alphabetical(self, obj):
+        if not hasattr(obj, 'filtered_averages') or len(obj.filtered_averages) == 0:
+            return 'NA'
+        return get_from_numeric_to_alphabetical(self.get_average_numeric(obj))
 
 
 class GetTutorSerializer(serializers.ModelSerializer):

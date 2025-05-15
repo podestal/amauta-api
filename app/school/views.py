@@ -553,6 +553,29 @@ class StudentViewSet(ModelViewSet):
         students = self.get_queryset().filter(school=school).order_by('-created_at')[:10]
         serializer = serializers.GetStudentSerializer(students, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def byTotalScore(self, request):
+        '''Get all students with their total score'''
+        classroom = request.query_params.get('classroom')   
+        quarter = request.query_params.get('quarter')
+
+        students = self.get_queryset().filter(clase=classroom)
+        students = students.prefetch_related(
+            Prefetch(
+                'averages',
+                queryset=models.QuarterGrade.objects.filter(
+                    quarter=quarter
+                ),
+                to_attr='filtered_averages'
+            )
+        )
+
+        serializer = serializers.GetStudentForTotalScoreSerializer(students, many=True)
+        return Response(serializer.data)
+    
+
+
     
     @action(detail=False, methods=['get'])
     def byQuarterGrade(self, request):

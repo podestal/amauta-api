@@ -558,7 +558,11 @@ class StudentViewSet(ModelViewSet):
     def byTotalScore(self, request):
         '''Get all students with their total score'''
         classroom = request.query_params.get('classroom')   
+        if not classroom:
+            return Response({"error": "Classroom parameter is required"}, status=400)
         quarter = request.query_params.get('quarter')
+        if not quarter:
+            return Response({"error": "Quarter parameter is required"}, status=400)
 
         students = self.get_queryset().filter(clase=classroom)
         students = students.prefetch_related(
@@ -570,7 +574,7 @@ class StudentViewSet(ModelViewSet):
                 to_attr='filtered_averages'
             )
         )
-
+        print('students', students)
         serializer = serializers.GetStudentForTotalScoreSerializer(students, many=True)
         return Response(serializer.data)
     

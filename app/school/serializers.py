@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.core.cache import cache
 from . import models
 from django.db.models import Q
-from utils import get_from_alphabetical_to_numeric, get_from_numeric_to_alphabetical
+from . import utils
 
 
 class AreaSerializer(serializers.ModelSerializer):
@@ -395,6 +395,8 @@ class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
 
 class GetStudentForTotalScoreSerializer(serializers.ModelSerializer):
     total_score = serializers.SerializerMethodField()
+    average_numeric = serializers.SerializerMethodField()
+    average_alphabetical = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Student
@@ -405,7 +407,7 @@ class GetStudentForTotalScoreSerializer(serializers.ModelSerializer):
             return 0
 
         total = sum(
-            get_from_alphabetical_to_numeric(avg.calification) 
+            utils.get_from_alphabetical_to_numeric(avg.calification) 
             for avg in obj.filtered_averages 
             if avg.calification is not None
         )
@@ -423,7 +425,7 @@ class GetStudentForTotalScoreSerializer(serializers.ModelSerializer):
     def get_average_alphabetical(self, obj):
         if not hasattr(obj, 'filtered_averages') or len(obj.filtered_averages) == 0:
             return 'NA'
-        return get_from_numeric_to_alphabetical(self.get_average_numeric(obj))
+        return utils.get_from_numeric_to_alphabetical(self.get_average_numeric(obj))
 
 
 class GetTutorSerializer(serializers.ModelSerializer):

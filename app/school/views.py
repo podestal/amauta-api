@@ -1257,6 +1257,21 @@ class GradeViewSet(ModelViewSet):
         serializer = serializers.GradesByActivitySerializer(grades, many=True)
         return Response(serializer.data)
     
+    @action(detail=False, methods=['get'])
+    def byStudent(self, request):
+        # activity quarter
+        student_uid = request.query_params.get('student')
+        if not student_uid:
+            return Response({"error": "Student parameter is required"}, status=400)
+        quarter = request.query_params.get('quarter')
+        if not quarter:
+            return Response({"error": "Quarter parameter is required"}, status=400)
+        grades = self.queryset.filter(student__uid=student_uid, activity__quarter=quarter).select_related('activity__assignature')
+        if not grades.exists():
+            return Response([], status=200)
+        serializer = serializers.GradesByStudentSerializer(grades, many=True)
+        return Response(serializer.data)
+    
     def update(self, request, *args, **kwargs):
         student_id = self.request.query_params.get('student_uid')
         student = models.Student.objects.get(uid=student_id)

@@ -564,10 +564,11 @@ class GradeSerializer(serializers.ModelSerializer):
 class GradesByStudentSerializer(serializers.ModelSerializer):
     activity = serializers.SerializerMethodField()
     assignature = serializers.SerializerMethodField()
+    due_date = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Grade
-        fields = ['id', 'activity', 'assignature', 'calification', 'observations']
+        fields = ['id', 'activity', 'assignature', 'due_date', 'calification', 'observations']
 
     def get_activity(self, obj):
         return obj.activity.title if obj.activity else None
@@ -575,6 +576,8 @@ class GradesByStudentSerializer(serializers.ModelSerializer):
     def get_assignature(self, obj):
         return obj.activity.assignature.title if obj.activity and obj.activity.assignature else None
 
+    def get_due_date(self, obj):
+        return obj.activity.due_date if obj.activity else None
 
 class GetStudentForGradesSerializer(serializers.ModelSerializer):
     class Meta:

@@ -168,26 +168,26 @@ class AtendanceViewSet(ModelViewSet):
         if self.request.user.groups.all()[0].name == 'instructor':
             instructor = models.Instructor.objects.get(user=self.request.user)
             school = models.School.objects.get(id=instructor.school.id)
-            if school.payment_status == 'P':
-                return [IsAuthenticated()]
-            else:
-                return [IsAdminUser()]
+            # if school.payment_status == 'P':
+            #     return [IsAuthenticated()]
+            # else:
+            #     return [IsAdminUser()]
         
         if self.request.user.groups.all()[0].name == 'manager':
             manager = models.Manager.objects.get(user=self.request.user)
             school = models.School.objects.get(id=manager.school.id)
-            if school.payment_status == 'P':
-                return [IsAuthenticated()]
-            else:
-                return [IsAdminUser()]
+            # if school.payment_status == 'P':
+            #     return [IsAuthenticated()]
+            # else:
+            #     return [IsAdminUser()]
         
         if self.request.user.groups.all()[0].name == 'assistant':
             assistant = models.Assistant.objects.get(user=self.request.user)
             school = models.School.objects.get(id=assistant.school.id)
-            if school.payment_status == 'P':
-                return [IsAuthenticated()]
-            else:
-                return [IsAdminUser()]
+            # if school.payment_status == 'P':
+            #     return [IsAuthenticated()]
+            # else:
+            #     return [IsAdminUser()]
 
         return [IsAuthenticated()]
     
@@ -392,26 +392,26 @@ class StudentViewSet(ModelViewSet):
         if self.request.user.groups.all()[0].name == 'instructor':
             instructor = models.Instructor.objects.get(user=self.request.user)
             school = models.School.objects.get(id=instructor.school.id)
-            if school.payment_status == 'P':
-                return [IsAuthenticated()]
-            else:
-                return [IsAdminUser()]
+            # if school.payment_status == 'P':
+            #     return [IsAuthenticated()]
+            # else:
+            #     return [IsAdminUser()]
         
         if self.request.user.groups.all()[0].name == 'manager':
             manager = models.Manager.objects.get(user=self.request.user)
             school = models.School.objects.get(id=manager.school.id)
-            if school.payment_status == 'P':
-                return [IsAuthenticated()]
-            else:
-                return [IsAdminUser()]
+            # if school.payment_status == 'P':
+            #     return [IsAuthenticated()]
+            # else:
+            #     return [IsAdminUser()]
         
         if self.request.user.groups.all()[0].name == 'assistant':
             assistant = models.Assistant.objects.get(user=self.request.user)
             school = models.School.objects.get(id=assistant.school.id)
-            if school.payment_status == 'P':
-                return [IsAuthenticated()]
-            else:
-                return [IsAdminUser()]
+            # if school.payment_status == 'P':
+            #     return [IsAuthenticated()]
+            # else:
+            #     return [IsAdminUser()]
 
         return [IsAuthenticated()]
 

@@ -118,6 +118,12 @@ class InstructorViewSet(ModelViewSet):
 
     queryset = models.Instructor.objects.select_related('user', 'school').prefetch_related('clases')
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        school = self.request.query_params.get('school')
+        if not school:
+            return models.Instructor.objects.none()
+        return self.queryset.filter(school=school)
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -140,6 +146,12 @@ class ManagerViewSet(ModelViewSet):
 
     queryset = models.Manager.objects.select_related('user', 'school')
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        school = self.request.query_params.get('school')
+        if not school:
+            return models.Manager.objects.none()
+        return self.queryset.filter(school=school)
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -359,6 +371,12 @@ class AssistantViewSet(ModelViewSet):
 
     queryset = models.Assistant.objects.select_related('user', 'school').prefetch_related('clases')
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        school = self.request.query_params.get('school')
+        if not school:
+            return models.Assistant.objects.none()
+        return self.queryset.filter(school=school)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

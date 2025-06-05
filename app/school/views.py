@@ -45,15 +45,15 @@ class AreaViewSet(ModelViewSet):
     queryset = models.Area.objects.all()
     serializer_class = serializers.AreaSerializer
     
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            return [IsAuthenticated()]
-        return [IsAdminUser()]
+    # def get_permissions(self):
+    #     if self.request.method in SAFE_METHODS:
+    #         return [IsAuthenticated()]
+    #     return [IsAdminUser()]
 
 class SchoolViewSet(ModelViewSet):
     queryset = models.School.objects.all()
     serializer_class = serializers.SchoolSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     
     # def get_permissions(self):
     #     if self.request.method in SAFE_METHODS:
@@ -81,7 +81,7 @@ class CapacityViewSet(ModelViewSet):
 class ClaseViewSet(ModelViewSet):
 
     queryset = models.Clase.objects.select_related('school').prefetch_related('students')
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -1141,6 +1141,23 @@ class AssignatureViewSet(ModelViewSet):
     serializer_class = serializers.AssignatureSerializer  
     permission_classes = [IsAuthenticated]
 
+    @action(detail=False, methods=['get'])
+    def byClassroom(self, request):
+        classroom = request.query_params.get('classroom')
+        if not classroom:
+            return Response({"error": "Classroom parameter is required"}, status=400)
+        
+        try:
+            classroom = int(classroom)
+        except ValueError:
+            return Response({"error": "Classroom parameter must be an integer"}, status=400)
+
+        assignatures = self.queryset.filter(clase_id=classroom)
+        if not assignatures.exists():
+            return Response([], status=200)
+
+        serializer = serializers.AssignatureSerializer(assignatures, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def byInstructor(self, request):

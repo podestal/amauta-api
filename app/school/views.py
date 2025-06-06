@@ -1142,7 +1142,7 @@ class CategoryViewSet(ModelViewSet):
 class AssignatureViewSet(ModelViewSet):
     queryset = models.Assignature.objects.select_related('clase', 'instructor', 'area')
     serializer_class = serializers.AssignatureSerializer  
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     @action(detail=False, methods=['get'])
     def byClassroom(self, request):

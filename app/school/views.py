@@ -327,9 +327,10 @@ class AtendanceViewSet(ModelViewSet):
         now = datetime.now().time()
 
         if attendance_type == 'A' and kind == 'I' and status != 'E' and status != 'T':
-            # if student.clase.level == 'I':
-
-            status = 'O' if now < student.school.automatic_late else 'L'
+            if student.clase.level == 'I':
+                status = 'O' if now < student.school.automatic_late_initial else 'L'
+            else:
+                status = 'O' if now < student.school.automatic_late else 'L'
         
         request.data['status'] = status
 

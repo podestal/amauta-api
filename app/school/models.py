@@ -28,7 +28,7 @@ class School(models.Model):
     email = models.EmailField(blank=True, null=True)
     payment_status= models.CharField(max_length=1, choices=PAYMENT_STATUS_CHOICES, default='P')
     automatic_late = models.TimeField(null=True, blank=True)
-    automatic_late_iitial = models.TimeField(default=datetime.time(8, 50))
+    automatic_late_initial = models.TimeField(default=datetime.time(8, 50))
     automatic_not_show = models.TimeField(default=datetime.time(10, 0))
     automatic_on_time_out = models.TimeField(default=datetime.time(16, 0))
     

@@ -1186,6 +1186,46 @@ class AssignatureViewSet(ModelViewSet):
         serializer = serializers.GetAssignaturesForTutorSerializer(assignatures, many=True, context={'studentUid': studentUid, 'quarter': quarter})
         return Response(serializer.data)
 
+    def create(self, request, *args, **kwargs):
+        instructor_id = request.data.get('instructor')
+        classroom_id = request.data.get('clase')
+        instructor = models.Instructor.objects.get(id=instructor_id)
+        if not instructor:
+            return Response({"error": "Instructor not found"}, status=404)
+        
+        if instructor.clases.filter(id=classroom_id).exists():
+            # If the instructor is already assigned to this classroom, proceed with creation
+            return super().create(request, *args, **kwargs)
+        else:
+            # If the instructor is not assigned to this classroom, add it
+            instructor.clases.add(classroom_id)
+        
+        return super().create(request, *args, **kwargs)
+    
+
+    def update(self, request, *args, **kwargs):
+        instructor_id = request.data.get('instructor')
+        classroom_id = request.data.get('clase')
+
+        if (instructor_id == self.get_object().instructor.id):
+            # If the instructor is the same, proceed with update
+            return super().update(request, *args, **kwargs)
+        else:
+            # If the instructor is different, check if they are assigned to the classroom
+            instructor_to_be_removed = self.get_object().instructor
+            assignatures_for_instructor_to_be_removed = models.Assignature.objects.filter(instructor=instructor_to_be_removed, clase_id=classroom_id)
+            if assignatures_for_instructor_to_be_removed.count() == 1:
+                # If the instructor to be removed has more than one assignature in this classroom, proceed with update
+                instructor_to_be_removed.clases.remove(classroom_id)
+            new_instructor = models.Instructor.objects.get(id=instructor_id)
+            if new_instructor.clases.filter(id=classroom_id).exists():
+                # If the new instructor is already assigned to this classroom, proceed with update
+                return super().update(request, *args, **kwargs)
+            else:
+                # If the new instructor is not assigned to this classroom, add it
+                new_instructor.clases.add(classroom_id)
+        return super().update(request, *args, **kwargs)
+
 class ActivityViewSet(ModelViewSet):
 
     queryset = models.Activity.objects.select_related('assignature', 'category').prefetch_related('competences', 'capacities', 'lessons')

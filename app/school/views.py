@@ -1172,6 +1172,39 @@ class AssignatureViewSet(ModelViewSet):
         assignatures = self.queryset.filter(instructor_id=instructor.id)
         serializer = serializers.AssignatureSerializer(assignatures, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def byAuxiliarRegister(self, request):
+        
+        instructor = request.query_params.get('instructor')
+        classroom = request.query_params.get('classroom')
+        area = request.query_params.get('area')
+        if not classroom:
+            return Response({"error": "Classroom parameter is required"}, status=400)
+        
+        try:
+            classroom = int(classroom)
+        except ValueError:
+            return Response({"error": "Classroom parameter must be an integer"}, status=400)
+        if not area:
+            return Response({"error": "Area parameter is required"}, status=400)
+        try:
+            area = int(area)
+        except ValueError:
+            return Response({"error": "Area parameter must be an integer"}, status=400)
+        
+        if not instructor:
+            return Response({"error": "Instructor parameter is required"}, status=400)
+        try:
+            instructor = int(instructor)
+        except ValueError:
+            return Response({"error": "Instructor parameter must be an integer"}, status=400)
+        
+        assignatures = self.queryset.filter(clase_id=classroom, area_id=area, instructor_id=instructor)
+        if not assignatures.exists():
+            return Response([], status=200)
+        serializer = serializers.AssignatureSerializer(assignatures, many=True)
+        return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
     def byTutor(self, request):

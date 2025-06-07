@@ -599,7 +599,33 @@ class StudentViewSet(ModelViewSet):
         serializer = serializers.GetStudentForTotalScoreSerializer(students, many=True)
         return Response(serializer.data)
     
+    @action(detail=False, methods=['get'])
+    def byAreaGrade(self, request):
+        clase = request.query_params.get('clase')
+        areas = request.query_params.get('areas').split(',')
+        areas = [a for a in areas if a]
+        quarter = request.query_params.get('quarter')
 
+        if not clase:
+            return Response({"error": "Classroom parameter is required"}, status=400)
+        if not areas:
+            return Response({"error": "Competencies parameter is required"}, status=400)
+        if not quarter:
+            return Response({"error": "Quarter parameter is required"}, status=400)
+        students = self.get_queryset().filter(clase_id=clase)
+        students = students.prefetch_related(
+            Prefetch(
+                "area_averages",
+                queryset=models.AreaGrade.objects.filter(
+                    quarter=quarter,
+                    area__in=areas
+                )
+                .select_related('area', 'student'),
+                to_attr="filtered_area_grades"
+            )
+        )
+        serializer = serializers.GetStudentForAreaGradeSerializer(students, many=True)
+        return Response(serializer.data)
 
     
     @action(detail=False, methods=['get'])
@@ -1421,7 +1447,7 @@ class QuarterGradeViewSet(ModelViewSet):
 class AreaGradeViewSet(ModelViewSet):
     queryset = models.AreaGrade.objects.select_related('student', 'area')
     serializer_class = serializers.AreaGradeSerializer  
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 class AnnouncementViewSet(ModelViewSet):
 

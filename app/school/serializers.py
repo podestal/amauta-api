@@ -381,6 +381,24 @@ class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
     def get_averages(self, obj):
         return QuarterGradeForStudentSerializer(obj.filtered_averages, many=True).data if hasattr(obj, 'filtered_averages') else []
 
+class GetStudentForAreaGradeSerializer(serializers.ModelSerializer):
+    area_grades = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Student
+        fields = ['uid', 'first_name', 'last_name', 'area_grades']
+
+    def get_area_grades(self, obj):
+        if hasattr(obj, 'filtered_area_grades'):
+            return [
+                {
+                    'id': area_grade.id,
+                    'calification': area_grade.calification,
+                    'area': area_grade.area.id,
+                }
+                for area_grade in obj.filtered_area_grades
+            ]
+        return []
 
 class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
 

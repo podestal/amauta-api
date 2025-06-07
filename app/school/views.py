@@ -1175,7 +1175,7 @@ class AssignatureViewSet(ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def byAuxiliarRegister(self, request):
-        
+
         instructor = request.query_params.get('instructor')
         classroom = request.query_params.get('classroom')
         area = request.query_params.get('area')
@@ -1418,22 +1418,10 @@ class QuarterGradeViewSet(ModelViewSet):
     serializer_class = serializers.QuarterGradeSerializer  
     permission_classes = [IsAuthenticated]
 
-    # @action(detail=False, methods=['get'])
-    # def forInstructor(self, request):
-        # quarter = request.query_params.get('quarter') 
-        # assignature = request.query_params.get('assignature')
-        # quarter_grades = self.queryset.filter(quarter='Q1', assignature=7)
-        # serializer = serializers.GetQuarterGradeForInstructorSerializer(quarter_grades, many=True)
-        # return Response(serializer.data)
-
-        # user = self.request.user
-        # try:
-        #     instructor = models.Instructor.objects.get(user_id=user.id)
-        # except:
-        #     return Response({"error": "Instructor not found for the current user"}, status=404)
-        # quarter_grades = self.queryset.filter(assignature__instructor=instructor)
-        # serializer = serializers.QuarterGradeSerializer(quarter_grades, many=True)
-        # return Response(serializer.data)
+class AreaGradeViewSet(ModelViewSet):
+    queryset = models.AreaGrade.objects.select_related('student', 'area')
+    serializer_class = serializers.AreaGradeSerializer  
+    # permission_classes = [IsAuthenticated]
 
 class AnnouncementViewSet(ModelViewSet):
 

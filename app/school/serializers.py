@@ -597,6 +597,11 @@ class QuarterGradeSerializer(serializers.ModelSerializer):
         model = models.QuarterGrade
         fields = '__all__'
 
+
+class AreaGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AreaGrade
+        fields = '__all__'
     #        title = models.CharField(max_length=255)
     # description = models.TextField()
     # created_at = models.DateField(auto_now_add=True)

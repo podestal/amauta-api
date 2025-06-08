@@ -694,25 +694,45 @@ class StudentViewSet(ModelViewSet):
         competence = request.query_params.get('competence')
         quarter = request.query_params.get('quarter')
         students = self.get_queryset().filter(clase=clase)
-        students = students.prefetch_related(
-            Prefetch(
-                "grades",
-                queryset=models.Grade.objects.filter(
-                    activity__competences=competence,
-                    activity__quarter=quarter
-                )
-                .select_related('activity', 'activity__category', 'assignature')
-                .prefetch_related('activity__competences'),
-                to_attr="filtered_grades"
-            ),
-            Prefetch(
-                "averages",
-                queryset=models.QuarterGrade.objects.filter(
-                    quarter=quarter
+        if competence:
+            students = students.prefetch_related(
+                Prefetch(
+                    "grades",
+                    queryset=models.Grade.objects.filter(
+                        activity__competences=competence,
+                        activity__quarter=quarter
+                    )
+                    .select_related('activity', 'activity__category', 'assignature')
+                    .prefetch_related('activity__competences'),
+                    to_attr="filtered_grades"
                 ),
-                to_attr="filtered_averages"
+                Prefetch(
+                    "averages",
+                    queryset=models.QuarterGrade.objects.filter(
+                        quarter=quarter
+                    ),
+                    to_attr="filtered_averages"
+                )
             )
-        )
+        else:
+            students = students.prefetch_related(
+                Prefetch(
+                    "grades",
+                    queryset=models.Grade.objects.filter(
+                        activity__quarter=quarter
+                    )
+                    .select_related('activity', 'activity__category', 'assignature')
+                    .prefetch_related('activity__competences'),
+                    to_attr="filtered_grades"
+                ),
+                Prefetch(
+                    "averages",
+                    queryset=models.QuarterGrade.objects.filter(
+                        quarter=quarter
+                    ),
+                    to_attr="filtered_averages"
+                )
+            )
 
         serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True)
         return Response(serializer.data)

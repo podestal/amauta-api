@@ -444,6 +444,26 @@ class Grade(models.Model):
     observations = models.TextField(null=True, blank=True)
 
 
+class AssignatureGrade(models.Model):
+    CALIFICATION_CHOICES = [
+        ('AD', 'AD'),
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C')
+    ]
+
+    QUARTER_CHOICES = [
+        ('Q1', 'First Quarter'),
+        ('Q2', 'Second Quarter'),
+        ('Q3', 'Third Quarter'),
+        ('Q4', 'Fourth Quarter'),
+    ]
+
+    calification = models.CharField(max_length=2, choices=CALIFICATION_CHOICES)
+    assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, related_name='assignature_averages')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='assignature_averages')
+    quarter = models.CharField(max_length=2, choices=QUARTER_CHOICES)
+
 class AreaGrade(models.Model):
 
     CALIFICATION_CHOICES = [

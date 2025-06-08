@@ -373,7 +373,7 @@ class AtendanceViewSet(ModelViewSet):
 class AssistantViewSet(ModelViewSet):
 
     queryset = models.Assistant.objects.select_related('user', 'school').prefetch_related('clases')
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         school = self.request.query_params.get('school')
@@ -405,7 +405,7 @@ class AssistantViewSet(ModelViewSet):
 
 class StudentViewSet(ModelViewSet):
 
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     # permission_classes = [IsAdminUser]
 
     def get_permissions(self):
@@ -597,6 +597,46 @@ class StudentViewSet(ModelViewSet):
         )
         print('students', students)
         serializer = serializers.GetStudentForTotalScoreSerializer(students, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def byAssignatureGrade(self, request):
+        clase = request.query_params.get('clase')
+        assignatures = request.query_params.get('assignatures').split(',')
+        assignatures = [a for a in assignatures if a]
+        quarter = request.query_params.get('quarter')
+        area = request.query_params.get('area')
+
+        # if not clase:
+        #     return Response({"error": "Classroom parameter is required"}, status=400)
+        # if not assignatures:
+        #     return Response({"error": "Assignature parameter is required"}, status=400)
+        # if not quarter:
+        #     return Response({"error": "Quarter parameter is required"}, status=400)
+
+        students = self.get_queryset().filter(clase_id=clase)
+        students = students.prefetch_related(
+            Prefetch(
+                "assignature_averages",
+                queryset=models.AssignatureGrade.objects.filter(
+                    assignature__in=assignatures,
+                    quarter=quarter
+                )
+                .select_related('assignature', 'student'),
+                to_attr="filtered_assignature_grades"
+            ),
+            Prefetch(
+                "area_averages",
+                queryset=models.AreaGrade.objects.filter(
+                    quarter=quarter,
+                    area=area
+                )
+                .select_related('area', 'student'),
+                to_attr="filtered_area_grade"
+            )
+
+        )
+        serializer = serializers.GetStudentForAssignatureGradeSerializer(students, many=True)
         return Response(serializer.data)
     
     @action(detail=False, methods=['get'])
@@ -1448,6 +1488,12 @@ class AreaGradeViewSet(ModelViewSet):
     queryset = models.AreaGrade.objects.select_related('student', 'area')
     serializer_class = serializers.AreaGradeSerializer  
     permission_classes = [IsAuthenticated]
+
+class AssignatureGradeViewSet(ModelViewSet):
+    queryset = models.AssignatureGrade.objects.select_related('student', 'assignature')
+    serializer_class = serializers.AssignatureGradeSerializer  
+    permission_classes = [IsAuthenticated]
+
 
 class AnnouncementViewSet(ModelViewSet):
 

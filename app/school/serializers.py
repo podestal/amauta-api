@@ -400,6 +400,38 @@ class GetStudentForAreaGradeSerializer(serializers.ModelSerializer):
             ]
         return []
 
+class GetStudentForAssignatureGradeSerializer(serializers.ModelSerializer):
+    assignature_grades = serializers.SerializerMethodField()
+    area_grades = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Student
+        fields = ['uid', 'first_name', 'last_name', 'assignature_grades', 'area_grades']
+
+    def get_assignature_grades(self, obj):
+        if hasattr(obj, 'filtered_assignature_grades'):
+            return [
+                {
+                    'id': assignature_grade.id,
+                    'calification': assignature_grade.calification,
+                    'assignature': assignature_grade.assignature.id,
+                }
+                for assignature_grade in obj.filtered_assignature_grades
+            ]
+        return []
+    
+    def get_area_grades(self, obj):
+        if hasattr(obj, 'filtered_area_grade'):
+            return [
+                {
+                    'id': area_grade.id,
+                    'calification': area_grade.calification,
+                    'area': area_grade.area.id,
+                }
+                for area_grade in obj.filtered_area_grade
+            ]
+        return []
+
 class GetStudentForQuarterGradeSerializer(serializers.ModelSerializer):
 
     averages = serializers.SerializerMethodField()
@@ -620,19 +652,11 @@ class AreaGradeSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.AreaGrade
         fields = '__all__'
-    #        title = models.CharField(max_length=255)
-    # description = models.TextField()
-    # created_at = models.DateField(auto_now_add=True)
-    # announcement_type = models.CharField(max_length=1, choices=ANNOUNCEMENT_TYPES, default='I')
-    # visibility_level = models.CharField(max_length=1, choices=VISIBILITY_LEVELS, default='G')
 
-    # # Relationships
-    # school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="announcements")
-    # classroom = models.ForeignKey(Clase, on_delete=models.CASCADE, null=True, blank=True, related_name="announcements") 
-    # assignature = models.ForeignKey(Assignature, on_delete=models.CASCADE, null=True, blank=True, related_name="announcements")  
-    # student = models.ManyToManyField(Student, on_delete=models.CASCADE, null=True, blank=True, related_name="personal_announcements") 
-
-    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+class AssignatureGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.AssignatureGrade
+        fields = '__all__'
 
 class GetAnnouncementSerializer(serializers.ModelSerializer):
 

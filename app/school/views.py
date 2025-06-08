@@ -706,6 +706,7 @@ class StudentViewSet(ModelViewSet):
                     .prefetch_related('activity__competences'),
                     to_attr="filtered_grades"
                 ),
+                # ADD ASSIGNATURES GRADES
                 Prefetch(
                     "averages",
                     queryset=models.QuarterGrade.objects.filter(
@@ -726,15 +727,24 @@ class StudentViewSet(ModelViewSet):
                     to_attr="filtered_grades"
                 ),
                 Prefetch(
-                    "averages",
-                    queryset=models.QuarterGrade.objects.filter(
+                    "assignature_averages",
+                    queryset=models.AssignatureGrade.objects.filter(
+                        # assignature__in=assignatures,
                         quarter=quarter
-                    ),
+                    )
+                    .select_related('assignature', 'student'),
                     to_attr="filtered_averages"
-                )
+                ),
+                # Prefetch(
+                #     "averages",
+                #     queryset=models.QuarterGrade.objects.filter(
+                #         quarter=quarter
+                #     ),
+                #     to_attr="filtered_averages"
+                # )
             )
 
-        serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True)
+        serializer = serializers.GetStudentForFilteredGradesSerializer(students, many=True, context={'competence': competence, 'quarter': quarter})
         return Response(serializer.data)
     
     # @action(detail=False, methods=["get"])

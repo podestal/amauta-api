@@ -379,7 +379,11 @@ class GetStudentForFilteredGradesSerializer(serializers.ModelSerializer):
         return []
     
     def get_averages(self, obj):
-        return QuarterGradeForStudentSerializer(obj.filtered_averages, many=True).data if hasattr(obj, 'filtered_averages') else []
+        competence = self.context.get('competence', None)
+        if competence:
+            return QuarterGradeForStudentSerializer(obj.filtered_averages, many=True).data if hasattr(obj, 'filtered_averages') else []
+        else:
+            return AssignatureGradeSerializer(obj.filtered_averages, many=True).data if hasattr(obj, 'filtered_averages') else []
 
 class GetStudentForAreaGradeSerializer(serializers.ModelSerializer):
     area_grades = serializers.SerializerMethodField()

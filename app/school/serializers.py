@@ -553,6 +553,15 @@ class ActivitySerializer(serializers.ModelSerializer):
     def get_category_name(self, obj):
         return obj.category.title
 
+
+class CreateActivitySerializer(serializers.ModelSerializer):
+    category_name = serializers.SerializerMethodField()
+    class Meta:
+        model = models.Activity
+        fields = ['id', 'title', 'description', 'due_date', 'category', 'category_name', 'assignature', 'quarter', 'lessons']
+    def get_category_name(self, obj):
+        return obj.category.title
+
 class GetActivityForTutorSerializer(serializers.ModelSerializer):
 
     grade = serializers.SerializerMethodField()

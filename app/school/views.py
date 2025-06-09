@@ -1381,6 +1381,11 @@ class ActivityViewSet(ModelViewSet):
     serializer_class = serializers.ActivitySerializer  
     # permission_classes = [IsAuthenticated]
 
+    def get_serializer_class(self):
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            return serializers.CreateActivitySerializer
+        return serializers.ActivitySerializer
+
     @action(detail=False, methods=['get'])
     def byAssignature(self, request):
         assignature = request.query_params.get('assignature')
@@ -1434,6 +1439,12 @@ class ActivityViewSet(ModelViewSet):
         if lessonsId:
             activity.lessons.set(lessonsId)
 
+        competences = models.Competence.objects.filter(area=assignature.area)
+        capacities = models.Capacity.objects.filter(competence__in=competences)
+        print('selected competences:', competences)
+        activity.competences.set(competences)
+        print('setting capcaites')
+        activity.capacities.set(capacities)
         assignature_title = assignature.title
         activity_title = request.data['title']
         activity_due_date = request.data['due_date']

@@ -539,9 +539,10 @@ class StudentViewSet(ModelViewSet):
     @action(detail=False, methods=['get'])
     def byDni(self, request):
         dni = request.query_params.get('dni')
+        school = request.query_params.get('school')
         if not dni:
             return Response({"error": "DNI parameter is required"}, status=400)
-        student = get_object_or_404(models.Student, dni=dni)
+        student = get_object_or_404(models.Student, dni=dni, school=school)
         serializer = serializers.GetStudentSerializer(student)
         return Response(serializer.data)
         

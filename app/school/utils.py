@@ -19,5 +19,31 @@ def get_from_numeric_to_alphabetical(value: int) -> str:
         if val == value:
             return key
     return "NA"  # Default to 'NA' if not found
+    # instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name='categories')
+    # title = models.CharField(max_length=255)
+    # created_at = models.DateTimeField(auto_now_add=True)
+    # weight = models.FloatField(null=True, blank=True)
+DEFAULT_CATEGORIES = [
+    {
+        "title": "Tarea",
+        "weight": 0.1,
+    },
+    {
+        "title": "Examen",
+        "weight": 0.4,
+    },
+    {
+        "title": "Proyecto",
+        "weight": 0.25,
+    },
+    {
+        "title": "Evaluación",
+        "weight": 0.2,
+    },
+    {
+        "title": "Trabajo en clase",
+        "weight": 0.05,
+    },
+]
     
     

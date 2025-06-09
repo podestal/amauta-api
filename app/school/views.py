@@ -36,6 +36,8 @@ from django.conf import settings
 from . import models
 from . import serializers
 
+from .utils import DEFAULT_CATEGORIES
+
 class CustomPagination(PageNumberPagination):
     page_size = 10  
     page_size_query_param = 'page_size' 
@@ -131,6 +133,24 @@ class InstructorViewSet(ModelViewSet):
         if self.request.method in ['PUT', 'PATCH']:
             return serializers.UpdateInstructorSerializer
         return serializers.GetInstructorSerializer
+
+    def create(self, request, *args, **kwargs):
+
+        # Create Instructor
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instructor = serializer.save()
+
+        # Create Categories for the Instructor
+        for category_data in DEFAULT_CATEGORIES:
+            models.Category.objects.create(
+                instructor=instructor,
+                title=category_data['title'],
+                weight=category_data['weight']
+            )
+
+        # Return the instructor data
+        return Response(self.get_serializer(instructor).data, status=status.HTTP_201_CREATED)
     
     @action(detail=False, methods=['get'])
     def me(self, request):

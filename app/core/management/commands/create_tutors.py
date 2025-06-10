@@ -29,6 +29,9 @@ class Command(BaseCommand):
                 continue
 
             if Tutor.objects.filter(students=student, school=school).exists():
+                self.stdout.write(self.style.WARNING(
+                    f'Tutor already exists for {student.first_name} {student.last_name}'
+                ))
                 continue
             first_name = re.sub(r"\s+", "", student.first_name)
             last_name = re.sub(r"\s+", "", student.last_name.lower().split(' ')[0])

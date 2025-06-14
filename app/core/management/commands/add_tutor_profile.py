@@ -1,6 +1,6 @@
 
 from django.core.management.base import BaseCommand
-from models import User
+from core.models import User
 
 class Command(BaseCommand):
     help = 'Add tutor profile for every user for tutor'

@@ -83,7 +83,7 @@ class CapacityViewSet(ModelViewSet):
 class ClaseViewSet(ModelViewSet):
 
     queryset = models.Clase.objects.select_related('school').prefetch_related('students')
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -92,11 +92,6 @@ class ClaseViewSet(ModelViewSet):
             return serializers.RemoveClaseSerializer
         return serializers.GetClaseSerializer
     
-    # def get_permissions(self):
-    #     if self.request.method in SAFE_METHODS:
-    #         return [IsAuthenticated()]
-    #     return [IsAdminUser()]
-    
     def get_queryset(self):
         if self.request.user.is_superuser:
             return super().get_queryset()
@@ -104,17 +99,6 @@ class ClaseViewSet(ModelViewSet):
         if not school:
             return models.Clase.objects.none()
         return self.queryset.filter(school=school)
-    
-    # @action(detail=False, methods=['get'])
-    # def withStudentsCount(self, request):
-
-    #     school = request.query_params.get('school')
-    #     if not school:
-    #         return Response({"error": "School parameter is required"}, status=400)
-    #     clases = self.queryset.filter(school=school)
-    #     serializer = serializers.GetClaseForSummarySerializer(clases, many=True)
-    #     return Response(serializer.data)
-        
 
 class InstructorViewSet(ModelViewSet):
 
@@ -191,47 +175,12 @@ class ManagerViewSet(ModelViewSet):
 class AtendanceViewSet(ModelViewSet):
 
     queryset = models.Atendance.objects.select_related('student')
-    # permission_classes = [IsAuthenticated]
-    # permission_classes = [IsAdminUser]
-
-        
-    def get_permissions(self):
-        # print('user', self.request.user.groups.all()[0].name)
-        if self.request.user.groups.all()[0].name == 'instructor':
-            instructor = models.Instructor.objects.get(user=self.request.user)
-            school = models.School.objects.get(id=instructor.school.id)
-            # if school.payment_status == 'P':
-            #     return [IsAuthenticated()]
-            # else:
-            #     return [IsAdminUser()]
-        
-        if self.request.user.groups.all()[0].name == 'manager':
-            manager = models.Manager.objects.get(user=self.request.user)
-            school = models.School.objects.get(id=manager.school.id)
-            # if school.payment_status == 'P':
-            #     return [IsAuthenticated()]
-            # else:
-            #     return [IsAdminUser()]
-        
-        if self.request.user.groups.all()[0].name == 'assistant':
-            assistant = models.Assistant.objects.get(user=self.request.user)
-            school = models.School.objects.get(id=assistant.school.id)
-            # if school.payment_status == 'P':
-            #     return [IsAuthenticated()]
-            # else:
-            #     return [IsAdminUser()]
-
-        return [IsAuthenticated()]
+    permission_classes = [IsAuthenticated]
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return serializers.CreateAtendanceSerializer
         return serializers.GetAtendanceSerializer
-    
-    # def get_permissions(self):
-    #     if self.request.method == 'DELETE':
-    #         return [IsAdminUser()]
-    #     return [IsAuthenticated()]
 
     @action(detail=False, methods=['get'])
     def byClassroom(self, request):

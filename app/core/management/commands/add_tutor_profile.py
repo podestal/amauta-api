@@ -8,7 +8,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         users = User.objects.all()
         for user in users:
-            if user.email.split('@')[1] == 'amautapp.com':
+            if user.email and '@' in user.email and user.email.split('@')[1]:
                 user.profile = 'tutor'
                 user.save()
                 self.stdout.write(self.style.SUCCESS(

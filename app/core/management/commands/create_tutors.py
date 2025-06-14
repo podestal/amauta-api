@@ -65,6 +65,7 @@ class Command(BaseCommand):
                 profile="tutor",
                 first_name='',
                 last_name='',
+                profile='tutor',
                 email = f"{first_name.lower().split(' ')[0]}{random.randint(1000000000, 9999999999)}@amautapp.com",
             )
 

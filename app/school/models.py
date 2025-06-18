@@ -86,7 +86,7 @@ class Clase(models.Model):
     section = models.CharField(max_length=1, default='U')
 
     def __str__(self):
-        return f'{self.grade}-{self.section}-{self.level}-{self.school.name if self.school else "No School"}'
+        return f'{self.grade}-{self.section}-{self.level}'
     
 class Instructor(models.Model):
 
